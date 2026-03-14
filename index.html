@@ -918,11 +918,17 @@ function carregarEquipe() {
     .then(function(r){ return r.text(); })
     .then(function(t){
       try {
-        todaEquipe = JSON.parse(t).equipe||[];
+        var inicio = t.indexOf('{');
+        if (inicio > 0) t = t.substring(inicio);
+        var lista = JSON.parse(t).equipe||[];
+        // Filtra linhas onde nome é número ou vazio (lixo da planilha)
+        todaEquipe = lista.filter(function(c){
+          return c.nome && isNaN(c.nome) && String(c.nome).trim() !== '';
+        });
         renderEquipe(todaEquipe);
       } catch(e) {
         console.error('Erro ao parsear equipe:', t);
-        document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar. Verifique o console.</div>';
+        document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
       }
     })
     .catch(function(e){
@@ -935,7 +941,8 @@ function renderEquipe(lista) {
   if (!lista.length) { document.getElementById('tbl-equipe').innerHTML = '<div class="vazio"><div class="vazio-icon">👥</div>Nenhum colaborador cadastrado.</div>'; return; }
   var h = '<table><thead><tr><th>Nome</th><th>Cargo</th><th>Modalidade</th><th>Telefone</th><th>E-mail</th><th>Status</th><th></th></tr></thead><tbody>';
   lista.forEach(function(c){
-    var ini = (c.nome||'?').split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
+    var nomeStr = String(c.nome||'?');
+    var ini = nomeStr.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
     h += '<tr>'
       +'<td><div class="td-nome"><div class="avatar" style="background:var(--azul-cl);color:var(--azul)">'+ini+'</div><span style="font-weight:500">'+(c.nome||'')+'</span></div></td>'
       +'<td>'+(c.cargo||'')+'</td>'
