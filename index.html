@@ -916,8 +916,19 @@ function excluirEvento(linha) {
 function carregarEquipe() {
   fetch(SCRIPT_URL + '?acao=listarEquipe')
     .then(function(r){ return r.text(); })
-    .then(function(t){ todaEquipe = JSON.parse(t).equipe||[]; renderEquipe(todaEquipe); })
-    .catch(function(){ document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
+    .then(function(t){
+      try {
+        todaEquipe = JSON.parse(t).equipe||[];
+        renderEquipe(todaEquipe);
+      } catch(e) {
+        console.error('Erro ao parsear equipe:', t);
+        document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar. Verifique o console.</div>';
+      }
+    })
+    .catch(function(e){
+      console.error('Erro fetch equipe:', e);
+      document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
 }
 
 function renderEquipe(lista) {
