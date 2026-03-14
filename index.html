@@ -345,6 +345,104 @@ tr:hover td { background: #f8f9fe; }
       <div class="stats-grid" id="stats-atletas">
         <div class="stat-card"><div class="spinner" style="width:20px;height:20px;margin:4px 0"></div></div>
       </div>
+
+      <!-- Formulário de cadastro manual -->
+      <div class="form-inline" id="form-atleta" style="display:none">
+        <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:var(--azul-esc);margin-bottom:16px">➕ Cadastro manual de atleta</div>
+        <div style="font-size:12px;color:var(--leve);margin-bottom:14px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:8px 12px">
+          ⚠️ Preencha apenas os dados que você tiver. Campos em branco serão salvos como vazios.
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--leve);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Dados principais *</div>
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="form-group-i">
+            <label>Nome completo *</label>
+            <input type="text" id="atl-nome" placeholder="Nome do atleta">
+          </div>
+          <div class="form-group-i">
+            <label>Modalidade *</label>
+            <select id="atl-modal">
+              <option value="">Selecione...</option>
+              <option>Handebol</option><option>Xadrez</option><option>Vôlei</option>
+            </select>
+          </div>
+          <div class="form-group-i">
+            <label>Categoria</label>
+            <input type="text" id="atl-cat" placeholder="Ex: Sub-14, Adulto...">
+          </div>
+          <div class="form-group-i">
+            <label>Status</label>
+            <select id="atl-status">
+              <option>Pendente</option><option>Aprovado</option><option>Ativo</option><option>Reprovado</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--leve);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Dados pessoais</div>
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="form-group-i">
+            <label>CPF</label>
+            <input type="text" id="atl-cpf" placeholder="000.000.000-00">
+          </div>
+          <div class="form-group-i">
+            <label>RG</label>
+            <input type="text" id="atl-rg" placeholder="00.000.000-0">
+          </div>
+          <div class="form-group-i">
+            <label>Data de nascimento</label>
+            <input type="date" id="atl-nasc">
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--leve);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Responsável</div>
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="form-group-i">
+            <label>Nome do responsável</label>
+            <input type="text" id="atl-resp-nome" placeholder="Nome completo">
+          </div>
+          <div class="form-group-i">
+            <label>Telefone do responsável</label>
+            <input type="text" id="atl-resp-tel" placeholder="(17) 99999-9999">
+          </div>
+          <div class="form-group-i">
+            <label>E-mail do responsável</label>
+            <input type="email" id="atl-resp-email" placeholder="email@exemplo.com">
+          </div>
+          <div class="form-group-i">
+            <label>Parentesco</label>
+            <input type="text" id="atl-resp-parent" placeholder="Ex: Pai, Mãe, Avó...">
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--leve);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Endereço</div>
+        <div class="form-grid" style="margin-bottom:18px">
+          <div class="form-group-i">
+            <label>Rua</label>
+            <input type="text" id="atl-rua" placeholder="Nome da rua">
+          </div>
+          <div class="form-group-i">
+            <label>Número</label>
+            <input type="text" id="atl-numero" placeholder="Nº">
+          </div>
+          <div class="form-group-i">
+            <label>Bairro</label>
+            <input type="text" id="atl-bairro" placeholder="Bairro">
+          </div>
+          <div class="form-group-i">
+            <label>Cidade</label>
+            <input type="text" id="atl-cidade" placeholder="Cidade">
+          </div>
+          <div class="form-group-i">
+            <label>Estado</label>
+            <input type="text" id="atl-estado" placeholder="SP">
+          </div>
+          <div class="form-group-i">
+            <label>CEP</label>
+            <input type="text" id="atl-cep" placeholder="00000-000">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-success" onclick="salvarAtleta()">✓ Salvar atleta</button>
+          <button class="btn btn-ghost" onclick="toggleFormAtleta(false)">Cancelar</button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <div class="busca-row">
@@ -359,6 +457,7 @@ tr:hover td { background: #f8f9fe; }
             </select>
             <button class="btn btn-primary" onclick="buscarAtletas()">Buscar</button>
           </div>
+          <button class="btn btn-amarelo" onclick="toggleFormAtleta(true)">+ Novo atleta</button>
         </div>
         <div class="tbl-wrap" id="tbl-atletas">
           <div class="loading"><div class="spinner"></div>Carregando atletas...</div>
@@ -702,6 +801,49 @@ function renderStatsAtletas() {
 }
 
 function sc(n,l){ return '<div class="stat-card"><div class="stat-num">'+n+'</div><div class="stat-lbl">'+l+'</div></div>'; }
+
+function toggleFormAtleta(show) {
+  document.getElementById('form-atleta').style.display = show ? 'block' : 'none';
+  if (show) {
+    ['atl-nome','atl-cat','atl-cpf','atl-rg','atl-resp-nome','atl-resp-tel','atl-resp-email','atl-resp-parent','atl-rua','atl-numero','atl-bairro','atl-cidade','atl-estado','atl-cep'].forEach(function(id){ document.getElementById(id).value = ''; });
+    document.getElementById('atl-modal').value = '';
+    document.getElementById('atl-status').value = 'Pendente';
+    document.getElementById('atl-nasc').value = '';
+    window.scrollTo({top: document.getElementById('form-atleta').getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth'});
+  }
+}
+
+function salvarAtleta() {
+  var nome  = document.getElementById('atl-nome').value.trim();
+  var modal = document.getElementById('atl-modal').value;
+  if (!nome) { alert('O nome do atleta é obrigatório.'); return; }
+  if (!modal) { alert('Selecione a modalidade do atleta.'); return; }
+  var atl = {
+    nome:       nome,
+    modalidade: modal,
+    categoria:  document.getElementById('atl-cat').value.trim(),
+    status:     document.getElementById('atl-status').value,
+    cpf:        document.getElementById('atl-cpf').value.trim(),
+    rg:         document.getElementById('atl-rg').value.trim(),
+    nascimento: document.getElementById('atl-nasc').value,
+    respNome:   document.getElementById('atl-resp-nome').value.trim(),
+    respTel:    document.getElementById('atl-resp-tel').value.trim(),
+    respEmail:  document.getElementById('atl-resp-email').value.trim(),
+    respParent: document.getElementById('atl-resp-parent').value.trim(),
+    rua:        document.getElementById('atl-rua').value.trim(),
+    numero:     document.getElementById('atl-numero').value.trim(),
+    bairro:     document.getElementById('atl-bairro').value.trim(),
+    cidade:     document.getElementById('atl-cidade').value.trim(),
+    estado:     document.getElementById('atl-estado').value.trim(),
+    cep:        document.getElementById('atl-cep').value.trim(),
+    cadastradoPor: usuarioLogado,
+    origem: 'manual'
+  };
+  toggleFormAtleta(false);
+  fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'adicionarAtleta', dados:atl})})
+    .then(function(){ setTimeout(function(){ carregarAtletas(); }, 1500); })
+    .catch(function(){ setTimeout(function(){ carregarAtletas(); }, 1500); });
+}
 
 function buscarAtletas() {
   var txt = document.getElementById('busca-nome').value.toLowerCase();
