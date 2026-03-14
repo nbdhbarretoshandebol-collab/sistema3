@@ -893,13 +893,11 @@ function salvarEvento() {
   var data   = document.getElementById('ev-data').value;
   if (!titulo||!data) { alert('Titulo e data sao obrigatorios.'); return; }
   var ev = {titulo:titulo, tipo:document.getElementById('ev-tipo').value, data:data, hora:document.getElementById('ev-hora').value, desc:document.getElementById('ev-desc').value, autor:usuarioLogado};
+  toggleFormEvento(false);
+  ['ev-titulo','ev-data','ev-hora','ev-desc'].forEach(function(id){ document.getElementById(id).value=''; });
   fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'adicionarEvento',dados:ev})})
-    .then(function(){
-      toggleFormEvento(false);
-      ['ev-titulo','ev-data','ev-hora','ev-desc'].forEach(function(id){ document.getElementById(id).value=''; });
-      carregarAgenda();
-    })
-    .catch(function(){ alert('Erro ao salvar.'); });
+    .then(function(){ setTimeout(function(){ carregarAgenda(); }, 1500); })
+    .catch(function(){ setTimeout(function(){ carregarAgenda(); }, 1500); });
 }
 
 function excluirEvento(linha) {
@@ -948,13 +946,11 @@ function salvarColaborador() {
   var cargo = document.getElementById('col-cargo').value.trim();
   if (!nome||!cargo) { alert('Nome e cargo sao obrigatorios.'); return; }
   var col = {nome:nome, cargo:cargo, telefone:document.getElementById('col-tel').value, email:document.getElementById('col-email').value, modalidade:document.getElementById('col-modal').value, status:document.getElementById('col-status').value};
+  toggleFormColaborador(false);
+  ['col-nome','col-cargo','col-tel','col-email'].forEach(function(id){ document.getElementById(id).value=''; });
   fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'adicionarColaborador',dados:col})})
-    .then(function(){
-      toggleFormColaborador(false);
-      ['col-nome','col-cargo','col-tel','col-email'].forEach(function(id){ document.getElementById(id).value=''; });
-      carregarEquipe();
-    })
-    .catch(function(){ alert('Erro ao salvar.'); });
+    .then(function(){ setTimeout(function(){ carregarEquipe(); }, 1500); })
+    .catch(function(){ setTimeout(function(){ carregarEquipe(); }, 1500); });
 }
 
 function excluirColaboradorDireto(linha, nome) {
@@ -999,13 +995,11 @@ function salvarAnot() {
   var texto = document.getElementById('anot-texto').value.trim();
   if (!texto) { alert('Escreva algo antes de salvar.'); return; }
   var anot = {texto:texto, prioridade:document.getElementById('anot-prior').value, autor:usuarioLogado, data:new Date().toLocaleDateString('pt-BR')};
+  toggleFormAnot(false);
+  document.getElementById('anot-texto').value = '';
   fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'adicionarAnotacao',dados:anot})})
-    .then(function(){
-      toggleFormAnot(false);
-      document.getElementById('anot-texto').value = '';
-      carregarAnotacoes();
-    })
-    .catch(function(){ alert('Erro ao salvar.'); });
+    .then(function(){ setTimeout(function(){ carregarAnotacoes(); }, 1500); })
+    .catch(function(){ setTimeout(function(){ carregarAnotacoes(); }, 1500); });
 }
 
 function excluirAnot(linha) {
