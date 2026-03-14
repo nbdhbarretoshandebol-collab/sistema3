@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBDH2 Barretos — Sistema de Gestão</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul: #1a237e; --azul-esc: #0d1757; --azul-cl: #e8eaf6;
+  --amarelo: #f9c900; --verde: #1e8449; --vermelho: #c0392b;
+  --borda: #dde0f0; --texto: #1a1a2e; --leve: #6b6b8a;
+  --fundo: #f0f2fa; --branco: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--fundo); color: var(--texto); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* LOGIN */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul) 100%); }
+.login-card { background: white; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.login-logos { display: flex; gap: 14px; justify-content: center; margin-bottom: 20px; }
+.login-logos img { height: 60px; width: 60px; object-fit: contain; border-radius: 12px; background: #f8f9fa; padding: 4px; }
+.login-title { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 700; text-align: center; color: var(--azul-esc); margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--leve); text-align: center; margin-bottom: 28px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--leve); margin-bottom: 6px; }
+.form-group input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--borda); border-radius: 10px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--texto); transition: border-color .2s; }
+.form-group input:focus { outline: none; border-color: var(--azul); }
+.btn-login { width: 100%; padding: 13px; background: var(--azul); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Sora', sans-serif; margin-top: 4px; transition: background .2s; }
+.btn-login:hover { background: var(--azul-esc); }
+.login-erro { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--vermelho); margin-top: 12px; display: none; text-align: center; }
+
+/* LAYOUT PRINCIPAL */
+.app { display: none; flex-direction: column; min-height: 100vh; }
+.topbar { background: var(--azul-esc); padding: 0; position: sticky; top: 0; z-index: 100; }
+.topbar-inner { max-width: 1300px; margin: 0 auto; padding: 10px 24px; display: flex; align-items: center; gap: 12px; }
+.topbar-logos { display: flex; gap: 8px; }
+.topbar-logos img { height: 36px; width: 36px; object-fit: contain; border-radius: 6px; background: white; padding: 2px; }
+.topbar-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600; color: white; flex: 1; }
+.topbar-user { font-size: 13px; color: rgba(255,255,255,0.7); margin-right: 10px; }
+.btn-sair { padding: 6px 14px; background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btn-sair:hover { background: rgba(255,255,255,0.22); }
+
+/* NAV */
+.nav { background: var(--azul); border-bottom: 2px solid var(--azul-esc); }
+.nav-inner { max-width: 1300px; margin: 0 auto; padding: 0 24px; display: flex; gap: 4px; overflow-x: auto; }
+.nav-btn { padding: 13px 20px; color: rgba(255,255,255,0.7); border: none; background: none; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; border-bottom: 3px solid transparent; transition: all .2s; }
+.nav-btn:hover { color: white; }
+.nav-btn.ativo { color: var(--amarelo); border-bottom-color: var(--amarelo); font-weight: 600; }
+
+/* CONTEÚDO */
+.content { max-width: 1300px; margin: 0 auto; padding: 28px 24px; flex: 1; width: 100%; }
+.pagina { display: none; }
+.pagina.ativa { display: block; }
+
+/* CARDS STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.stat-card { background: white; border-radius: 14px; padding: 18px; border: 1px solid var(--borda); }
+.stat-num { font-family: 'Sora', sans-serif; font-size: 30px; font-weight: 700; color: var(--azul); }
+.stat-lbl { font-size: 13px; color: var(--leve); margin-top: 3px; }
+
+/* CARD GENÉRICO */
+.card { background: white; border-radius: 14px; border: 1px solid var(--borda); overflow: hidden; margin-bottom: 20px; }
+.card-header { padding: 18px 22px; border-bottom: 1px solid var(--borda); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.card-titulo { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 600; }
+.card-body { padding: 22px; }
+
+/* BOTÕES */
+.btn { padding: 9px 18px; border: none; border-radius: 9px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .18s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--azul); color: white; }
+.btn-primary:hover { background: var(--azul-esc); }
+.btn-success { background: var(--verde); color: white; }
+.btn-success:hover { background: #165c33; }
+.btn-danger { background: var(--vermelho); color: white; }
+.btn-danger:hover { background: #962d22; }
+.btn-ghost { background: var(--azul-cl); color: var(--azul); border: 1px solid #c5cae9; }
+.btn-ghost:hover { background: #c5cae9; }
+.btn-sm { padding: 5px 12px; font-size: 13px; }
+.btn-amarelo { background: var(--amarelo); color: var(--azul-esc); font-weight: 600; }
+.btn-amarelo:hover { background: #e6b800; }
+
+/* BUSCA ROW */
+.busca-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.busca-input { flex: 1; min-width: 180px; padding: 10px 14px; border: 1.5px solid var(--borda); border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--texto); }
+.busca-input:focus { outline: none; border-color: var(--azul); }
+.busca-select { padding: 10px 14px; border: 1.5px solid var(--borda); border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--texto); background: white; cursor: pointer; }
+
+/* TABELA */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { background: #f4f5fb; padding: 11px 16px; text-align: left; font-size: 12px; font-weight: 600; color: var(--leve); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--borda); white-space: nowrap; }
+td { padding: 12px 16px; border-bottom: 1px solid #f0f1f8; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9fe; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+.badge-azul { background: #dbeafe; color: #1e40af; }
+.badge-verde { background: #d1fae5; color: #065f46; }
+.badge-vermelho { background: #fee2e2; color: #991b1b; }
+.badge-amarelo { background: #fef3c7; color: #92400e; }
+.badge-cinza { background: #f1f5f9; color: #475569; }
+.td-nome { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+/* TOGGLE */
+.toggle-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.toggle-label { font-size: 11px; font-weight: 500; }
+.toggle { position: relative; width: 44px; height: 24px; cursor: pointer; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: #e2e8f0; border-radius: 24px; transition: background .25s; }
+.toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform .25s; }
+.toggle input:checked + .toggle-slider { background: var(--verde); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+.toggle input:disabled + .toggle-slider { opacity: .5; cursor: not-allowed; }
+
+/* MODAL */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; overflow-y: auto; padding: 20px; }
+.overlay.aberto { display: flex; align-items: flex-start; justify-content: center; }
+.modal { background: white; border-radius: 18px; width: 100%; max-width: 620px; overflow: hidden; margin: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.modal-header { background: var(--azul-esc); padding: 22px 26px; display: flex; align-items: center; gap: 14px; }
+.modal-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--amarelo); display: flex; align-items: center; justify-content: center; font-family: 'Sora',sans-serif; font-size: 18px; font-weight: 700; color: var(--azul-esc); flex-shrink: 0; }
+.modal-nome { font-family: 'Sora',sans-serif; font-size: 17px; font-weight: 600; color: white; }
+.modal-sub { font-size: 13px; color: rgba(255,255,255,.65); margin-top: 2px; }
+.modal-close { margin-left: auto; background: rgba(255,255,255,.15); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.modal-body { padding: 24px 26px; }
+.modal-footer { padding: 16px 26px; border-top: 1px solid var(--borda); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.modal-sec { font-size: 11px; font-weight: 600; color: var(--leve); text-transform: uppercase; letter-spacing: .07em; margin: 18px 0 10px; }
+.modal-sec:first-child { margin-top: 0; }
+.dados-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dado { background: #f6f7fb; border-radius: 9px; padding: 10px 13px; }
+.dado-lbl { font-size: 11px; color: var(--leve); margin-bottom: 3px; }
+.dado-val { font-size: 14px; font-weight: 500; }
+.dado input, .dado select, .dado textarea { width: 100%; padding: 7px 10px; border: 1.5px solid var(--borda); border-radius: 7px; font-size: 14px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
+.dado input:focus, .dado select:focus, .dado textarea:focus { outline: none; border-color: var(--azul); }
+.fotos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+.foto-card { background: #f6f7fb; border-radius: 10px; padding: 14px; text-align: center; }
+.foto-label { font-size: 12px; color: var(--leve); margin-bottom: 8px; }
+.btn-foto { display: block; padding: 7px 12px; background: var(--azul); color: white; border-radius: 8px; font-size: 13px; text-decoration: none; font-weight: 500; }
+.btn-foto-vazio { display: block; padding: 7px 12px; background: #f1f5f9; color: var(--leve); border-radius: 8px; font-size: 13px; }
+
+/* CONFIRMAÇÃO */
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 400; align-items: center; justify-content: center; }
+.confirm-overlay.aberto { display: flex; }
+.confirm-box { background: white; border-radius: 16px; padding: 32px 28px; max-width: 360px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.confirm-icon { font-size: 40px; margin-bottom: 14px; }
+.confirm-titulo { font-family: 'Sora',sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--texto); }
+.confirm-msg { font-size: 14px; color: var(--leve); margin-bottom: 24px; line-height: 1.5; }
+.confirm-btns { display: flex; gap: 10px; justify-content: center; }
+
+/* AGENDA */
+.agenda-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.evento-card { background: white; border-radius: 13px; border: 1px solid var(--borda); padding: 16px; display: flex; flex-direction: column; gap: 8px; transition: box-shadow .2s; }
+.evento-card:hover { box-shadow: 0 4px 16px rgba(26,35,126,.1); }
+.evento-tipo { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.evento-titulo { font-family: 'Sora',sans-serif; font-size: 15px; font-weight: 600; }
+.evento-data { font-size: 13px; color: var(--leve); display: flex; align-items: center; gap: 5px; }
+.evento-desc { font-size: 13px; color: var(--leve); line-height: 1.4; }
+.evento-footer { display: flex; justify-content: flex-end; margin-top: 4px; }
+
+/* ANOTAÇÕES */
+.anot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.anot-card { background: white; border-radius: 13px; border: 1px solid var(--borda); padding: 18px; display: flex; flex-direction: column; gap: 8px; transition: box-shadow .2s; }
+.anot-card.alta { border-left: 4px solid var(--vermelho); }
+.anot-card.media { border-left: 4px solid var(--amarelo); }
+.anot-card.baixa { border-left: 4px solid var(--verde); }
+.anot-card:hover { box-shadow: 0 4px 16px rgba(26,35,126,.1); }
+.anot-header { display: flex; align-items: center; justify-content: space-between; }
+.anot-autor { font-size: 12px; color: var(--leve); }
+.anot-texto { font-size: 14px; line-height: 1.5; }
+.anot-data { font-size: 12px; color: var(--leve); }
+
+/* FORMULÁRIO INLINE */
+.form-inline { background: #f6f7fb; border-radius: 13px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--borda); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.form-group-i { display: flex; flex-direction: column; gap: 5px; }
+.form-group-i label { font-size: 12px; font-weight: 600; color: var(--leve); text-transform: uppercase; letter-spacing: .05em; }
+.form-group-i input, .form-group-i select, .form-group-i textarea { padding: 9px 12px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 14px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
+.form-group-i input:focus, .form-group-i select:focus, .form-group-i textarea:focus { outline: none; border-color: var(--azul); }
+
+/* HOME */
+.home-wrap { padding: 10px 0 30px; }
+.home-header { text-align: center; padding: 40px 20px 36px; }
+.home-logos { display: flex; gap: 18px; justify-content: center; align-items: center; margin-bottom: 24px; }
+.home-logos img { height: 90px; width: 90px; object-fit: contain; border-radius: 16px; background: white; padding: 6px; box-shadow: 0 4px 20px rgba(26,35,126,.15); }
+.home-titulo { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 700; color: var(--azul-esc); margin-bottom: 8px; }
+.home-sub { font-size: 15px; color: var(--leve); margin-bottom: 6px; }
+.home-usuario { display: inline-block; background: var(--azul-cl); color: var(--azul); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-top: 10px; }
+.home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; padding: 0 4px; }
+.home-card { background: white; border-radius: 16px; border: 1px solid var(--borda); padding: 28px 24px; cursor: pointer; transition: all .2s; display: flex; flex-direction: column; gap: 12px; }
+.home-card:hover { box-shadow: 0 8px 28px rgba(26,35,126,.15); transform: translateY(-3px); border-color: var(--azul); }
+.home-card-icon { font-size: 36px; }
+.home-card-titulo { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; color: var(--azul-esc); }
+.home-card-desc { font-size: 13px; color: var(--leve); line-height: 1.5; }
+.home-card-btn { margin-top: 6px; align-self: flex-start; padding: 7px 16px; background: var(--azul-cl); color: var(--azul); border: 1px solid #c5cae9; border-radius: 9px; font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background .18s; }
+.home-card:hover .home-card-btn { background: var(--azul); color: white; }
+.btn-home { padding: 6px 14px; background: rgba(255,255,255,.12); color: white; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btn-home:hover { background: rgba(255,255,255,.22); }
+
+/* RELAÇÕES */
+.rel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; margin-top: 4px; }
+.rel-card { background: white; border-radius: 14px; border: 1px solid var(--borda); overflow: hidden; }
+.rel-card-header { background: var(--azul-esc); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rel-card-titulo { font-family: 'Sora',sans-serif; font-size: 15px; font-weight: 600; color: white; flex: 1; }
+.rel-card-meta { font-size: 12px; color: rgba(255,255,255,.65); }
+.rel-card-body { padding: 14px 18px; }
+.rel-secao { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--leve); margin: 12px 0 6px; }
+.rel-secao:first-child { margin-top: 0; }
+.rel-membro { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f1f8; }
+.rel-membro:last-child { border-bottom: none; }
+.rel-membro-info { flex: 1; }
+.rel-membro-nome { font-size: 14px; font-weight: 500; }
+.rel-membro-sub { font-size: 12px; color: var(--leve); }
+.rel-membro-rm { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; }
+.rel-membro-rm:hover { background: #fee2e2; }
+.rel-empty { font-size: 13px; color: var(--leve); text-align: center; padding: 12px 0; }
+.rel-add-row { display: flex; gap: 8px; margin-top: 10px; }
+.rel-add-row select { flex: 1; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
+.rel-add-row select:focus { outline: none; border-color: var(--azul); }
+.rel-card-footer { padding: 12px 18px; border-top: 1px solid var(--borda); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* LOADING / VAZIO */
+.loading { text-align: center; padding: 40px; color: var(--leve); font-size: 14px; }
+.spinner { width: 24px; height: 24px; border: 3px solid var(--borda); border-top-color: var(--azul); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.vazio { text-align: center; padding: 48px; color: var(--leve); }
+.vazio-icon { font-size: 36px; margin-bottom: 12px; }
+.page-title { font-family: 'Sora',sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 22px; color: var(--azul-esc); }
+
+/* IMPRESSÃO */
+@media print {
+  body * { visibility: hidden; }
+  .print-area { display: block !important; visibility: visible !important; position: fixed; top: 0; left: 0; width: 100%; padding: 20px; background: white; z-index: 9999; }
+  .print-area * { visibility: visible !important; }
+}
+
+@media (max-width: 600px) {
+  .dados-grid, .fotos-grid, .form-grid { grid-template-columns: 1fr; }
+  .topbar-title { font-size: 13px; }
+  .content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="tela-login">
+  <div class="login-card">
+    <div class="login-logos">
+      <img src="https://i.imgur.com/placeholder1.png" alt="NBDH2" onerror="this.style.display='none'">
+      <img src="https://i.imgur.com/placeholder2.png" alt="Handebol" onerror="this.style.display='none'">
+    </div>
+    <div class="login-title">NBDH2 Barretos</div>
+    <div class="login-sub">Sistema de Gestão — Acesso restrito</div>
+    <div class="form-group">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="Seu usuário" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="Sua senha" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') fazerLogin()">
+    </div>
+    <button class="btn-login" id="btn-login" onclick="fazerLogin()">Entrar</button>
+    <div class="login-erro" id="login-erro">Usuário ou senha incorretos</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-logos">
+        <img src="https://i.imgur.com/placeholder1.png" alt="NBDH2" onerror="this.style.display='none'">
+        <img src="https://i.imgur.com/placeholder2.png" alt="Handebol" onerror="this.style.display='none'">
+      </div>
+      <div class="topbar-title">NBDH2 Barretos — Sistema de Gestão</div>
+      <span class="topbar-user" id="topbar-user"></span>
+      <button class="btn-home" onclick="irHome()">🏠 Início</button>
+      <button class="btn-sair" onclick="logout()">Sair</button>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-inner">
+      <button class="nav-btn" onclick="irPara('atletas',this)">🏃 Atletas</button>
+      <button class="nav-btn" onclick="irPara('agenda',this)">📅 Agenda</button>
+      <button class="nav-btn" onclick="irPara('equipe',this)">👥 Equipe</button>
+      <button class="nav-btn" onclick="irPara('anotacoes',this)">📝 Anotações</button>
+      <button class="nav-btn" onclick="irPara('relacoes',this)">📋 Relações</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- HOME -->
+    <div class="pagina ativa" id="pag-home">
+      <div class="home-wrap">
+        <div class="home-header">
+          <div class="home-logos">
+            <img src="https://i.imgur.com/placeholder1.png" alt="NBDH2" onerror="this.style.display='none'">
+            <img src="https://i.imgur.com/placeholder2.png" alt="Handebol" onerror="this.style.display='none'">
+          </div>
+          <div class="home-titulo">Bem-vindo ao Sistema NBDH2!</div>
+          <div class="home-sub">Núcleo Barretense de Desenvolvimento e Habilidades Humanas</div>
+          <div class="home-usuario" id="home-usuario"></div>
+        </div>
+        <div class="home-cards">
+          <div class="home-card" onclick="irPara('atletas', document.querySelector('.nav-btn'))">
+            <div class="home-card-icon">🏃</div>
+            <div class="home-card-titulo">Atletas</div>
+            <div class="home-card-desc">Consulte, aprove, edite e gerencie os cadastros de atletas da associação.</div>
+            <button class="home-card-btn">Acessar</button>
+          </div>
+          <div class="home-card" onclick="irPara('agenda', document.querySelectorAll('.nav-btn')[1])">
+            <div class="home-card-icon">📅</div>
+            <div class="home-card-titulo">Agenda</div>
+            <div class="home-card-desc">Organize treinos, jogos, reuniões e eventos da equipe.</div>
+            <button class="home-card-btn">Acessar</button>
+          </div>
+          <div class="home-card" onclick="irPara('equipe', document.querySelectorAll('.nav-btn')[2])">
+            <div class="home-card-icon">👥</div>
+            <div class="home-card-titulo">Equipe</div>
+            <div class="home-card-desc">Gerencie colaboradores, técnicos e funcionários da associação.</div>
+            <button class="home-card-btn">Acessar</button>
+          </div>
+          <div class="home-card" onclick="irPara('anotacoes', document.querySelectorAll('.nav-btn')[3])">
+            <div class="home-card-icon">📝</div>
+            <div class="home-card-titulo">Anotações</div>
+            <div class="home-card-desc">Registre recados, lembretes e notas internas para a equipe.</div>
+            <button class="home-card-btn">Acessar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATLETAS -->
+    <div class="pagina" id="pag-atletas">
+      <div class="page-title">Atletas</div>
+      <div class="stats-grid" id="stats-atletas">
+        <div class="stat-card"><div class="spinner" style="width:20px;height:20px;margin:4px 0"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="busca-row">
+            <input class="busca-input" type="text" id="busca-nome" placeholder="Buscar por nome, CPF ou RG..."
+                   onkeydown="if(event.key==='Enter') buscarAtletas()">
+            <select class="busca-select" id="busca-mod">
+              <option value="">Todas modalidades</option>
+              <option>Handebol</option><option>Xadrez</option><option>Vôlei</option>
+            </select>
+            <select class="busca-select" id="busca-st">
+              <option value="">Todos status</option>
+              <option>Pendente</option><option>Aprovado</option><option>Ativo</option><option>Reprovado</option>
+            </select>
+            <button class="btn btn-primary" onclick="buscarAtletas()">Buscar</button>
+          </div>
+        </div>
+        <div class="tbl-wrap" id="tbl-atletas">
+          <div class="loading"><div class="spinner"></div>Carregando atletas...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="pagina" id="pag-agenda">
+      <div class="page-title">Agenda</div>
+      <div class="form-inline" id="form-evento" style="display:none">
+        <div class="form-grid">
+          <div class="form-group-i">
+            <label>Título *</label>
+            <input type="text" id="ev-titulo" placeholder="Nome do evento">
+          </div>
+          <div class="form-group-i">
+            <label>Tipo</label>
+            <select id="ev-tipo">
+              <option>Treino</option><option>Jogo</option><option>Reunião</option><option>Evento</option><option>Outro</option>
+            </select>
+          </div>
+          <div class="form-group-i">
+            <label>Data *</label>
+            <input type="date" id="ev-data">
+          </div>
+          <div class="form-group-i">
+            <label>Horário</label>
+            <input type="time" id="ev-hora">
+          </div>
+          <div class="form-group-i" style="grid-column:1/-1">
+            <label>Descrição</label>
+            <textarea id="ev-desc" rows="2" placeholder="Detalhes do evento..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-success" onclick="salvarEvento()">✓ Salvar evento</button>
+          <button class="btn btn-ghost" onclick="toggleFormEvento(false)">Cancelar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-titulo">Próximos eventos</div>
+          <button class="btn btn-amarelo" onclick="toggleFormEvento(true)">+ Novo evento</button>
+        </div>
+        <div class="card-body" id="lista-eventos">
+          <div class="loading"><div class="spinner"></div>Carregando agenda...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPE -->
+    <div class="pagina" id="pag-equipe">
+      <div class="page-title">Equipe</div>
+      <div class="form-inline" id="form-colaborador" style="display:none">
+        <div class="form-grid">
+          <div class="form-group-i">
+            <label>Nome completo *</label>
+            <input type="text" id="col-nome" placeholder="Nome do colaborador">
+          </div>
+          <div class="form-group-i">
+            <label>Cargo *</label>
+            <input type="text" id="col-cargo" placeholder="Ex: Técnico, Auxiliar...">
+          </div>
+          <div class="form-group-i">
+            <label>Telefone</label>
+            <input type="text" id="col-tel" placeholder="(17) 99999-9999">
+          </div>
+          <div class="form-group-i">
+            <label>E-mail</label>
+            <input type="email" id="col-email" placeholder="email@exemplo.com">
+          </div>
+          <div class="form-group-i">
+            <label>Modalidade</label>
+            <select id="col-modal">
+              <option value="">Geral</option>
+              <option>Handebol</option><option>Xadrez</option><option>Vôlei</option>
+            </select>
+          </div>
+          <div class="form-group-i">
+            <label>Status</label>
+            <select id="col-status">
+              <option>Ativo</option><option>Inativo</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-success" onclick="salvarColaborador()">✓ Salvar colaborador</button>
+          <button class="btn btn-ghost" onclick="toggleFormColaborador(false)">Cancelar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-titulo">Colaboradores</div>
+          <button class="btn btn-amarelo" onclick="toggleFormColaborador(true)">+ Adicionar colaborador</button>
+        </div>
+        <div class="tbl-wrap" id="tbl-equipe">
+          <div class="loading"><div class="spinner"></div>Carregando equipe...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANOTAÇÕES -->
+    <div class="pagina" id="pag-anotacoes">
+      <div class="page-title">Anotações</div>
+      <div class="form-inline" id="form-anot" style="display:none">
+        <div class="form-grid">
+          <div class="form-group-i" style="grid-column:1/-1">
+            <label>Anotação *</label>
+            <textarea id="anot-texto" rows="3" placeholder="Escreva sua anotação ou recado..."></textarea>
+          </div>
+          <div class="form-group-i">
+            <label>Prioridade</label>
+            <select id="anot-prior">
+              <option value="baixa">Baixa</option>
+              <option value="media" selected>Média</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-success" onclick="salvarAnot()">✓ Salvar anotação</button>
+          <button class="btn btn-ghost" onclick="toggleFormAnot(false)">Cancelar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-titulo">Anotações da equipe</div>
+          <button class="btn btn-amarelo" onclick="toggleFormAnot(true)">+ Nova anotação</button>
+        </div>
+        <div class="card-body" id="lista-anot">
+          <div class="loading"><div class="spinner"></div>Carregando anotações...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELAÇÕES NOMINAIS -->
+    <div class="pagina" id="pag-relacoes">
+      <div class="page-title">Relações Nominais</div>
+      <div class="form-inline" id="form-relacao" style="display:none">
+        <div class="form-grid">
+          <div class="form-group-i">
+            <label>Nome da relação *</label>
+            <input type="text" id="rel-nome" placeholder="Ex: Time A — Federação Paulista">
+          </div>
+          <div class="form-group-i">
+            <label>Evento / Jogo</label>
+            <input type="text" id="rel-evento" placeholder="Ex: Campeonato Paulista — Rodada 5">
+          </div>
+          <div class="form-group-i">
+            <label>Adversário</label>
+            <input type="text" id="rel-adversario" placeholder="Ex: EC Bauru">
+          </div>
+          <div class="form-group-i">
+            <label>Local</label>
+            <input type="text" id="rel-local" placeholder="Ex: Ginásio Municipal">
+          </div>
+          <div class="form-group-i">
+            <label>Data</label>
+            <input type="date" id="rel-data">
+          </div>
+          <div class="form-group-i">
+            <label>Horário</label>
+            <input type="time" id="rel-hora">
+          </div>
+          <div class="form-group-i">
+            <label>Modalidade</label>
+            <select id="rel-modalidade">
+              <option value="">Geral</option>
+              <option>Handebol</option><option>Xadrez</option><option>Vôlei</option>
+            </select>
+          </div>
+          <div class="form-group-i">
+            <label>Categoria</label>
+            <input type="text" id="rel-categoria" placeholder="Ex: Sub-18, Adulto...">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-success" onclick="criarRelacao()">✓ Criar relação</button>
+          <button class="btn btn-ghost" onclick="toggleFormRelacao(false)">Cancelar</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-amarelo" onclick="toggleFormRelacao(true)">+ Nova relação</button>
+      </div>
+      <div id="lista-relacoes">
+        <div class="vazio"><div class="vazio-icon">📋</div>Nenhuma relação criada ainda.</div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<!-- ÁREA DE IMPRESSÃO -->
+<div id="print-area" class="print-area" style="display:none"></div>
+
+<!-- MODAL ATLETA -->
+<div class="overlay" id="overlay-atleta" onclick="fecharOverlay('atleta',event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-avatar" id="ma-avatar"></div>
+      <div><div class="modal-nome" id="ma-nome"></div><div class="modal-sub" id="ma-sub"></div></div>
+      <button class="modal-close" onclick="fecharOverlay('atleta')">×</button>
+    </div>
+    <div class="modal-body" id="ma-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="confirmarExclusao('atleta')">🗑 Excluir</button>
+      <button class="btn btn-ghost btn-sm" id="ma-btn-cancelar" onclick="cancelarEdicaoAtleta()" style="display:none">Cancelar</button>
+      <button class="btn btn-ghost btn-sm" id="ma-btn-editar" onclick="ativarEdicaoAtleta()">✏️ Editar</button>
+      <button class="btn btn-success btn-sm" id="ma-btn-salvar" onclick="salvarEdicaoAtleta()" style="display:none">✓ Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-titulo" id="confirm-titulo">Confirmar exclusão</div>
+    <div class="confirm-msg" id="confirm-msg">Esta ação não pode ser desfeita.</div>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="fecharConfirm()">Cancelar</button>
+      <button class="btn btn-danger" onclick="executarConfirm()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS89SYrOyFvcQ9iCjxhVSJC_mhNZJUjOCU4P0xTCEv4K6Hgo04eFdIssFk29vorYwUSQ/exec';
+
+var usuarioLogado = null;
+var todosAtletas = [];
+var todosEventos = [];
+var todaEquipe = [];
+var todasAnotacoes = [];
+var todasRelacoes = [];
+var atletaAtual = null;
+var linhaAtleta = null;
+var confirmCallback = null;
+
+/* ── COOKIES ── */
+function setCookie(n, v, m) {
+  var e = new Date(Date.now() + m * 60000);
+  document.cookie = n + '=' + encodeURIComponent(v) + ';expires=' + e.toUTCString() + ';path=/';
+}
+function getCookie(n) {
+  var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function deleteCookie(n) {
+  document.cookie = n + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
+}
+
+/* ── INICIALIZAÇÃO ── */
+window.addEventListener('load', function () {
+  var u = getCookie('nbdh2_user');
+  if (u) { usuarioLogado = u; mostrarApp(); }
+});
+
+/* ── LOGIN ── */
+function fazerLogin() {
+  var user = document.getElementById('login-user').value.trim();
+  var pass = document.getElementById('login-pass').value.trim();
+  if (!user || !pass) return;
+  var btn = document.getElementById('btn-login');
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+  document.getElementById('login-erro').style.display = 'none';
+
+  var url = SCRIPT_URL + '?acao=login&usuario=' + encodeURIComponent(user) + '&senha=' + encodeURIComponent(pass);
+  fetch(url)
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var data = JSON.parse(t);
+      if (data.ok) {
+        usuarioLogado = data.nome;
+        setCookie('nbdh2_user', data.nome, 30);
+        mostrarApp();
+      } else {
+        document.getElementById('login-erro').style.display = 'block';
+        btn.textContent = 'Entrar';
+        btn.disabled = false;
+      }
+    })
+    .catch(function () {
+      document.getElementById('login-erro').textContent = 'Erro de conexão. Tente novamente.';
+      document.getElementById('login-erro').style.display = 'block';
+      btn.textContent = 'Entrar';
+      btn.disabled = false;
+    });
+}
+
+function mostrarApp() {
+  document.getElementById('tela-login').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('topbar-user').textContent = '👤 ' + usuarioLogado;
+  document.getElementById('home-usuario').textContent = 'Olá, ' + usuarioLogado + '!';
+  carregarAtletas();
+  carregarAgenda();
+  carregarEquipe();
+  carregarAnotacoes();
+  carregarRelacoes();
+}
+
+function logout() {
+  usuarioLogado = null;
+  deleteCookie('nbdh2_user');
+  document.getElementById('tela-login').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-erro').style.display = 'none';
+}
+
+/* ── NAVEGAÇÃO ── */
+function irHome() {
+  document.querySelectorAll('.pagina').forEach(function (p) { p.classList.remove('ativa'); });
+  document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('ativo'); });
+  document.getElementById('pag-home').classList.add('ativa');
+}
+
+function irPara(pag, el) {
+  document.querySelectorAll('.pagina').forEach(function (p) { p.classList.remove('ativa'); });
+  document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('ativo'); });
+  document.getElementById('pag-' + pag).classList.add('ativa');
+  if (el) el.classList.add('ativo');
+}
+
+/* ── ATLETAS ── */
+function carregarAtletas() {
+  fetch(SCRIPT_URL + '?acao=listar')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var data = JSON.parse(t);
+      todosAtletas = data.atletas || [];
+      renderStatsAtletas();
+      renderTabelaAtletas(todosAtletas);
+    })
+    .catch(function () {
+      document.getElementById('tbl-atletas').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
+}
+
+function renderStatsAtletas() {
+  var total = todosAtletas.length;
+  var pend  = todosAtletas.filter(function (a) { return a.status === 'Pendente'; }).length;
+  var aprov = todosAtletas.filter(function (a) { return a.status === 'Aprovado' || a.status === 'Ativo'; }).length;
+  var mods = {};
+  todosAtletas.forEach(function (a) { if (a.modalidade) mods[a.modalidade] = (mods[a.modalidade] || 0) + 1; });
+  var top = Object.entries(mods).sort(function (a, b) { return b[1] - a[1]; })[0];
+  document.getElementById('stats-atletas').innerHTML =
+    sc(total, 'Total de atletas') + sc(pend, 'Pendentes') + sc(aprov, 'Aprovados/Ativos') + sc(top ? top[1] : 0, top ? top[0] : 'Modalidades');
+}
+
+function sc(n, l) {
+  return '<div class="stat-card"><div class="stat-num">' + n + '</div><div class="stat-lbl">' + l + '</div></div>';
+}
+
+function buscarAtletas() {
+  var txt = document.getElementById('busca-nome').value.toLowerCase();
+  var mod = document.getElementById('busca-mod').value;
+  var st  = document.getElementById('busca-st').value;
+  renderTabelaAtletas(todosAtletas.filter(function (a) {
+    return (!txt || (a.nome || '').toLowerCase().includes(txt) || (a.cpf || '').includes(txt) || (a.rg || '').includes(txt))
+        && (!mod || a.modalidade === mod)
+        && (!st  || a.status === st);
+  }));
+}
+
+function renderTabelaAtletas(lista) {
+  if (!lista.length) {
+    document.getElementById('tbl-atletas').innerHTML = '<div class="vazio"><div class="vazio-icon">🔍</div>Nenhum atleta encontrado.</div>';
+    return;
+  }
+  var h = '<table><thead><tr><th>Atleta</th><th>CPF</th><th>Nascimento</th><th>Modalidade</th><th>Categoria</th><th>Status</th><th>Aprovação</th><th></th></tr></thead><tbody>';
+  lista.forEach(function (a) {
+    var ini = (a.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
+    var cor = corMod(a.modalidade);
+    var aprovado = a.status === 'Aprovado' || a.status === 'Ativo';
+    h += '<tr>'
+      + '<td><div class="td-nome"><div class="avatar" style="background:' + cor.bg + ';color:' + cor.txt + '">' + ini + '</div><span style="font-weight:500">' + (a.nome || '') + '</span></div></td>'
+      + '<td style="color:var(--leve)">' + (a.cpf || '') + '</td>'
+      + '<td style="color:var(--leve)">' + (a.nascimento || '') + '</td>'
+      + '<td><span class="badge ' + badgeMod(a.modalidade) + '">' + (a.modalidade || '') + '</span></td>'
+      + '<td style="color:var(--leve)">' + (a.categoria || '') + '</td>'
+      + '<td><span class="badge ' + badgeSt(a.status) + '" id="st-' + a.linha + '">' + (a.status || '') + '</span></td>'
+      + '<td style="text-align:center"><div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="tog-' + a.linha + '" ' + (aprovado ? 'checked' : '') + ' onchange="toggleAprovacao(' + a.linha + ',this)"><span class="toggle-slider"></span></label>'
+      + '<span class="toggle-label" id="tog-lbl-' + a.linha + '" style="color:' + (aprovado ? 'var(--verde)' : '#92400e') + '">' + (aprovado ? 'Aprovado' : 'Pendente') + '</span></div></td>'
+      + '<td><button class="btn btn-ghost btn-sm" onclick="abrirAtleta(' + a.linha + ')">Ver perfil</button></td>'
+      + '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('tbl-atletas').innerHTML = h;
+}
+
+function badgeMod(m) {
+  if (m === 'Handebol') return 'badge-azul';
+  if (m === 'Xadrez')   return 'badge-amarelo';
+  if (m === 'Vôlei')    return 'badge-cinza';
+  return 'badge-cinza';
+}
+function badgeSt(s) {
+  if (s === 'Aprovado')  return 'badge-verde';
+  if (s === 'Reprovado') return 'badge-vermelho';
+  if (s === 'Ativo')     return 'badge-azul';
+  return 'badge-amarelo';
+}
+function corMod(m) {
+  if (m === 'Handebol') return { bg: '#dbeafe', txt: '#1e40af' };
+  if (m === 'Xadrez')   return { bg: '#fef3c7', txt: '#92400e' };
+  if (m === 'Vôlei')    return { bg: '#e0f2fe', txt: '#0369a1' };
+  return { bg: '#f1f5f9', txt: '#475569' };
+}
+
+function toggleAprovacao(linha, el) {
+  el.disabled = true;
+  var novoStatus = el.checked ? 'Aprovado' : 'Reprovado';
+  var lbl = document.getElementById('tog-lbl-' + linha);
+  var stBadge = document.getElementById('st-' + linha);
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'editar', dados: { linha: linha, status: novoStatus } })
+  })
+    .then(function () {
+      if (lbl) { lbl.textContent = novoStatus; lbl.style.color = el.checked ? 'var(--verde)' : '#c0392b'; }
+      if (stBadge) { stBadge.textContent = novoStatus; stBadge.className = 'badge ' + (el.checked ? 'badge-verde' : 'badge-vermelho'); }
+      todosAtletas = todosAtletas.map(function (a) { return a.linha === linha ? Object.assign({}, a, { status: novoStatus }) : a; });
+      renderStatsAtletas();
+      carregarAtletas();
+    })
+    .catch(function () { el.checked = !el.checked; })
+    .finally(function () { el.disabled = false; });
+}
+
+function abrirAtleta(linha) {
+  linhaAtleta = linha;
+  document.getElementById('overlay-atleta').classList.add('aberto');
+  document.getElementById('ma-body').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  document.getElementById('ma-btn-editar').style.display = 'inline-flex';
+  document.getElementById('ma-btn-salvar').style.display = 'none';
+  document.getElementById('ma-btn-cancelar').style.display = 'none';
+  fetch(SCRIPT_URL + '?acao=atleta&linha=' + linha)
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      atletaAtual = JSON.parse(t);
+      renderPerfilAtleta(atletaAtual, false);
+    })
+    .catch(function () { document.getElementById('ma-body').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
+}
+
+function renderPerfilAtleta(a, edit) {
+  var ini = (a.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
+  document.getElementById('ma-avatar').textContent = ini;
+  document.getElementById('ma-nome').textContent = a.nome || '';
+  document.getElementById('ma-sub').textContent = (a.modalidade || '') + ' - ' + (a.categoria || '');
+
+  function c(lbl, val, key, tipo) {
+    tipo = tipo || 'text';
+    if (edit) {
+      if (key === 'modalidade') return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option' + (val === 'Handebol' ? ' selected' : '') + '>Handebol</option><option' + (val === 'Xadrez' ? ' selected' : '') + '>Xadrez</option><option' + (val === 'Vôlei' ? ' selected' : '') + '>Vôlei</option></select></div>';
+      if (key === 'status') return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option' + (val === 'Pendente' ? ' selected' : '') + '>Pendente</option><option' + (val === 'Aprovado' ? ' selected' : '') + '>Aprovado</option><option' + (val === 'Ativo' ? ' selected' : '') + '>Ativo</option><option' + (val === 'Reprovado' ? ' selected' : '') + '>Reprovado</option></select></div>';
+      return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><input type="' + tipo + '" name="' + key + '" value="' + (val || '') + '"></div>';
+    }
+    return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><div class="dado-val">' + (val || '-') + '</div></div>';
+  }
+
+  var frh = a.fotoRosto && a.fotoRosto.startsWith('http')
+    ? '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>'
+    : '<span class="btn-foto-vazio">Não enviada</span>';
+  var frg = a.fotoRG && a.fotoRG.startsWith('http')
+    ? '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>'
+    : '<span class="btn-foto-vazio">Não enviado</span>';
+
+  document.getElementById('ma-body').innerHTML =
+    '<div class="modal-sec">Dados pessoais</div><div class="dados-grid">'
+    + c('CPF', a.cpf, 'cpf') + c('RG', a.rg, 'rg')
+    + c('Nascimento', a.nascimento, 'nascimento', 'date')
+    + c('Modalidade', a.modalidade, 'modalidade')
+    + c('Categoria', a.categoria, 'categoria')
+    + c('Status', a.status, 'status') + '</div>'
+    + '<div class="modal-sec">Endereço</div><div class="dados-grid">'
+    + c('Rua', a.rua, 'rua') + c('Número', a.numero, 'numero')
+    + c('Bairro', a.bairro, 'bairro') + c('Cidade', a.cidade, 'cidade')
+    + c('Estado', a.estado, 'estado') + c('CEP', a.cep, 'cep') + '</div>'
+    + '<div class="modal-sec">Responsável</div><div class="dados-grid">'
+    + c('Nome', a.respNome, 'respNome') + c('Telefone', a.respTel, 'respTel')
+    + c('E-mail', a.respEmail, 'respEmail') + c('Parentesco', a.respParent, 'respParent') + '</div>'
+    + '<div class="modal-sec">Documentos</div><div class="fotos-grid">'
+    + '<div class="foto-card"><div class="foto-label">Foto do rosto</div>' + frh + '</div>'
+    + '<div class="foto-card"><div class="foto-label">Foto do RG</div>' + frg + '</div></div>';
+}
+
+function ativarEdicaoAtleta() {
+  renderPerfilAtleta(atletaAtual, true);
+  document.getElementById('ma-btn-editar').style.display = 'none';
+  document.getElementById('ma-btn-salvar').style.display = 'inline-flex';
+  document.getElementById('ma-btn-cancelar').style.display = 'inline-flex';
+}
+
+function cancelarEdicaoAtleta() {
+  renderPerfilAtleta(atletaAtual, false);
+  document.getElementById('ma-btn-editar').style.display = 'inline-flex';
+  document.getElementById('ma-btn-salvar').style.display = 'none';
+  document.getElementById('ma-btn-cancelar').style.display = 'none';
+}
+
+function salvarEdicaoAtleta() {
+  var inputs = document.getElementById('ma-body').querySelectorAll('input,select');
+  var d = { linha: linhaAtleta };
+  inputs.forEach(function (el) { if (el.name) d[el.name] = el.value; });
+  var btn = document.getElementById('ma-btn-salvar');
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'editar', dados: d })
+  })
+    .then(function () {
+      Object.assign(atletaAtual, d);
+      todosAtletas = todosAtletas.map(function (a) { return a.linha === linhaAtleta ? Object.assign({}, a, d) : a; });
+      cancelarEdicaoAtleta();
+      renderStatsAtletas();
+      carregarAtletas();
+    })
+    .catch(function () { alert('Erro ao salvar.'); })
+    .finally(function () { btn.textContent = '✓ Salvar'; btn.disabled = false; });
+}
+
+function confirmarExclusao(tipo) {
+  var msg = tipo === 'atleta'
+    ? 'Excluir o atleta "' + (atletaAtual ? atletaAtual.nome : '') + '"? Esta ação não pode ser desfeita.'
+    : 'Excluir este colaborador?';
+  abrirConfirm('Confirmar exclusão', msg, function () {
+    if (tipo === 'atleta') excluirAtleta();
+    else excluirColaborador();
+  });
+}
+
+function excluirAtleta() {
+  fecharOverlay('atleta');
+  todosAtletas = todosAtletas.filter(function (a) { return Number(a.linha) !== Number(linhaAtleta); });
+  renderTabelaAtletas(todosAtletas);
+  renderStatsAtletas();
+  fetch(SCRIPT_URL + '?acao=excluir&tipo=atleta&linha=' + linhaAtleta + '&t=' + Date.now())
+    .then(function () { carregarAtletas(); })
+    .catch(function () { carregarAtletas(); });
+}
+
+function fecharOverlay(tipo, e) {
+  if (e && e.target !== document.getElementById('overlay-' + tipo)) return;
+  document.getElementById('overlay-' + tipo).classList.remove('aberto');
+}
+
+/* ── AGENDA ── */
+function carregarAgenda() {
+  fetch(SCRIPT_URL + '?acao=listarAgenda')
+    .then(function (r) { return r.text(); })
+    .then(function (t) { todosEventos = JSON.parse(t).eventos || []; renderAgenda(todosEventos); })
+    .catch(function () { document.getElementById('lista-eventos').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
+}
+
+function renderAgenda(lista) {
+  if (!lista.length) {
+    document.getElementById('lista-eventos').innerHTML = '<div class="vazio"><div class="vazio-icon">📅</div>Nenhum evento cadastrado.</div>';
+    return;
+  }
+  var cores = { Treino: '#dbeafe|#1e40af', Jogo: '#d1fae5|#065f46', Reunião: '#fef3c7|#92400e', Evento: '#f3e8ff|#7c3aed', Outro: '#f1f5f9|#475569' };
+  var h = '<div class="agenda-grid">';
+  lista.forEach(function (ev) {
+    var cor = (cores[ev.tipo] || cores['Outro']).split('|');
+    h += '<div class="evento-card">'
+      + '<div class="evento-tipo" style="color:' + cor[1] + '">' + (ev.tipo || '') + '</div>'
+      + '<div class="evento-titulo">' + (ev.titulo || '') + '</div>'
+      + '<div class="evento-data">' + (ev.data || '') + (ev.hora ? ' às ' + ev.hora : '') + '</div>'
+      + (ev.desc ? '<div class="evento-desc">' + ev.desc + '</div>' : '')
+      + '<div class="evento-footer"><button class="btn btn-danger btn-sm" onclick="excluirEvento(' + ev.linha + ')">Excluir</button></div>'
+      + '</div>';
+  });
+  h += '</div>';
+  document.getElementById('lista-eventos').innerHTML = h;
+}
+
+function toggleFormEvento(show) { document.getElementById('form-evento').style.display = show ? 'block' : 'none'; }
+
+function salvarEvento() {
+  var titulo = document.getElementById('ev-titulo').value.trim();
+  var data   = document.getElementById('ev-data').value;
+  if (!titulo || !data) { alert('Título e data são obrigatórios.'); return; }
+  var ev = {
+    titulo: titulo,
+    tipo: document.getElementById('ev-tipo').value,
+    data: data,
+    hora: document.getElementById('ev-hora').value,
+    desc: document.getElementById('ev-desc').value,
+    autor: usuarioLogado
+  };
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'adicionarEvento', dados: ev })
+  })
+    .then(function () {
+      toggleFormEvento(false);
+      ['ev-titulo', 'ev-data', 'ev-hora', 'ev-desc'].forEach(function (id) { document.getElementById(id).value = ''; });
+      carregarAgenda();
+    })
+    .catch(function () { alert('Erro ao salvar.'); });
+}
+
+function excluirEvento(linha) {
+  abrirConfirm('Excluir evento', 'Deseja excluir este evento?', function () {
+    todosEventos = todosEventos.filter(function (ev) { return Number(ev.linha) !== Number(linha); });
+    renderAgenda(todosEventos);
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=agenda&linha=' + linha)
+      .then(function () { carregarAgenda(); })
+      .catch(function () { carregarAgenda(); });
+  });
+}
+
+/* ── EQUIPE ── */
+function carregarEquipe() {
+  fetch(SCRIPT_URL + '?acao=listarEquipe')
+    .then(function (r) { return r.text(); })
+    .then(function (t) { todaEquipe = JSON.parse(t).equipe || []; renderEquipe(todaEquipe); })
+    .catch(function () { document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
+}
+
+function renderEquipe(lista) {
+  if (!lista.length) {
+    document.getElementById('tbl-equipe').innerHTML = '<div class="vazio"><div class="vazio-icon">👥</div>Nenhum colaborador cadastrado.</div>';
+    return;
+  }
+  var h = '<table><thead><tr><th>Nome</th><th>Cargo</th><th>Modalidade</th><th>Telefone</th><th>E-mail</th><th>Status</th><th></th></tr></thead><tbody>';
+  lista.forEach(function (c) {
+    var ini = (c.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
+    h += '<tr>'
+      + '<td><div class="td-nome"><div class="avatar" style="background:var(--azul-cl);color:var(--azul)">' + ini + '</div><span style="font-weight:500">' + (c.nome || '') + '</span></div></td>'
+      + '<td>' + (c.cargo || '') + '</td>'
+      + '<td>' + (c.modalidade || 'Geral') + '</td>'
+      + '<td style="color:var(--leve)">' + (c.telefone || '') + '</td>'
+      + '<td style="color:var(--leve)">' + (c.email || '') + '</td>'
+      + '<td><span class="badge ' + (c.status === 'Ativo' ? 'badge-verde' : 'badge-cinza') + '">' + (c.status || '') + '</span></td>'
+      + '<td><button class="btn btn-danger btn-sm" onclick="excluirColaboradorDireto(' + c.linha + ',\'' + encodeURIComponent(c.nome || '') + '\')">Excluir</button></td>'
+      + '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('tbl-equipe').innerHTML = h;
+}
+
+function toggleFormColaborador(show) { document.getElementById('form-colaborador').style.display = show ? 'block' : 'none'; }
+
+function salvarColaborador() {
+  var nome  = document.getElementById('col-nome').value.trim();
+  var cargo = document.getElementById('col-cargo').value.trim();
+  if (!nome || !cargo) { alert('Nome e cargo são obrigatórios.'); return; }
+  var col = {
+    nome: nome, cargo: cargo,
+    telefone: document.getElementById('col-tel').value,
+    email: document.getElementById('col-email').value,
+    modalidade: document.getElementById('col-modal').value,
+    status: document.getElementById('col-status').value
+  };
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'adicionarColaborador', dados: col })
+  })
+    .then(function () {
+      toggleFormColaborador(false);
+      ['col-nome', 'col-cargo', 'col-tel', 'col-email'].forEach(function (id) { document.getElementById(id).value = ''; });
+      carregarEquipe();
+    })
+    .catch(function () { alert('Erro ao salvar.'); });
+}
+
+function excluirColaboradorDireto(linha, nomeEnc) {
+  abrirConfirm('Excluir colaborador', 'Excluir "' + decodeURIComponent(nomeEnc) + '"?', function () {
+    todaEquipe = todaEquipe.filter(function (c) { return Number(c.linha) !== Number(linha); });
+    renderEquipe(todaEquipe);
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=equipe&linha=' + linha)
+      .then(function () { carregarEquipe(); })
+      .catch(function () { carregarEquipe(); });
+  });
+}
+
+function excluirColaborador() {
+  excluirColaboradorDireto(linhaAtleta, encodeURIComponent((atletaAtual && atletaAtual.nome) || ''));
+}
+
+/* ── ANOTAÇÕES ── */
+function carregarAnotacoes() {
+  fetch(SCRIPT_URL + '?acao=listarAnotacoes')
+    .then(function (r) { return r.text(); })
+    .then(function (t) { todasAnotacoes = JSON.parse(t).anotacoes || []; renderAnotacoes(todasAnotacoes); })
+    .catch(function () { document.getElementById('lista-anot').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
+}
+
+function renderAnotacoes(lista) {
+  if (!lista.length) {
+    document.getElementById('lista-anot').innerHTML = '<div class="vazio"><div class="vazio-icon">📝</div>Nenhuma anotação.</div>';
+    return;
+  }
+  var h = '<div class="anot-grid">';
+  lista.forEach(function (a) {
+    h += '<div class="anot-card ' + (a.prioridade || 'media') + '">'
+      + '<div class="anot-header"><span class="badge ' + (a.prioridade === 'alta' ? 'badge-vermelho' : a.prioridade === 'baixa' ? 'badge-verde' : 'badge-amarelo') + '">' + (a.prioridade || '') + '</span><span class="anot-autor">' + (a.autor || '') + '</span></div>'
+      + '<div class="anot-texto">' + (a.texto || '') + '</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span class="anot-data">' + (a.data || '') + '</span><button class="btn btn-danger btn-sm" onclick="excluirAnot(' + a.linha + ')">Excluir</button></div>'
+      + '</div>';
+  });
+  h += '</div>';
+  document.getElementById('lista-anot').innerHTML = h;
+}
+
+function toggleFormAnot(show) { document.getElementById('form-anot').style.display = show ? 'block' : 'none'; }
+
+function salvarAnot() {
+  var texto = document.getElementById('anot-texto').value.trim();
+  if (!texto) { alert('Escreva algo antes de salvar.'); return; }
+  var anot = {
+    texto: texto,
+    prioridade: document.getElementById('anot-prior').value,
+    autor: usuarioLogado,
+    data: new Date().toLocaleDateString('pt-BR')
+  };
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'adicionarAnotacao', dados: anot })
+  })
+    .then(function () {
+      toggleFormAnot(false);
+      document.getElementById('anot-texto').value = '';
+      carregarAnotacoes();
+    })
+    .catch(function () { alert('Erro ao salvar.'); });
+}
+
+function excluirAnot(linha) {
+  abrirConfirm('Excluir anotação', 'Deseja excluir esta anotação?', function () {
+    todasAnotacoes = todasAnotacoes.filter(function (a) { return Number(a.linha) !== Number(linha); });
+    renderAnotacoes(todasAnotacoes);
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=anotacao&linha=' + linha)
+      .then(function () { carregarAnotacoes(); })
+      .catch(function () { carregarAnotacoes(); });
+  });
+}
+
+/* ── RELAÇÕES NOMINAIS ── */
+function toggleFormRelacao(show) {
+  document.getElementById('form-relacao').style.display = show ? 'block' : 'none';
+  if (show) {
+    ['rel-nome', 'rel-evento', 'rel-adversario', 'rel-local', 'rel-data', 'rel-hora', 'rel-categoria'].forEach(function (id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('rel-modalidade').value = '';
+  }
+}
+
+function carregarRelacoes() {
+  fetch(SCRIPT_URL + '?acao=listarRelacoes')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var data = JSON.parse(t);
+      todasRelacoes = (data.relacoes || []).map(function (r) {
+        return {
+          id: r.id,
+          linha: r.linha,
+          nome: r.nome,
+          evento: r.evento || '',
+          adversario: r.adversario || '',
+          local: r.local || '',
+          data: r.data || '',
+          hora: r.hora || '',
+          modalidade: r.modalidade || '',
+          categoria: r.categoria || '',
+          atletas:    r.atletas    ? safeParseJSON(r.atletas)    : [],
+          professores: r.professores ? safeParseJSON(r.professores) : [],
+          auxiliares:  r.auxiliares  ? safeParseJSON(r.auxiliares)  : []
+        };
+      });
+      renderRelacoes();
+    })
+    .catch(function () { document.getElementById('lista-relacoes').innerHTML = '<div class="vazio">Erro ao carregar relações.</div>'; });
+}
+
+function safeParseJSON(str) {
+  try { return JSON.parse(str); } catch (e) { return []; }
+}
+
+function criarRelacao() {
+  var nome = document.getElementById('rel-nome').value.trim();
+  if (!nome) { alert('Informe o nome da relação.'); return; }
+  var rel = {
+    id: Date.now(),
+    linha: null,
+    nome: nome,
+    evento:     document.getElementById('rel-evento').value.trim(),
+    adversario: document.getElementById('rel-adversario').value.trim(),
+    local:      document.getElementById('rel-local').value.trim(),
+    data:       document.getElementById('rel-data').value,
+    hora:       document.getElementById('rel-hora').value,
+    modalidade: document.getElementById('rel-modalidade').value,
+    categoria:  document.getElementById('rel-categoria').value.trim(),
+    atletas: [], professores: [], auxiliares: []
+  };
+  todasRelacoes.push(rel);
+  toggleFormRelacao(false);
+  renderRelacoes();
+  salvarRelacao(rel);
+}
+
+function salvarRelacao(rel) {
+  var dados = {
+    id:          String(rel.id),
+    linha:       rel.linha || '',
+    nome:        rel.nome,
+    evento:      rel.evento || '',
+    adversario:  rel.adversario || '',
+    local:       rel.local || '',
+    data:        rel.data || '',
+    hora:        rel.hora || '',
+    modalidade:  rel.modalidade || '',
+    categoria:   rel.categoria || '',
+    atletas:     JSON.stringify(rel.atletas),
+    professores: JSON.stringify(rel.professores),
+    auxiliares:  JSON.stringify(rel.auxiliares)
+  };
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'salvarRelacao', dados: dados })
+  });
+}
+
+function excluirRelacao(id, linha) {
+  abrirConfirm('Excluir relação', 'Deseja excluir esta relação nominal?', function () {
+    var rel = todasRelacoes.find(function (r) { return String(r.id) === String(id); });
+    if (!rel && linha) rel = todasRelacoes.find(function (r) { return Number(r.linha) === Number(linha); });
+    todasRelacoes = todasRelacoes.filter(function (r) {
+      return String(r.id) !== String(id) && Number(r.linha) !== Number(linha);
+    });
+    renderRelacoes();
+    var linhaExcluir = rel ? rel.linha : linha;
+    if (linhaExcluir) {
+      fetch(SCRIPT_URL + '?acao=excluirRelacao&linha=' + linhaExcluir).catch(function () {});
+    }
+  });
+}
+
+function addMembroRelacao(idx, tipo) {
+  var rel = todasRelacoes[idx];
+  if (!rel) return;
+  var sel = document.getElementById('sel-' + tipo + '-' + idx);
+  if (!sel || !sel.value) return;
+  var val = sel.value;
+  var jaExiste = rel.atletas.concat(rel.professores).concat(rel.auxiliares).find(function (m) { return m.id === val; });
+  if (jaExiste) { sel.value = ''; return; }
+  var membro;
+  if (tipo === 'atleta') {
+    var a = todosAtletas.find(function (x) { return String(x.linha) === val; });
+    if (!a) return;
+    membro = { id: val, nome: a.nome, sub: (a.modalidade || '') + (a.categoria ? ' · ' + a.categoria : '') };
+  } else {
+    var co = todaEquipe.find(function (x) { return String(x.linha) === val; });
+    if (!co) return;
+    membro = { id: val, nome: co.nome, sub: co.cargo || '' };
+  }
+  if (tipo === 'atleta')    rel.atletas.push(membro);
+  else if (tipo === 'professor') rel.professores.push(membro);
+  else rel.auxiliares.push(membro);
+  sel.value = '';
+  renderRelacoes();
+  salvarRelacao(rel);
+}
+
+function removerMembroRelacao(idx, tipo, memId) {
+  var rel = todasRelacoes[idx];
+  if (!rel) return;
+  if (tipo === 'atleta')    rel.atletas    = rel.atletas.filter(function (m) { return m.id !== memId; });
+  else if (tipo === 'professor') rel.professores = rel.professores.filter(function (m) { return m.id !== memId; });
+  else rel.auxiliares = rel.auxiliares.filter(function (m) { return m.id !== memId; });
+  renderRelacoes();
+  salvarRelacao(rel);
+}
+
+function renderSecaoRelacao(rel, idx, tipo, label, emoji, bgCor, txtCor, opcoes) {
+  var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
+  var h = '<div class="rel-secao">' + emoji + ' ' + label + ' (' + lista.length + ')</div>';
+  if (lista.length) {
+    lista.forEach(function (m, i) {
+      h += '<div class="rel-membro">';
+      h += '<div class="avatar" style="background:' + bgCor + ';color:' + txtCor + ';font-size:11px;width:28px;height:28px">'
+        + (tipo === 'atleta' ? (i + 1) : (m.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('')) + '</div>';
+      h += '<div class="rel-membro-info"><div class="rel-membro-nome">' + (m.nome || '') + '</div><div class="rel-membro-sub">' + (m.sub || '') + '</div></div>';
+      h += '<button class="rel-membro-rm" onclick="removerMembroRelacao(' + idx + ',\'' + tipo + '\',\'' + m.id + '\')" title="Remover">×</button>';
+      h += '</div>';
+    });
+  } else {
+    h += '<div class="rel-empty">Nenhum ' + label.toLowerCase() + ' adicionado</div>';
+  }
+  h += '<div class="rel-add-row"><select id="sel-' + tipo + '-' + idx + '" onchange="addMembroRelacao(' + idx + ',\'' + tipo + '\')">' + opcoes + '</select></div>';
+  return h;
+}
+
+function renderRelacoes() {
+  var cont = document.getElementById('lista-relacoes');
+  if (!todasRelacoes.length) {
+    cont.innerHTML = '<div class="vazio"><div class="vazio-icon">📋</div>Nenhuma relação criada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova relação" para começar.</small></div>';
+    return;
+  }
+
+  var optsAtletas = '<option value="">➕ Adicionar atleta</option>'
+    + todosAtletas.filter(function (a) { return a.status === 'Aprovado' || a.status === 'Ativo'; }).map(function (a) {
+        return '<option value="' + a.linha + '">' + a.nome + (a.modalidade ? ' (' + a.modalidade + ')' : '') + '</option>';
+      }).join('');
+
+  if (todosAtletas.filter(function (a) { return a.status !== 'Aprovado' && a.status !== 'Ativo'; }).length) {
+    optsAtletas += '<optgroup label="── Pendentes/Outros ──">'
+      + todosAtletas.filter(function (a) { return a.status !== 'Aprovado' && a.status !== 'Ativo'; }).map(function (a) {
+          return '<option value="' + a.linha + '">' + a.nome + ' (' + (a.status || '') + ')</option>';
+        }).join('')
+      + '</optgroup>';
+  }
+
+  var optsProf = '<option value="">➕ Adicionar professor</option>'
+    + todaEquipe.map(function (c) { return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('');
+
+  var optsAux = '<option value="">➕ Adicionar auxiliar</option>'
+    + todaEquipe.map(function (c) { return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('');
+
+  var h = '<div class="rel-grid">';
+  todasRelacoes.forEach(function (rel, idx) {
+    var meta = [];
+    if (rel.data) meta.push('📅 ' + rel.data.split('-').reverse().join('/') + (rel.hora ? ' às ' + rel.hora : ''));
+    if (rel.adversario) meta.push('⚔️ x ' + rel.adversario);
+    if (rel.local)      meta.push('📍 ' + rel.local);
+    if (rel.modalidade) meta.push(rel.modalidade);
+    if (rel.categoria)  meta.push(rel.categoria);
+
+    var total = rel.atletas.length + rel.professores.length + rel.auxiliares.length;
+
+    h += '<div class="rel-card">';
+    h += '<div class="rel-card-header">';
+    h += '<div><div class="rel-card-titulo">' + rel.nome + '</div>';
+    if (rel.evento) h += '<div class="rel-card-meta">' + rel.evento + '</div>';
+    if (meta.length) h += '<div class="rel-card-meta" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:8px">' + meta.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>';
+    h += '</div>';
+    h += '<span class="badge badge-azul" style="align-self:flex-start;white-space:nowrap">' + total + ' pessoa' + (total !== 1 ? 's' : '') + '</span>';
+    h += '</div>';
+    h += '<div class="rel-card-body">';
+    h += renderSecaoRelacao(rel, idx, 'atleta',    'Atletas',    '🏃', 'var(--azul-cl)', 'var(--azul)', optsAtletas);
+    h += renderSecaoRelacao(rel, idx, 'professor', 'Professores','🎓', '#d1fae5',        '#065f46',     optsProf);
+    h += renderSecaoRelacao(rel, idx, 'auxiliar',  'Auxiliares', '🤝', '#fef3c7',        '#92400e',     optsAux);
+    h += '</div>';
+    h += '<div class="rel-card-footer">';
+    h += '<button class="btn btn-danger btn-sm" onclick="excluirRelacao(\'' + rel.id + '\',' + (rel.linha || 0) + ')">🗑 Excluir</button>';
+    h += '<button class="btn btn-primary btn-sm" onclick="imprimirRelacao(\'' + rel.id + '\',' + (rel.linha || 0) + ')">🖨️ Imprimir</button>';
+    h += '</div></div>';
+  });
+  h += '</div>';
+  cont.innerHTML = h;
+}
+
+function imprimirRelacao(id, linha) {
+  var rel = todasRelacoes.find(function (r) { return String(r.id) === String(id); });
+  if (!rel && linha) rel = todasRelacoes.find(function (r) { return Number(r.linha) === Number(linha); });
+  if (!rel) { alert('Relação não encontrada. Tente recarregar a página.'); return; }
+
+  var dataFmt = rel.data ? rel.data.split('-').reverse().join('/') : '';
+  var metaLinha = [];
+  if (rel.evento)    metaLinha.push(rel.evento);
+  if (rel.adversario) metaLinha.push('Adversário: ' + rel.adversario);
+  if (rel.local)     metaLinha.push('Local: ' + rel.local);
+  if (dataFmt)       metaLinha.push('Data: ' + dataFmt + (rel.hora ? ' às ' + rel.hora : ''));
+  if (rel.modalidade) metaLinha.push('Modalidade: ' + rel.modalidade);
+  if (rel.categoria)  metaLinha.push('Categoria: ' + rel.categoria);
+
+  function tabelaPrint(lista, titulo, colFunc) {
+    if (!lista.length) return '';
+    var t = '<div class="print-secao">' + titulo + ' — ' + lista.length + ' pessoa' + (lista.length !== 1 ? 's' : '') + '</div>';
+    t += '<table class="print-table"><thead><tr><th style="width:36px">#</th><th>Nome completo</th><th>' + colFunc + '</th><th style="width:160px">Assinatura</th></tr></thead><tbody>';
+    lista.forEach(function (m, i) {
+      t += '<tr><td>' + (i + 1) + '</td><td>' + (m.nome || '') + '</td><td>' + (m.sub || '') + '</td><td></td></tr>';
+    });
+    t += '</tbody></table>';
+    return t;
+  }
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+    + '<title>Relação — ' + rel.nome + '</title>'
+    + '<style>'
+    + 'body{font-family:Arial,sans-serif;padding:24px;color:#111}'
+    + '.header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px}'
+    + '.org{font-size:12px;color:#555;margin-bottom:4px}'
+    + '.titulo{font-size:20px;font-weight:700;margin-bottom:4px}'
+    + '.meta{font-size:13px;color:#444}'
+    + '.print-secao{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 6px;color:#333;border-bottom:1px solid #ccc;padding-bottom:4px}'
+    + '.print-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}'
+    + '.print-table th{background:#eee;padding:7px 10px;text-align:left;border:1px solid #ccc}'
+    + '.print-table td{padding:7px 10px;border:1px solid #ddd}'
+    + '.print-table tr:nth-child(even) td{background:#f9f9f9}'
+    + '.assinaturas{display:flex;gap:40px;margin-top:40px}'
+    + '.assinaturas div{flex:1;border-top:1px solid #333;padding-top:6px;font-size:12px;text-align:center}'
+    + '@media print{body{padding:12px}}'
+    + '</style></head><body>'
+    + '<div class="header">'
+    + '<div class="org">NBDH2 Barretos — Núcleo Barretense de Desenvolvimento e Habilidades Humanas</div>'
+    + '<div class="titulo">' + rel.nome + '</div>'
+    + (metaLinha.length ? '<div class="meta">' + metaLinha.join(' &nbsp;|&nbsp; ') + '</div>' : '')
+    + '</div>'
+    + tabelaPrint(rel.atletas,    'Atletas',    'Modalidade / Categoria')
+    + tabelaPrint(rel.professores,'Professores','Cargo / Função')
+    + tabelaPrint(rel.auxiliares, 'Auxiliares', 'Cargo / Função')
+    + '<div class="assinaturas"><div>Responsável Técnico</div><div>Diretor / Coordenador</div></div>'
+    + '</body></html>';
+
+  var janela = window.open('', '_blank');
+  if (janela) {
+    janela.document.write(html);
+    janela.document.close();
+    janela.focus();
+    janela.print();
+  } else {
+    alert('Pop-up bloqueado. Libere pop-ups para este site e tente novamente.');
+  }
+}
+
+/* ── CONFIRM ── */
+function abrirConfirm(titulo, msg, cb) {
+  document.getElementById('confirm-titulo').textContent = titulo;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCallback = cb;
+  document.getElementById('confirm-overlay').classList.add('aberto');
+}
+function executarConfirm() {
+  var cb = confirmCallback;
+  fecharConfirm();
+  if (cb) cb();
+}
+function fecharConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('aberto');
+  confirmCallback = null;
+}
+</script>
+</body>
+</html>
