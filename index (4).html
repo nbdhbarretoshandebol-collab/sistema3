@@ -195,7 +195,47 @@ tr:hover td { background: #f8f9fe; }
 .btn-home { padding: 6px 14px; background: rgba(255,255,255,.12); color: white; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
 .btn-home:hover { background: rgba(255,255,255,.22); }
 
-/* ── UTILS ── */
+/* ── RELAÇÕES ── */
+.rel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; margin-top: 4px; }
+.rel-card { background: white; border-radius: 14px; border: 1px solid var(--borda); overflow: hidden; }
+.rel-card-header { background: var(--azul-esc); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.rel-card-titulo { font-family: 'Sora',sans-serif; font-size: 15px; font-weight: 600; color: white; flex: 1; }
+.rel-card-meta { font-size: 12px; color: rgba(255,255,255,.65); }
+.rel-card-body { padding: 14px 18px; }
+.rel-secao { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--leve); margin: 12px 0 6px; }
+.rel-secao:first-child { margin-top: 0; }
+.rel-membro { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f1f8; }
+.rel-membro:last-child { border-bottom: none; }
+.rel-membro-info { flex: 1; }
+.rel-membro-nome { font-size: 14px; font-weight: 500; }
+.rel-membro-sub { font-size: 12px; color: var(--leve); }
+.rel-membro-rm { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; }
+.rel-membro-rm:hover { background: #fee2e2; }
+.rel-empty { font-size: 13px; color: var(--leve); text-align: center; padding: 12px 0; }
+.rel-add-row { display: flex; gap: 8px; margin-top: 10px; }
+.rel-add-row select { flex: 1; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
+.rel-add-row select:focus { outline: none; border-color: var(--azul); }
+.rel-card-footer { padding: 12px 18px; border-top: 1px solid var(--borda); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ── IMPRESSÃO ── */
+@media print {
+  body * { visibility: hidden; }
+  .print-area { display: block !important; visibility: visible !important; position: fixed; top: 0; left: 0; width: 100%; padding: 20px; background: white; z-index: 9999; }
+  .print-area * { visibility: visible !important; }
+  .print-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 12px; }
+  .print-titulo { font-size: 20px; font-weight: 700; }
+  .print-meta { font-size: 13px; color: #444; margin-top: 4px; }
+  .print-secao { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin: 16px 0 6px; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  .print-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .print-table th { background: #eee; padding: 7px 10px; text-align: left; border: 1px solid #ccc; }
+  .print-table td { padding: 7px 10px; border: 1px solid #ccc; }
+  .print-table tr:nth-child(even) td { background: #f9f9f9; }
+  .print-assinatura { margin-top: 40px; display: flex; justify-content: space-around; }
+  .print-assinatura div { text-align: center; }
+  .print-assinatura div span { display: block; border-top: 1px solid #000; width: 200px; margin: 0 auto 6px; padding-top: 6px; font-size: 12px; }
+}
+
+ */
 .loading { text-align: center; padding: 40px; color: var(--leve); font-size: 14px; }
 .spinner { width: 24px; height: 24px; border: 3px solid var(--borda); border-top-color: var(--azul); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 10px; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -253,6 +293,7 @@ tr:hover td { background: #f8f9fe; }
       <button class="nav-btn" onclick="irPara('agenda',this)">📅 Agenda</button>
       <button class="nav-btn" onclick="irPara('equipe',this)">👥 Equipe</button>
       <button class="nav-btn" onclick="irPara('anotacoes',this)">📝 Anotações</button>
+      <button class="nav-btn" onclick="irPara('relacoes',this)">📋 Relações</button>
     </div>
   </div>
   <div class="content">
@@ -454,10 +495,71 @@ tr:hover td { background: #f8f9fe; }
       </div>
     </div>
 
+    <!-- ══ RELAÇÕES NOMINAIS ══ -->
+    <div class="pagina" id="pag-relacoes">
+      <div class="page-title">Relações Nominais</div>
+
+      <!-- Formulário nova relação -->
+      <div class="form-inline" id="form-relacao" style="display:none">
+        <div class="form-grid">
+          <div class="form-group-i">
+            <label>Nome da relação *</label>
+            <input type="text" id="rel-nome" placeholder="Ex: Time A — Federação Paulista">
+          </div>
+          <div class="form-group-i">
+            <label>Evento / Jogo</label>
+            <input type="text" id="rel-evento" placeholder="Ex: Campeonato Paulista — Rodada 5">
+          </div>
+          <div class="form-group-i">
+            <label>Adversário</label>
+            <input type="text" id="rel-adversario" placeholder="Ex: EC Bauru">
+          </div>
+          <div class="form-group-i">
+            <label>Local</label>
+            <input type="text" id="rel-local" placeholder="Ex: Ginásio Municipal">
+          </div>
+          <div class="form-group-i">
+            <label>Data</label>
+            <input type="date" id="rel-data">
+          </div>
+          <div class="form-group-i">
+            <label>Horário</label>
+            <input type="time" id="rel-hora">
+          </div>
+          <div class="form-group-i">
+            <label>Modalidade</label>
+            <select id="rel-modalidade">
+              <option value="">Geral</option>
+              <option>Handebol</option><option>Xadrez</option><option>Vôlei</option>
+            </select>
+          </div>
+          <div class="form-group-i">
+            <label>Categoria</label>
+            <input type="text" id="rel-categoria" placeholder="Ex: Sub-18, Adulto...">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-success" onclick="criarRelacao()">✓ Criar relação</button>
+          <button class="btn btn-ghost" onclick="toggleFormRelacao(false)">Cancelar</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-amarelo" onclick="toggleFormRelacao(true)">+ Nova relação</button>
+      </div>
+
+      <div id="lista-relacoes">
+        <div class="vazio"><div class="vazio-icon">📋</div>Nenhuma relação criada ainda.</div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /app -->
 
-<!-- ══ MODAL ATLETA ══ -->
+<!-- ══ ÁREA DE IMPRESSÃO ══ -->
+<div id="print-area" class="print-area" style="display:none"></div>
+
+
 <div class="overlay" id="overlay-atleta" onclick="fecharOverlay('atleta',event)">
   <div class="modal">
     <div class="modal-header">
@@ -483,15 +585,18 @@ tr:hover td { background: #f8f9fe; }
     <div class="confirm-msg" id="confirm-msg">Esta ação não pode ser desfeita.</div>
     <div class="confirm-btns">
       <button class="btn btn-ghost" onclick="fecharConfirm()">Cancelar</button>
-      <button class="btn btn-danger" id="confirm-ok">Excluir</button>
+      <button class="btn btn-danger" id="confirm-ok" onclick="executarConfirm()">Excluir</button>
     </div>
   </div>
 </div>
 
 <script>
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzfB93bKbYp7F4RW_wEXZCk7n4Mciaa1Q8grmGRt6AWJBepWR812AQXXI1J6MCXjwc7Kw/exec';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS89SYrOyFvcQ9iCjxhVSJC_mhNZJUjOCU4P0xTCEv4K6Hgo04eFdIssFk29vorYwUSQ/exec';
 var usuarioLogado = null;
 var todosAtletas = [];
+var todosEventos = [];
+var todaEquipe = [];
+var todasAnotacoes = [];
 var atletaAtual = null;
 var linhaAtleta = null;
 var confirmCallback = null;
@@ -546,6 +651,7 @@ function mostrarApp() {
   carregarAgenda();
   carregarEquipe();
   carregarAnotacoes();
+  carregarRelacoes();
 }
 
 function logout() {
@@ -733,9 +839,20 @@ function confirmarExclusao(tipo) {
 }
 
 function excluirAtleta() {
-  fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'excluir',tipo:'atleta',linha:linhaAtleta})})
-    .then(function(){ fecharOverlay('atleta'); carregarAtletas(); })
-    .catch(function(){ alert('Erro ao excluir.'); });
+  // ✅ Fecha o perfil imediatamente para evitar confusão
+  fecharOverlay('atleta');
+
+  // Atualiza a lista local na hora (sem esperar o servidor)
+  todosAtletas = todosAtletas.filter(function(a){
+    return Number(a.linha) !== Number(linhaAtleta);
+  });
+  renderTabelaAtletas(todosAtletas);
+  renderStatsAtletas();
+
+  // Envia a exclusão ao servidor em segundo plano
+  fetch(SCRIPT_URL + '?acao=excluir&tipo=atleta&linha=' + linhaAtleta + '&t=' + Date.now())
+    .then(function(){ carregarAtletas(); }) // recarrega do servidor para garantir sincronia
+    .catch(function(){ carregarAtletas(); });
 }
 
 function fecharOverlay(tipo, e) {
@@ -747,7 +864,7 @@ function fecharOverlay(tipo, e) {
 function carregarAgenda() {
   fetch(SCRIPT_URL + '?acao=listarAgenda')
     .then(function(r){ return r.text(); })
-    .then(function(t){ renderAgenda(JSON.parse(t).eventos||[]); })
+    .then(function(t){ todosEventos = JSON.parse(t).eventos||[]; renderAgenda(todosEventos); })
     .catch(function(){ document.getElementById('lista-eventos').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
 }
 
@@ -787,8 +904,13 @@ function salvarEvento() {
 
 function excluirEvento(linha) {
   abrirConfirm('Excluir evento', 'Deseja excluir este evento?', function(){
-    fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'excluir',tipo:'agenda',linha:linha})})
-      .then(function(){ carregarAgenda(); });
+    // Remove da lista local imediatamente
+    todosEventos = todosEventos.filter(function(ev){ return Number(ev.linha) !== Number(linha); });
+    renderAgenda(todosEventos);
+    // Envia ao servidor em segundo plano
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=agenda&linha=' + linha)
+      .then(function(){ carregarAgenda(); })
+      .catch(function(){ carregarAgenda(); });
   });
 }
 
@@ -796,7 +918,7 @@ function excluirEvento(linha) {
 function carregarEquipe() {
   fetch(SCRIPT_URL + '?acao=listarEquipe')
     .then(function(r){ return r.text(); })
-    .then(function(t){ renderEquipe(JSON.parse(t).equipe||[]); })
+    .then(function(t){ todaEquipe = JSON.parse(t).equipe||[]; renderEquipe(todaEquipe); })
     .catch(function(){ document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
 }
 
@@ -837,8 +959,13 @@ function salvarColaborador() {
 
 function excluirColaboradorDireto(linha, nome) {
   abrirConfirm('Excluir colaborador', 'Excluir "'+decodeURIComponent(nome)+'"?', function(){
-    fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'excluir',tipo:'equipe',linha:linha})})
-      .then(function(){ carregarEquipe(); });
+    // Remove da lista local imediatamente
+    todaEquipe = todaEquipe.filter(function(c){ return Number(c.linha) !== Number(linha); });
+    renderEquipe(todaEquipe);
+    // Envia ao servidor em segundo plano
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=equipe&linha=' + linha)
+      .then(function(){ carregarEquipe(); })
+      .catch(function(){ carregarEquipe(); });
   });
 }
 
@@ -848,7 +975,7 @@ function excluirColaborador() { excluirColaboradorDireto(linhaAtleta, encodeURIC
 function carregarAnotacoes() {
   fetch(SCRIPT_URL + '?acao=listarAnotacoes')
     .then(function(r){ return r.text(); })
-    .then(function(t){ renderAnotacoes(JSON.parse(t).anotacoes||[]); })
+    .then(function(t){ todasAnotacoes = JSON.parse(t).anotacoes||[]; renderAnotacoes(todasAnotacoes); })
     .catch(function(){ document.getElementById('lista-anot').innerHTML = '<div class="vazio">Erro ao carregar.</div>'; });
 }
 
@@ -883,22 +1010,312 @@ function salvarAnot() {
 
 function excluirAnot(linha) {
   abrirConfirm('Excluir anotacao', 'Deseja excluir esta anotacao?', function(){
-    fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'excluir',tipo:'anotacao',linha:linha})})
-      .then(function(){ carregarAnotacoes(); });
+    // Remove da lista local imediatamente
+    todasAnotacoes = todasAnotacoes.filter(function(a){ return Number(a.linha) !== Number(linha); });
+    renderAnotacoes(todasAnotacoes);
+    // Envia ao servidor em segundo plano
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=anotacao&linha=' + linha)
+      .then(function(){ carregarAnotacoes(); })
+      .catch(function(){ carregarAnotacoes(); });
   });
 }
 
-// CONFIRMACAO
+// ══ RELAÇÕES NOMINAIS ══
+var todasRelacoes = [];
+
+function toggleFormRelacao(show) {
+  document.getElementById('form-relacao').style.display = show ? 'block' : 'none';
+  if (show) {
+    ['rel-nome','rel-evento','rel-adversario','rel-local','rel-data','rel-hora','rel-categoria'].forEach(function(id){ document.getElementById(id).value = ''; });
+    document.getElementById('rel-modalidade').value = '';
+  }
+}
+
+function carregarRelacoes() {
+  fetch(SCRIPT_URL + '?acao=listarRelacoes')
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      var data = JSON.parse(t);
+      todasRelacoes = (data.relacoes||[]).map(function(r){
+        return {
+          id: r.id,
+          linha: r.linha,
+          nome: r.nome,
+          evento: r.evento||'',
+          adversario: r.adversario||'',
+          local: r.local||'',
+          data: r.data||'',
+          hora: r.hora||'',
+          modalidade: r.modalidade||'',
+          categoria: r.categoria||'',
+          atletas: r.atletas ? JSON.parse(r.atletas) : [],
+          professores: r.professores ? JSON.parse(r.professores) : [],
+          auxiliares: r.auxiliares ? JSON.parse(r.auxiliares) : []
+        };
+      });
+      renderRelacoes();
+    })
+    .catch(function(){ document.getElementById('lista-relacoes').innerHTML = '<div class="vazio">Erro ao carregar relações.</div>'; });
+}
+
+function criarRelacao() {
+  var nome = document.getElementById('rel-nome').value.trim();
+  if (!nome) { alert('Informe o nome da relação.'); return; }
+  var rel = {
+    id: Date.now(),
+    linha: null,
+    nome: nome,
+    evento: document.getElementById('rel-evento').value.trim(),
+    adversario: document.getElementById('rel-adversario').value.trim(),
+    local: document.getElementById('rel-local').value.trim(),
+    data: document.getElementById('rel-data').value,
+    hora: document.getElementById('rel-hora').value,
+    modalidade: document.getElementById('rel-modalidade').value,
+    categoria: document.getElementById('rel-categoria').value.trim(),
+    atletas: [],
+    professores: [],
+    auxiliares: []
+  };
+  todasRelacoes.push(rel);
+  toggleFormRelacao(false);
+  renderRelacoes();
+  salvarRelacao(rel);
+}
+
+function salvarRelacao(rel) {
+  var dados = {
+    id: String(rel.id),
+    linha: rel.linha || '',
+    nome: rel.nome,
+    evento: rel.evento||'',
+    adversario: rel.adversario||'',
+    local: rel.local||'',
+    data: rel.data||'',
+    hora: rel.hora||'',
+    modalidade: rel.modalidade||'',
+    categoria: rel.categoria||'',
+    atletas: JSON.stringify(rel.atletas),
+    professores: JSON.stringify(rel.professores),
+    auxiliares: JSON.stringify(rel.auxiliares)
+  };
+  fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'salvarRelacao', dados:dados})});
+}
+
+function excluirRelacao(id, linha) {
+  abrirConfirm('Excluir relação', 'Deseja excluir esta relação nominal?', function(){
+    var rel = todasRelacoes.find(function(r){ return String(r.id) === String(id); });
+    if (!rel && linha) rel = todasRelacoes.find(function(r){ return Number(r.linha) === Number(linha); });
+    todasRelacoes = todasRelacoes.filter(function(r){ return String(r.id) !== String(id) && Number(r.linha) !== Number(linha); });
+    renderRelacoes();
+    var linhaExcluir = rel ? rel.linha : linha;
+    if (linhaExcluir) {
+      fetch(SCRIPT_URL + '?acao=excluirRelacao&linha=' + linhaExcluir).catch(function(){});
+    }
+  });
+}
+
+function addMembroRelacao(idx, tipo) {
+  var rel = todasRelacoes[idx];
+  if (!rel) return;
+  var sel = document.getElementById('sel-' + tipo + '-' + idx);
+  if (!sel || !sel.value) return;
+  var val = sel.value;
+  var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
+  var jaExiste = rel.atletas.concat(rel.professores).concat(rel.auxiliares).find(function(m){ return m.id === val; });
+  if (jaExiste) { sel.value = ''; return; }
+  var membro;
+  if (tipo === 'atleta') {
+    var a = todosAtletas.find(function(x){ return String(x.linha) === val; });
+    if (!a) return;
+    membro = { id: val, nome: a.nome, sub: (a.modalidade||'') + (a.categoria ? ' · ' + a.categoria : '') };
+  } else {
+    var c = todaEquipe.find(function(x){ return String(x.linha) === val; });
+    if (!c) return;
+    membro = { id: val, nome: c.nome, sub: c.cargo||'' };
+  }
+  lista.push(membro);
+  sel.value = '';
+  renderRelacoes();
+  salvarRelacao(rel);
+}
+
+function removerMembroRelacao(idx, tipo, memId) {
+  var rel = todasRelacoes[idx];
+  if (!rel) return;
+  if (tipo === 'atleta') rel.atletas = rel.atletas.filter(function(m){ return m.id !== memId; });
+  else if (tipo === 'professor') rel.professores = rel.professores.filter(function(m){ return m.id !== memId; });
+  else rel.auxiliares = rel.auxiliares.filter(function(m){ return m.id !== memId; });
+  renderRelacoes();
+  salvarRelacao(rel);
+}
+
+function renderSecaoRelacao(rel, idx, tipo, label, emoji, bgCor, txtCor, opcoes) {
+  var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
+  var h = '';
+  h += '<div class="rel-secao">' + emoji + ' ' + label + ' (' + lista.length + ')</div>';
+  if (lista.length) {
+    lista.forEach(function(m, i) {
+      h += '<div class="rel-membro">';
+      h += '<div class="avatar" style="background:' + bgCor + ';color:' + txtCor + ';font-size:11px;width:28px;height:28px">' + (tipo === 'atleta' ? (i+1) : (m.nome||'?').split(' ').slice(0,2).map(function(n){return n[0];}).join('')) + '</div>';
+      h += '<div class="rel-membro-info"><div class="rel-membro-nome">' + m.nome + '</div><div class="rel-membro-sub">' + m.sub + '</div></div>';
+      h += '<button class="rel-membro-rm" onclick="removerMembroRelacao(' + idx + ',\'' + tipo + '\',\'' + m.id + '\')" title="Remover">×</button>';
+      h += '</div>';
+    });
+  } else {
+    h += '<div class="rel-empty">Nenhum ' + label.toLowerCase() + ' adicionado</div>';
+  }
+  h += '<div class="rel-add-row"><select id="sel-' + tipo + '-' + idx + '" onchange="addMembroRelacao(' + idx + ',\'' + tipo + '\')">' + opcoes + '</select></div>';
+  return h;
+}
+
+function renderRelacoes() {
+  var cont = document.getElementById('lista-relacoes');
+  if (!todasRelacoes.length) {
+    cont.innerHTML = '<div class="vazio"><div class="vazio-icon">📋</div>Nenhuma relação criada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova relação" para começar.</small></div>';
+    return;
+  }
+
+  var optsAtletas = '<option value="">➕ Adicionar atleta</option>' +
+    todosAtletas.filter(function(a){ return a.status === 'Aprovado' || a.status === 'Ativo'; }).map(function(a){
+      return '<option value="' + a.linha + '">' + a.nome + (a.modalidade ? ' (' + a.modalidade + ')' : '') + '</option>';
+    }).join('') +
+    (todosAtletas.filter(function(a){ return a.status !== 'Aprovado' && a.status !== 'Ativo'; }).length ?
+      '<optgroup label="── Pendentes/Outros ──">' +
+      todosAtletas.filter(function(a){ return a.status !== 'Aprovado' && a.status !== 'Ativo'; }).map(function(a){
+        return '<option value="' + a.linha + '">' + a.nome + ' (' + (a.status||'') + ')</option>';
+      }).join('') + '</optgroup>' : '');
+
+  var optsProf = '<option value="">➕ Adicionar professor</option>' +
+    todaEquipe.map(function(c){ return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('');
+
+  var optsAux = '<option value="">➕ Adicionar auxiliar</option>' +
+    todaEquipe.map(function(c){ return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('');
+
+  var h = '<div class="rel-grid">';
+  todasRelacoes.forEach(function(rel, idx) {
+    var meta = [];
+    if (rel.data) meta.push('📅 ' + rel.data.split('-').reverse().join('/') + (rel.hora ? ' às ' + rel.hora : ''));
+    if (rel.adversario) meta.push('⚔️ x ' + rel.adversario);
+    if (rel.local) meta.push('📍 ' + rel.local);
+    if (rel.modalidade) meta.push(rel.modalidade);
+    if (rel.categoria) meta.push(rel.categoria);
+
+    var total = rel.atletas.length + rel.professores.length + rel.auxiliares.length;
+
+    h += '<div class="rel-card">';
+    h += '<div class="rel-card-header">';
+    h += '<div><div class="rel-card-titulo">' + rel.nome + '</div>';
+    if (rel.evento) h += '<div class="rel-card-meta">' + rel.evento + '</div>';
+    if (meta.length) h += '<div class="rel-card-meta" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:8px">' + meta.map(function(m){ return '<span>' + m + '</span>'; }).join('') + '</div>';
+    h += '</div>';
+    h += '<span class="badge badge-azul" style="align-self:flex-start;white-space:nowrap">' + total + ' pessoa' + (total !== 1 ? 's' : '') + '</span>';
+    h += '</div>';
+
+    h += '<div class="rel-card-body">';
+    h += renderSecaoRelacao(rel, idx, 'atleta',    'Atletas',    '🏃', 'var(--azul-cl)', 'var(--azul)',   optsAtletas);
+    h += renderSecaoRelacao(rel, idx, 'professor', 'Professores','🎓', '#d1fae5',        '#065f46',       optsProf);
+    h += renderSecaoRelacao(rel, idx, 'auxiliar',  'Auxiliares', '🤝', '#fef3c7',        '#92400e',       optsAux);
+    h += '</div>';
+
+    h += '<div class="rel-card-footer">';
+    h += '<button class="btn btn-danger btn-sm" onclick="excluirRelacao(\'' + rel.id + '\',' + rel.linha + ')">🗑 Excluir</button>';
+    h += '<button class="btn btn-primary btn-sm" onclick="imprimirRelacao(\'' + rel.id + '\',' + rel.linha + ')">🖨️ Imprimir</button>';
+    h += '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+  cont.innerHTML = h;
+}
+
+function imprimirRelacao(id, linha) {
+  var rel = todasRelacoes.find(function(r){ return String(r.id) === String(id); });
+  // fallback por linha (quando id é arredondado pelo Google Sheets)
+  if (!rel && linha) rel = todasRelacoes.find(function(r){ return Number(r.linha) === Number(linha); });
+  if (!rel) { alert('Relação não encontrada. Tente recarregar a página.'); return; }
+
+  var dataFmt = rel.data ? rel.data.split('-').reverse().join('/') : '';
+  var metaLinha = [];
+  if (rel.evento) metaLinha.push(rel.evento);
+  if (rel.adversario) metaLinha.push('Adversário: ' + rel.adversario);
+  if (rel.local) metaLinha.push('Local: ' + rel.local);
+  if (dataFmt) metaLinha.push('Data: ' + dataFmt + (rel.hora ? ' às ' + rel.hora : ''));
+  if (rel.modalidade) metaLinha.push('Modalidade: ' + rel.modalidade);
+  if (rel.categoria) metaLinha.push('Categoria: ' + rel.categoria);
+
+  function tabelaPrint(lista, titulo, colFuncao) {
+    if (!lista.length) return '';
+    var t = '<div class="print-secao">' + titulo + ' — ' + lista.length + ' pessoa' + (lista.length !== 1 ? 's' : '') + '</div>';
+    t += '<table class="print-table"><thead><tr><th style="width:36px">#</th><th>Nome completo</th><th>' + colFuncao + '</th><th style="width:160px">Assinatura</th></tr></thead><tbody>';
+    lista.forEach(function(m, idx) {
+      t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td></td></tr>';
+    });
+    t += '</tbody></table>';
+    return t;
+  }
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">';
+  html += '<title>Relação — ' + rel.nome + '</title>';
+  html += '<style>';
+  html += 'body { font-family: Arial, sans-serif; padding: 24px; color: #111; }';
+  html += '.header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; }';
+  html += '.org { font-size: 12px; color: #555; margin-bottom: 4px; }';
+  html += '.titulo { font-size: 20px; font-weight: 700; margin-bottom: 4px; }';
+  html += '.meta { font-size: 13px; color: #444; }';
+  html += '.secao { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin: 18px 0 6px; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 4px; }';
+  html += 'table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }';
+  html += 'th { background: #eee; padding: 7px 10px; text-align: left; border: 1px solid #ccc; }';
+  html += 'td { padding: 7px 10px; border: 1px solid #ddd; }';
+  html += 'tr:nth-child(even) td { background: #f9f9f9; }';
+  html += '.assinaturas { display: flex; gap: 40px; margin-top: 40px; }';
+  html += '.assinaturas div { flex: 1; border-top: 1px solid #333; padding-top: 6px; font-size: 12px; text-align: center; }';
+  html += '@media print { body { padding: 12px; } }';
+  html += '</style></head><body>';
+
+  html += '<div class="header">';
+  html += '<div class="org">NBDH2 Barretos — Núcleo Barretense de Desenvolvimento e Habilidades Humanas</div>';
+  html += '<div class="titulo">' + rel.nome + '</div>';
+  if (metaLinha.length) html += '<div class="meta">' + metaLinha.join(' &nbsp;|&nbsp; ') + '</div>';
+  html += '</div>';
+
+  html += tabelaPrint(rel.atletas,    'Atletas',    'Modalidade / Categoria');
+  html += tabelaPrint(rel.professores,'Professores','Cargo / Função');
+  html += tabelaPrint(rel.auxiliares, 'Auxiliares', 'Cargo / Função');
+
+  html += '<div class="assinaturas">';
+  html += '<div>Responsável Técnico</div>';
+  html += '<div>Diretor / Coordenador</div>';
+  html += '</div>';
+
+  html += '</body></html>';
+
+  // Abre em nova aba — funciona em mobile e desktop sem depender de window.print()
+  var janela = window.open('', '_blank');
+  if (janela) {
+    janela.document.write(html);
+    janela.document.close();
+    janela.focus();
+    janela.print();
+  } else {
+    // Fallback: se pop-up bloqueado, usa a área de impressão inline
+    var area = document.getElementById('print-area');
+    area.innerHTML = '<p style="font-family:Arial;padding:20px">Pop-up bloqueado pelo navegador. Libere pop-ups para este site e tente novamente.</p>';
+    area.style.display = 'block';
+    window.print();
+    area.style.display = 'none';
+  }
+}
+// ══ FIM RELAÇÕES ══
 function abrirConfirm(titulo, msg, cb) {
   document.getElementById('confirm-titulo').textContent = titulo;
   document.getElementById('confirm-msg').textContent = msg;
   confirmCallback = cb;
   document.getElementById('confirm-overlay').classList.add('aberto');
 }
-document.getElementById('confirm-ok').onclick = function() {
+function executarConfirm() {
+  var cb = confirmCallback;
   fecharConfirm();
-  if (confirmCallback) confirmCallback();
-};
+  if (cb) cb();
+}
 function fecharConfirm() { document.getElementById('confirm-overlay').classList.remove('aberto'); confirmCallback = null; }
 </script>
 </body>
