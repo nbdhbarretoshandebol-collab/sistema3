@@ -424,6 +424,14 @@ tr:hover td { background: #f8f9fe; }
             <input type="text" id="col-cargo" placeholder="Ex: Técnico, Auxiliar...">
           </div>
           <div class="form-group-i">
+            <label>CPF</label>
+            <input type="text" id="col-cpf" placeholder="000.000.000-00">
+          </div>
+          <div class="form-group-i">
+            <label>CREF (se houver)</label>
+            <input type="text" id="col-cref" placeholder="Ex: 123456-G/SP">
+          </div>
+          <div class="form-group-i">
             <label>Telefone</label>
             <input type="text" id="col-tel" placeholder="(17) 99999-9999">
           </div>
@@ -926,6 +934,8 @@ function carregarEquipe() {
           return c.nome && isNaN(c.nome) && String(c.nome).trim() !== '';
         });
         renderEquipe(todaEquipe);
+        // Atualiza os selects das relações se estiverem abertos
+        if (todasRelacoes.length) renderRelacoes();
       } catch(e) {
         console.error('Erro ao parsear equipe:', t);
         document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
@@ -963,9 +973,17 @@ function salvarColaborador() {
   var nome  = document.getElementById('col-nome').value.trim();
   var cargo = document.getElementById('col-cargo').value.trim();
   if (!nome||!cargo) { alert('Nome e cargo sao obrigatorios.'); return; }
-  var col = {nome:nome, cargo:cargo, telefone:document.getElementById('col-tel').value, email:document.getElementById('col-email').value, modalidade:document.getElementById('col-modal').value, status:document.getElementById('col-status').value};
+  var col = {
+    nome: nome, cargo: cargo,
+    cpf: document.getElementById('col-cpf').value.trim(),
+    cref: document.getElementById('col-cref').value.trim(),
+    telefone: document.getElementById('col-tel').value,
+    email: document.getElementById('col-email').value,
+    modalidade: document.getElementById('col-modal').value,
+    status: document.getElementById('col-status').value
+  };
   toggleFormColaborador(false);
-  ['col-nome','col-cargo','col-tel','col-email'].forEach(function(id){ document.getElementById(id).value=''; });
+  ['col-nome','col-cargo','col-cpf','col-cref','col-tel','col-email'].forEach(function(id){ document.getElementById(id).value=''; });
   fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({acao:'adicionarColaborador',dados:col})})
     .then(function(){ setTimeout(function(){ carregarEquipe(); }, 1500); })
     .catch(function(){ setTimeout(function(){ carregarEquipe(); }, 1500); });
@@ -1048,21 +1066,34 @@ function carregarRelacoes() {
     .then(function(r){ return r.text(); })
     .then(function(t){
       var data = JSON.parse(t);
+
+      function enriquecerAtleta(m) {
+        // Se já tem CPF salvo, usa. Senão busca no todosAtletas pelo id
+        if (m.cpf || m.rg) return m;
+        var linhaId = String(m.id).replace('atleta_','');
+        var a = todosAtletas.find(function(x){ return String(x.linha) === linhaId; });
+        if (a) { m.cpf = a.cpf||''; m.rg = a.rg||''; m.nascimento = a.nascimento||''; }
+        return m;
+      }
+
+      function enriquecerColab(m) {
+        if (m.cpf) return m;
+        var linhaId = String(m.id).replace('professor_','').replace('auxiliar_','');
+        var c = todaEquipe.find(function(x){ return String(x.linha) === linhaId; });
+        if (c) { m.cpf = c.cpf||''; m.cref = c.cref||''; }
+        return m;
+      }
+
       todasRelacoes = (data.relacoes||[]).map(function(r){
+        var atletas     = (r.atletas     ? JSON.parse(r.atletas)     : []).map(enriquecerAtleta);
+        var professores = (r.professores ? JSON.parse(r.professores) : []).map(enriquecerColab);
+        var auxiliares  = (r.auxiliares  ? JSON.parse(r.auxiliares)  : []).map(enriquecerColab);
         return {
-          id: r.id,
-          linha: r.linha,
-          nome: r.nome,
-          evento: r.evento||'',
-          adversario: r.adversario||'',
-          local: r.local||'',
-          data: r.data||'',
-          hora: r.hora||'',
-          modalidade: r.modalidade||'',
-          categoria: r.categoria||'',
-          atletas: r.atletas ? JSON.parse(r.atletas) : [],
-          professores: r.professores ? JSON.parse(r.professores) : [],
-          auxiliares: r.auxiliares ? JSON.parse(r.auxiliares) : []
+          id: r.id, linha: r.linha, nome: r.nome,
+          evento: r.evento||'', adversario: r.adversario||'',
+          local: r.local||'', data: r.data||'', hora: r.hora||'',
+          modalidade: r.modalidade||'', categoria: r.categoria||'',
+          atletas: atletas, professores: professores, auxiliares: auxiliares
         };
       });
       renderRelacoes();
@@ -1142,11 +1173,31 @@ function addMembroRelacao(idx, tipo) {
   if (tipo === 'atleta') {
     var a = todosAtletas.find(function(x){ return String(x.linha) === val; });
     if (!a) return;
-    membro = { id: tipo + '_' + val, nome: a.nome, sub: (a.modalidade||'') + (a.categoria ? ' · ' + a.categoria : '') };
+    membro = {
+      id: tipo + '_' + val,
+      nome: a.nome,
+      sub: (a.modalidade||'') + (a.categoria ? ' · ' + a.categoria : ''),
+      cpf: a.cpf||'',
+      rg: a.rg||'',
+      nascimento: a.nascimento||''
+    };
   } else {
     var c = todaEquipe.find(function(x){ return String(x.linha) === val; });
-    if (!c) return;
-    membro = { id: tipo + '_' + val, nome: c.nome, sub: c.cargo||'' };
+    if (!c) {
+      if (todaEquipe.length === 0) {
+        alert('A lista de colaboradores ainda está carregando. Aguarde um momento e tente novamente.');
+        carregarEquipe();
+      }
+      sel.value = '';
+      return;
+    }
+    membro = {
+      id: tipo + '_' + val,
+      nome: c.nome,
+      sub: c.cargo||'',
+      cpf: c.cpf||'',
+      cref: c.cref||''
+    };
   }
   lista.push(membro);
   sel.value = '';
@@ -1200,11 +1251,18 @@ function renderRelacoes() {
         return '<option value="' + a.linha + '">' + a.nome + ' (' + (a.status||'') + ')</option>';
       }).join('') + '</optgroup>' : '');
 
+  // Se equipe vazia, tenta recarregar em segundo plano
+  if (todaEquipe.length === 0) carregarEquipe();
+
   var optsProf = '<option value="">➕ Adicionar professor</option>' +
-    todaEquipe.map(function(c){ return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('');
+    (todaEquipe.length
+      ? todaEquipe.map(function(c){ return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('')
+      : '<option disabled>Carregando colaboradores...</option>');
 
   var optsAux = '<option value="">➕ Adicionar auxiliar</option>' +
-    todaEquipe.map(function(c){ return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('');
+    (todaEquipe.length
+      ? todaEquipe.map(function(c){ return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('')
+      : '<option disabled>Carregando colaboradores...</option>');
 
   var h = '<div class="rel-grid">';
   todasRelacoes.forEach(function(rel, idx) {
@@ -1257,13 +1315,35 @@ function imprimirRelacao(id, linha) {
   if (rel.modalidade) metaLinha.push('Modalidade: ' + rel.modalidade);
   if (rel.categoria) metaLinha.push('Categoria: ' + rel.categoria);
 
-  function tabelaPrint(lista, titulo, colFuncao) {
+  function fmtData(d) {
+    if (!d) return '';
+    // Converte YYYY-MM-DD ou Date para DD/MM/YYYY
+    var s = String(d);
+    if (s.indexOf('T') > -1) s = s.split('T')[0]; // remove hora ISO
+    var p = s.split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return s;
+  }
+
+  function tabelaPrint(lista, titulo, tipo) {
     if (!lista.length) return '';
     var t = '<div class="print-secao">' + titulo + ' — ' + lista.length + ' pessoa' + (lista.length !== 1 ? 's' : '') + '</div>';
-    t += '<table class="print-table"><thead><tr><th style="width:36px">#</th><th>Nome completo</th><th>' + colFuncao + '</th><th style="width:160px">Assinatura</th></tr></thead><tbody>';
-    lista.forEach(function(m, idx) {
-      t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td></td></tr>';
-    });
+    if (tipo === 'atleta') {
+      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>CPF</th><th>RG</th><th>Nascimento</th><th>Modalidade/Cat.</th><th style="width:130px">Assinatura</th></tr></thead><tbody>';
+      lista.forEach(function(m, idx) {
+        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.rg||'') + '</td><td>' + fmtData(m.nascimento) + '</td><td>' + (m.sub||'') + '</td><td></td></tr>';
+      });
+    } else if (tipo === 'professor') {
+      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>CREF</th><th style="width:130px">Assinatura</th></tr></thead><tbody>';
+      lista.forEach(function(m, idx) {
+        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.cref||'') + '</td><td></td></tr>';
+      });
+    } else {
+      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>RG</th><th>Nascimento</th><th style="width:130px">Assinatura</th></tr></thead><tbody>';
+      lista.forEach(function(m, idx) {
+        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.rg||'') + '</td><td>' + fmtData(m.nascimento) + '</td><td></td></tr>';
+      });
+    }
     t += '</tbody></table>';
     return t;
   }
@@ -1292,9 +1372,9 @@ function imprimirRelacao(id, linha) {
   if (metaLinha.length) html += '<div class="meta">' + metaLinha.join(' &nbsp;|&nbsp; ') + '</div>';
   html += '</div>';
 
-  html += tabelaPrint(rel.atletas,    'Atletas',    'Modalidade / Categoria');
-  html += tabelaPrint(rel.professores,'Professores','Cargo / Função');
-  html += tabelaPrint(rel.auxiliares, 'Auxiliares', 'Cargo / Função');
+  html += tabelaPrint(rel.atletas,    'Atletas',    'atleta');
+  html += tabelaPrint(rel.professores,'Professores','professor');
+  html += tabelaPrint(rel.auxiliares, 'Auxiliares', 'auxiliar');
 
   html += '<div class="assinaturas">';
   html += '<div>Responsável Técnico</div>';
