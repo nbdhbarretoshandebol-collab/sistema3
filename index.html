@@ -1346,19 +1346,19 @@ function imprimirRelacao(id, linha) {
     if (!lista.length) return '';
     var t = '<div class="print-secao">' + titulo + ' — ' + lista.length + ' pessoa' + (lista.length !== 1 ? 's' : '') + '</div>';
     if (tipo === 'atleta') {
-      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>CPF</th><th>RG</th><th>Nascimento</th><th>Modalidade/Cat.</th><th style="width:130px">Assinatura</th></tr></thead><tbody>';
+      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>CPF</th><th>RG</th><th>Nascimento</th><th>Modalidade/Cat.</th></tr></thead><tbody>';
       lista.forEach(function(m, idx) {
-        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.rg||'') + '</td><td>' + fmtData(m.nascimento) + '</td><td>' + (m.sub||'') + '</td><td></td></tr>';
+        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.rg||'') + '</td><td>' + fmtData(m.nascimento) + '</td><td>' + (m.sub||'') + '</td></tr>';
       });
     } else if (tipo === 'professor') {
-      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>CREF</th><th style="width:130px">Assinatura</th></tr></thead><tbody>';
+      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>CREF</th></tr></thead><tbody>';
       lista.forEach(function(m, idx) {
-        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.cref||'') + '</td><td></td></tr>';
+        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.cref||'') + '</td></tr>';
       });
     } else {
-      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>RG</th><th>Nascimento</th><th style="width:130px">Assinatura</th></tr></thead><tbody>';
+      t += '<table class="print-table"><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>RG</th><th>Nascimento</th></tr></thead><tbody>';
       lista.forEach(function(m, idx) {
-        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.rg||'') + '</td><td>' + fmtData(m.nascimento) + '</td><td></td></tr>';
+        t += '<tr><td>' + (idx+1) + '</td><td>' + m.nome + '</td><td>' + (m.sub||'') + '</td><td>' + (m.cpf||'') + '</td><td>' + (m.rg||'') + '</td><td>' + fmtData(m.nascimento) + '</td></tr>';
       });
     }
     t += '</tbody></table>';
@@ -1392,11 +1392,6 @@ function imprimirRelacao(id, linha) {
   html += tabelaPrint(rel.atletas,    'Atletas',    'atleta');
   html += tabelaPrint(rel.professores,'Professores','professor');
   html += tabelaPrint(rel.auxiliares, 'Auxiliares', 'auxiliar');
-
-  html += '<div class="assinaturas">';
-  html += '<div>Responsável Técnico</div>';
-  html += '<div>Diretor / Coordenador</div>';
-  html += '</div>';
 
   html += '</body></html>';
 
