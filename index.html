@@ -655,11 +655,28 @@ function mostrarApp() {
   document.getElementById('app').style.display = 'flex';
   document.getElementById('topbar-user').textContent = '👤 ' + usuarioLogado;
   document.getElementById('home-usuario').textContent = 'Olá, ' + usuarioLogado + '!';
-  carregarAtletas();
+
+  // Carrega atletas e equipe primeiro, depois enriquece as relações
+  Promise.all([
+    fetch(SCRIPT_URL + '?acao=listar').then(function(r){ return r.text(); }).then(function(t){
+      todosAtletas = JSON.parse(t).atletas || [];
+      renderStatsAtletas(); renderTabelaAtletas(todosAtletas);
+    }).catch(function(){}),
+    fetch(SCRIPT_URL + '?acao=listarEquipe').then(function(r){ return r.text(); }).then(function(t){
+      try {
+        var inicio = t.indexOf('{'); if (inicio > 0) t = t.substring(inicio);
+        var lista = JSON.parse(t).equipe||[];
+        todaEquipe = lista.filter(function(c){ return c.nome && isNaN(c.nome) && String(c.nome).trim() !== ''; });
+        renderEquipe(todaEquipe);
+      } catch(e){}
+    }).catch(function(){})
+  ]).then(function(){
+    // Atletas e equipe prontos — agora carrega relações com enriquecimento correto
+    carregarRelacoes();
+  });
+
   carregarAgenda();
-  carregarEquipe();
   carregarAnotacoes();
-  carregarRelacoes();
 }
 
 function logout() {
