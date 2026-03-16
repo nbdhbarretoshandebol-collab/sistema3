@@ -739,6 +739,16 @@ function renderStatsAtletas() {
 function sc(n,l){ return '<div class="stat-card"><div class="stat-num">'+n+'</div><div class="stat-lbl">'+l+'</div></div>'; }
 
 function buscarAtletas() {
+  var txt = document.getElementById('busca-nome').value.toLowerCase();
+  var mod = document.getElementById('busca-mod').value;
+  var st  = document.getElementById('busca-st').value;
+  renderTabelaAtletas(todosAtletas.filter(function(a){
+    return (!txt||(a.nome||'').toLowerCase().includes(txt)||(a.cpf||'').includes(txt)||(a.rg||'').includes(txt))
+        && (!mod||a.modalidade===mod) && (!st||a.status===st)
+        && (!filtroSexoAtual||a.sexo===filtroSexoAtual);
+  }));
+}
+
 function calcIdade(nascimento) {
   if (!nascimento) return '';
   var s = String(nascimento);
@@ -768,16 +778,6 @@ function filtrarSexo(sexo) {
   var id = sexo === 'Masculino' ? 'aba-masc' : sexo === 'Feminino' ? 'aba-fem' : 'aba-todos';
   document.getElementById(id).classList.add('ativa');
   buscarAtletas();
-}
-
-  var txt = document.getElementById('busca-nome').value.toLowerCase();
-  var mod = document.getElementById('busca-mod').value;
-  var st  = document.getElementById('busca-st').value;
-  renderTabelaAtletas(todosAtletas.filter(function(a){
-    return (!txt||(a.nome||'').toLowerCase().includes(txt)||(a.cpf||'').includes(txt)||(a.rg||'').includes(txt))
-        && (!mod||a.modalidade===mod) && (!st||a.status===st)
-        && (!filtroSexoAtual||a.sexo===filtroSexoAtual);
-  }));
 }
 
 function renderTabelaAtletas(lista) {
