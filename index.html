@@ -84,6 +84,9 @@ body { font-family: 'DM Sans', sans-serif; background: var(--fundo); color: var(
 .busca-input { flex: 1; min-width: 180px; padding: 10px 14px; border: 1.5px solid var(--borda); border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--texto); }
 .busca-input:focus { outline: none; border-color: var(--azul); }
 .busca-select { padding: 10px 14px; border: 1.5px solid var(--borda); border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--texto); background: white; cursor: pointer; }
+.aba-sexo { padding: 8px 20px; border: none; background: none; font-size: 14px; font-weight: 500; color: var(--leve); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+.aba-sexo:hover { color: var(--azul); }
+.aba-sexo.ativa { color: var(--azul); border-bottom-color: var(--azul); font-weight: 600; }
 
 /* ── TABELA ── */
 .tbl-wrap { overflow-x: auto; }
@@ -359,6 +362,12 @@ tr:hover td { background: #f8f9fe; }
             </select>
             <button class="btn btn-primary" onclick="buscarAtletas()">Buscar</button>
           </div>
+          <!-- Abas Masculino / Feminino -->
+          <div style="display:flex;gap:8px;margin-top:12px;border-bottom:2px solid var(--borda);padding-bottom:0">
+            <button id="aba-todos" class="aba-sexo ativa" onclick="filtrarSexo('')">Todos</button>
+            <button id="aba-masc" class="aba-sexo" onclick="filtrarSexo('Masculino')">♂ Masculino</button>
+            <button id="aba-fem" class="aba-sexo" onclick="filtrarSexo('Feminino')">♀ Feminino</button>
+          </div>
         </div>
         <div class="tbl-wrap" id="tbl-atletas">
           <div class="loading"><div class="spinner"></div>Carregando atletas...</div>
@@ -602,6 +611,7 @@ tr:hover td { background: #f8f9fe; }
 var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS89SYrOyFvcQ9iCjxhVSJC_mhNZJUjOCU4P0xTCEv4K6Hgo04eFdIssFk29vorYwUSQ/exec';
 var usuarioLogado = null;
 var todosAtletas = [];
+var filtroSexoAtual = '';
 var todosEventos = [];
 var todaEquipe = [];
 var todasAnotacoes = [];
@@ -729,12 +739,44 @@ function renderStatsAtletas() {
 function sc(n,l){ return '<div class="stat-card"><div class="stat-num">'+n+'</div><div class="stat-lbl">'+l+'</div></div>'; }
 
 function buscarAtletas() {
+function calcIdade(nascimento) {
+  if (!nascimento) return '';
+  var s = String(nascimento);
+  if (s.indexOf('T') > -1) s = s.split('T')[0];
+  var p = s.split('-');
+  if (p.length !== 3) return s;
+  var hoje = new Date();
+  var dn = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  var idade = hoje.getFullYear() - dn.getFullYear();
+  var m = hoje.getMonth() - dn.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < dn.getDate())) idade--;
+  return idade + ' anos';
+}
+
+function fmtNasc(nascimento) {
+  if (!nascimento) return '';
+  var s = String(nascimento);
+  if (s.indexOf('T') > -1) s = s.split('T')[0];
+  var p = s.split('-');
+  if (p.length === 3) return p[2]+'/'+p[1]+'/'+p[0];
+  return s;
+}
+
+function filtrarSexo(sexo) {
+  filtroSexoAtual = sexo;
+  document.querySelectorAll('.aba-sexo').forEach(function(b){ b.classList.remove('ativa'); });
+  var id = sexo === 'Masculino' ? 'aba-masc' : sexo === 'Feminino' ? 'aba-fem' : 'aba-todos';
+  document.getElementById(id).classList.add('ativa');
+  buscarAtletas();
+}
+
   var txt = document.getElementById('busca-nome').value.toLowerCase();
   var mod = document.getElementById('busca-mod').value;
   var st  = document.getElementById('busca-st').value;
   renderTabelaAtletas(todosAtletas.filter(function(a){
     return (!txt||(a.nome||'').toLowerCase().includes(txt)||(a.cpf||'').includes(txt)||(a.rg||'').includes(txt))
-        && (!mod||a.modalidade===mod) && (!st||a.status===st);
+        && (!mod||a.modalidade===mod) && (!st||a.status===st)
+        && (!filtroSexoAtual||a.sexo===filtroSexoAtual);
   }));
 }
 
@@ -743,17 +785,19 @@ function renderTabelaAtletas(lista) {
     document.getElementById('tbl-atletas').innerHTML = '<div class="vazio"><div class="vazio-icon">🔍</div>Nenhum atleta encontrado.</div>';
     return;
   }
-  var h = '<table><thead><tr><th>Atleta</th><th>CPF</th><th>Nascimento</th><th>Modalidade</th><th>Categoria</th><th>Status</th><th>Aprovação</th><th></th></tr></thead><tbody>';
+  var h = '<table><thead><tr><th>Atleta</th><th>Sexo</th><th>Idade</th><th>Nascimento</th><th>Modalidade</th><th>Status</th><th>Aprovação</th><th></th></tr></thead><tbody>';
   lista.forEach(function(a) {
     var ini = (a.nome||'?').split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
     var cor = corMod(a.modalidade);
     var aprovado = a.status === 'Aprovado' || a.status === 'Ativo';
+    var sexoIcon = a.sexo === 'Feminino' ? '♀' : a.sexo === 'Masculino' ? '♂' : '';
+    var sexoCor  = a.sexo === 'Feminino' ? 'color:#c2185b' : a.sexo === 'Masculino' ? 'color:#1565c0' : 'color:var(--leve)';
     h += '<tr>'
       + '<td><div class="td-nome"><div class="avatar" style="background:'+cor.bg+';color:'+cor.txt+'">'+ini+'</div><span style="font-weight:500">'+(a.nome||'')+'</span></div></td>'
-      + '<td style="color:var(--leve)">'+(a.cpf||'')+'</td>'
-      + '<td style="color:var(--leve)">'+(a.nascimento||'')+'</td>'
+      + '<td><span style="'+sexoCor+';font-weight:600">'+sexoIcon+' '+(a.sexo||'—')+'</span></td>'
+      + '<td style="color:var(--leve);font-weight:500">'+calcIdade(a.nascimento)+'</td>'
+      + '<td style="color:var(--leve)">'+fmtNasc(a.nascimento)+'</td>'
       + '<td><span class="badge '+badgeMod(a.modalidade)+'">'+(a.modalidade||'')+'</span></td>'
-      + '<td style="color:var(--leve)">'+(a.categoria||'')+'</td>'
       + '<td><span class="badge '+badgeSt(a.status)+'" id="st-'+a.linha+'">'+(a.status||'')+'</span></td>'
       + '<td style="text-align:center"><div class="toggle-wrap"><label class="toggle"><input type="checkbox" id="tog-'+a.linha+'" '+(aprovado?'checked':'')+' onchange="toggleAprovacao('+a.linha+',this)"><span class="toggle-slider"></span></label>'
       + '<span class="toggle-label" id="tog-lbl-'+a.linha+'" style="color:'+(aprovado?'var(--verde)':'#92400e')+'">'+(aprovado?'Aprovado':'Pendente')+'</span></div></td>'
@@ -807,11 +851,13 @@ function renderPerfilAtleta(a, edit) {
   document.getElementById('ma-avatar').textContent = ini;
   document.getElementById('ma-nome').textContent = a.nome || '';
   document.getElementById('ma-sub').textContent = (a.modalidade||'') + ' - ' + (a.categoria||'');
-  function c(lbl,val,key,tipo) {
+  function c(lbl,val,key,tipo,opcoes) {
     tipo = tipo||'text';
+    if (!key) return '<div class="dado"><div class="dado-lbl">'+lbl+'</div><div class="dado-val">'+(val||'-')+'</div></div>';
     if (edit) {
       if (key==='modalidade') return '<div class="dado"><div class="dado-lbl">'+lbl+'</div><select name="'+key+'"><option'+(val==='Handebol'?' selected':'')+'>Handebol</option><option'+(val==='Xadrez'?' selected':'')+'>Xadrez</option><option'+(val==='Vôlei'?' selected':'')+'>Vôlei</option></select></div>';
       if (key==='status') return '<div class="dado"><div class="dado-lbl">'+lbl+'</div><select name="'+key+'"><option'+(val==='Pendente'?' selected':'')+'>Pendente</option><option'+(val==='Aprovado'?' selected':'')+'>Aprovado</option><option'+(val==='Ativo'?' selected':'')+'>Ativo</option><option'+(val==='Reprovado'?' selected':'')+'>Reprovado</option></select></div>';
+      if (key==='sexo') return '<div class="dado"><div class="dado-lbl">'+lbl+'</div><select name="'+key+'"><option value="">—</option><option'+(val==='Masculino'?' selected':'')+'>Masculino</option><option'+(val==='Feminino'?' selected':'')+'>Feminino</option></select></div>';
       return '<div class="dado"><div class="dado-lbl">'+lbl+'</div><input type="'+tipo+'" name="'+key+'" value="'+(val||'')+'"></div>';
     }
     return '<div class="dado"><div class="dado-lbl">'+lbl+'</div><div class="dado-val">'+(val||'-')+'</div></div>';
@@ -819,7 +865,7 @@ function renderPerfilAtleta(a, edit) {
   var frh = a.fotoRosto&&a.fotoRosto.startsWith('http') ? '<a class="btn-foto" href="'+a.fotoRosto+'" target="_blank">Ver foto</a>' : '<span class="btn-foto-vazio">Nao enviada</span>';
   var frg = a.fotoRG&&a.fotoRG.startsWith('http') ? '<a class="btn-foto" href="'+a.fotoRG+'" target="_blank">Ver RG</a>' : '<span class="btn-foto-vazio">Nao enviado</span>';
   document.getElementById('ma-body').innerHTML =
-    '<div class="modal-sec">Dados pessoais</div><div class="dados-grid">'+c('CPF',a.cpf,'cpf')+c('RG',a.rg,'rg')+c('Nascimento',a.nascimento,'nascimento','date')+c('Modalidade',a.modalidade,'modalidade')+c('Categoria',a.categoria,'categoria')+c('Status',a.status,'status')+'</div>'
+    '<div class="modal-sec">Dados pessoais</div><div class="dados-grid">'+c('CPF',a.cpf,'cpf')+c('RG',a.rg,'rg')+c('Nascimento',a.nascimento,'nascimento','date')+c('Idade',calcIdade(a.nascimento),null)+c('Sexo',a.sexo,'sexo','select','Masculino|Feminino')+c('Modalidade',a.modalidade,'modalidade')+c('Categoria',a.categoria,'categoria')+c('Status',a.status,'status')+'</div>'
     +'<div class="modal-sec">Endereco</div><div class="dados-grid">'+c('Rua',a.rua,'rua')+c('Numero',a.numero,'numero')+c('Bairro',a.bairro,'bairro')+c('Cidade',a.cidade,'cidade')+c('Estado',a.estado,'estado')+c('CEP',a.cep,'cep')+'</div>'
     +'<div class="modal-sec">Responsavel</div><div class="dados-grid">'+c('Nome',a.respNome,'respNome')+c('Telefone',a.respTel,'respTel')+c('E-mail',a.respEmail,'respEmail')+c('Parentesco',a.respParent,'respParent')+'</div>'
     +'<div class="modal-sec">Documentos</div><div class="fotos-grid"><div class="foto-card"><div class="foto-label">Foto do rosto</div>'+frh+'</div><div class="foto-card"><div class="foto-label">Foto do RG</div>'+frg+'</div></div>';
