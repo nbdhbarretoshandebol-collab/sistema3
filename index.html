@@ -738,14 +738,52 @@ function renderStatsAtletas() {
 
 function sc(n,l){ return '<div class="stat-card"><div class="stat-num">'+n+'</div><div class="stat-lbl">'+l+'</div></div>'; }
 
+// Substitua a função buscarAtletas por esta:
 function buscarAtletas() {
-  var txt = document.getElementById('busca-nome').value.toLowerCase();
+  var txt = (document.getElementById('busca-nome').value || '').trim().toLowerCase();
   var mod = document.getElementById('busca-mod').value;
   var st  = document.getElementById('busca-st').value;
-  renderTabelaAtletas(todosAtletas.filter(function(a){
-    return (!txt||(a.nome||'').toLowerCase().includes(txt)||(a.cpf||'').includes(txt)||(a.rg||'').includes(txt))
-        && (!mod||a.modalidade===mod) && (!st||a.status===st)
-        && (!filtroSexoAtual||a.sexo===filtroSexoAtual);
+
+  // Normaliza CPF/RG removendo pontos, traços e espaços para comparação
+  function normalizaDoc(val) {
+    return String(val || '').replace(/[\.\-\s\/]/g, '').toLowerCase();
+  }
+
+  var txtNorm = normalizaDoc(txt);
+
+  var filtrado = todosAtletas.filter(function(a) {
+    var matchTxt = !txt ||
+      (a.nome  || '').toLowerCase().includes(txt) ||
+      normalizaDoc(a.cpf).includes(txtNorm) ||
+      normalizaDoc(a.rg).includes(txtNorm);
+
+    var matchMod = !mod || (a.modalidade || '') === mod;
+    var matchSt  = !st  || (a.status     || '') === st;
+    var matchSex = !filtroSexoAtual || (a.sexo || '') === filtroSexoAtual;
+
+    return matchTxt && matchMod && matchSt && matchSex;
+  });
+
+  renderTabelaAtletas(filtrado);
+}
+
+// Substitua a função carregarAtletas por esta:
+// (preserva os filtros ativos ao recarregar após aprovar/editar/excluir)
+function carregarAtletas() {
+  fetch(SCRIPT_URL + '?acao=listar')
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      var data = JSON.parse(t);
+      todosAtletas = data.atletas || [];
+      renderStatsAtletas();
+      // Reaplica a busca/filtros ativos em vez de mostrar tudo
+      buscarAtletas();
+    })
+    .catch(function(){
+      document.getElementById('tbl-atletas').innerHTML =
+        '<div class="vazio">Erro ao carregar.</div>';
+    });
+}
   }));
 }
 
