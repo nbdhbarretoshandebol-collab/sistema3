@@ -569,6 +569,7 @@ tr:hover td { background: #f8f9fe; }
       <button class="btn btn-ghost btn-sm" id="ma-btn-cancelar" onclick="cancelarEdicaoAtleta()" style="display:none">Cancelar</button>
       <button class="btn btn-ghost btn-sm" id="ma-btn-editar" onclick="ativarEdicaoAtleta()">✏️ Editar</button>
       <button class="btn btn-success btn-sm" id="ma-btn-salvar" onclick="salvarEdicaoAtleta()" style="display:none">✓ Salvar</button>
+      <button class="btn btn-amarelo btn-sm" id="ma-btn-carteirinha" onclick="gerarCarteirinha()">🪪 Carteirinha</button>
     </div>
   </div>
 </div>
@@ -1551,8 +1552,506 @@ function imprimirRelacao(id, linha) {
 }
 
 // ══════════════════════════════════════════════════
-// CONFIRMAÇÃO GENÉRICA
+// CARTEIRINHA DO ATLETA
 // ══════════════════════════════════════════════════
+function gerarCarteirinha() {
+  if (!atletaAtual) return;
+  var a = atletaAtual;
+
+  function fmtData(d) {
+    if (!d) return '—';
+    var s = String(d);
+    if (s.indexOf('T') > -1) s = s.split('T')[0];
+    var p = s.split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return s;
+  }
+
+  // Lê as logos embutidas no próprio documento
+  var logos = document.querySelectorAll('.login-logos img');
+  var logoNBDH2 = logos[0] ? logos[0].src : '';
+  var logoHand  = logos[1] ? logos[1].src : '';
+
+  // Foto do rosto do atleta (se tiver link)
+  var fotoSrc = (a.fotoRosto && a.fotoRosto.startsWith('http'))
+    ? a.fotoRosto
+    : '';
+
+  var corMod = '#1a237e';
+  if (a.modalidade === 'Xadrez') corMod = '#92400e';
+  if (a.modalidade === 'Vôlei')  corMod = '#0369a1';
+
+  var nomeCurto = (a.nome || '').split(' ').slice(0,2).join(' ').toUpperCase();
+  var nomeCompleto = (a.nome || '').toUpperCase();
+
+  var html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Carteirinha — ${a.nome || 'Atleta'}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #e8eaf6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    padding: 40px 20px;
+    gap: 32px;
+  }
+  h2 {
+    font-family: 'Sora', sans-serif;
+    color: #1a237e;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .instrucao {
+    font-size: 13px;
+    color: #6b6b8a;
+    margin-bottom: 8px;
+  }
+  .btn-print {
+    background: #1a237e;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    margin-bottom: 8px;
+  }
+  .btn-print:hover { background: #0d1757; }
+
+  /* ── CARD ── */
+  .card-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  .label-side {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #6b6b8a;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  /* Carteirinha — tamanho CR80 = 85.6mm × 54mm */
+  .card {
+    width: 340px;
+    height: 214px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    position: relative;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ══ FRENTE ══ */
+  .frente {
+    background: linear-gradient(135deg, #0d1757 0%, #1a237e 60%, #283593 100%);
+    display: flex;
+    flex-direction: column;
+  }
+  .frente-topo {
+    background: ${corMod};
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .frente-topo-logos {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .frente-topo-logos img {
+    height: 34px;
+    width: 34px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: white;
+    padding: 2px;
+  }
+  .frente-topo-titulo {
+    flex: 1;
+    text-align: center;
+  }
+  .frente-topo-titulo .org {
+    font-family: 'Sora', sans-serif;
+    font-size: 8px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    line-height: 1.3;
+  }
+  .frente-topo-titulo .mod {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: #f9c900;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+  }
+  .frente-corpo {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    padding: 10px 14px;
+    align-items: flex-start;
+  }
+  .frente-foto {
+    width: 72px;
+    height: 90px;
+    border-radius: 8px;
+    border: 3px solid #f9c900;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #283593;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .frente-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .frente-foto-placeholder {
+    font-size: 32px;
+    color: rgba(255,255,255,0.3);
+  }
+  .frente-dados {
+    flex: 1;
+    padding-left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: flex-start;
+  }
+  .frente-nome {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .frente-cat {
+    font-size: 9px;
+    font-weight: 600;
+    color: #f9c900;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 2px;
+  }
+  .dado-linha {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+  }
+  .dado-lbl {
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,0.5);
+  }
+  .dado-val {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.95);
+    line-height: 1.2;
+  }
+  .frente-rodape {
+    background: rgba(0,0,0,0.25);
+    padding: 5px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .frente-rodape span {
+    font-size: 8px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+  }
+  .frente-rodape .validade {
+    font-size: 8px;
+    color: #f9c900;
+    font-weight: 700;
+  }
+  /* Detalhe geométrico decorativo */
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
+
+  /* ══ VERSO ══ */
+  .verso {
+    background: #f0f2fa;
+    display: flex;
+    flex-direction: column;
+  }
+  .verso-topo {
+    background: ${corMod};
+    height: 12px;
+  }
+  .verso-corpo {
+    flex: 1;
+    display: flex;
+    gap: 12px;
+    padding: 10px 14px;
+  }
+  .verso-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .verso-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .verso-lbl {
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #6b6b8a;
+  }
+  .verso-val {
+    font-size: 10px;
+    font-weight: 600;
+    color: #1a1a2e;
+    border-bottom: 1px solid #dde0f0;
+    padding-bottom: 2px;
+  }
+  .verso-assinatura {
+    border-top: 1px solid #c5cae9;
+    margin-top: 4px;
+    padding-top: 3px;
+  }
+  .verso-assinatura .verso-lbl {
+    color: #9b9bc0;
+  }
+  .verso-logos-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: #e8eaf6;
+    border-top: 1px solid #c5cae9;
+  }
+  .verso-logos-rodape img {
+    height: 22px;
+    width: 22px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: white;
+    padding: 1px;
+  }
+  .verso-logos-rodape span {
+    font-family: 'Sora', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    color: #1a237e;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .verso-rodape {
+    background: ${corMod};
+    height: 8px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body {
+      background: white;
+      padding: 10mm;
+    }
+    .no-print { display: none !important; }
+    .card-wrap { page-break-inside: avoid; }
+    .card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+    h2, .instrucao { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print" style="text-align:center">
+  <h2>🪪 Carteirinha — ${a.nome || 'Atleta'}</h2>
+  <p class="instrucao">Verifique frente e verso, depois clique em imprimir. Recomendado papel A4 em paisagem.</p>
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+</div>
+
+<div class="card-wrap">
+
+  <!-- ══ FRENTE ══ -->
+  <div>
+    <div class="label-side no-print">FRENTE</div>
+    <div class="card frente">
+      <!-- Decorações -->
+      <div class="deco-circle" style="width:120px;height:120px;top:-40px;right:-30px;"></div>
+      <div class="deco-circle" style="width:80px;height:80px;bottom:-20px;left:10px;"></div>
+
+      <!-- Topo -->
+      <div class="frente-topo">
+        <div class="frente-topo-logos">
+          ${logoNBDH2 ? `<img src="${logoNBDH2}" alt="NBDH2">` : ''}
+          ${logoHand  ? `<img src="${logoHand}"  alt="Handebol Barretos">` : ''}
+        </div>
+        <div class="frente-topo-titulo">
+          <div class="org">NBDH2 — Handebol Barretos</div>
+          <div class="mod">${a.modalidade || 'Atleta'}</div>
+        </div>
+      </div>
+
+      <!-- Corpo -->
+      <div class="frente-corpo">
+        <!-- Foto -->
+        <div class="frente-foto">
+          ${fotoSrc
+            ? `<img src="${fotoSrc}" alt="Foto">`
+            : `<span class="frente-foto-placeholder">👤</span>`}
+        </div>
+
+        <!-- Dados -->
+        <div class="frente-dados">
+          <div class="frente-cat">${a.categoria || 'Categoria'}</div>
+          <div class="frente-nome">${nomeCompleto}</div>
+          <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px;">
+            <div class="dado-linha">
+              <span class="dado-lbl">Nascimento</span>
+              <span class="dado-val">${fmtData(a.nascimento)} &nbsp;·&nbsp; ${calcIdade(a.nascimento)}</span>
+            </div>
+            <div class="dado-linha">
+              <span class="dado-lbl">CPF</span>
+              <span class="dado-val">${a.cpf || '—'}</span>
+            </div>
+            <div class="dado-linha">
+              <span class="dado-lbl">RG</span>
+              <span class="dado-val">${a.rg || '—'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="frente-rodape">
+        <span>Barretos — SP</span>
+        <span class="validade">VÁLIDA ATÉ 31/12/${new Date().getFullYear()}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ VERSO ══ -->
+  <div>
+    <div class="label-side no-print">VERSO</div>
+    <div class="card verso">
+      <div class="verso-topo"></div>
+
+      <div class="verso-corpo">
+        <!-- Coluna 1 -->
+        <div class="verso-col">
+          <div class="verso-campo">
+            <span class="verso-lbl">Nome completo</span>
+            <span class="verso-val">${a.nome || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">Data de nascimento</span>
+            <span class="verso-val">${fmtData(a.nascimento)}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">Modalidade / Categoria</span>
+            <span class="verso-val">${a.modalidade || '—'} &nbsp;/&nbsp; ${a.categoria || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">CPF</span>
+            <span class="verso-val">${a.cpf || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">RG</span>
+            <span class="verso-val">${a.rg || '—'}</span>
+          </div>
+          <div class="verso-assinatura">
+            <span class="verso-lbl">Assinatura do atleta</span>
+            <div style="height:18px;border-bottom:1px solid #c5cae9;"></div>
+          </div>
+        </div>
+
+        <!-- Coluna 2 -->
+        <div class="verso-col">
+          <div class="verso-campo">
+            <span class="verso-lbl">Responsável</span>
+            <span class="verso-val">${a.respNome || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">Parentesco</span>
+            <span class="verso-val">${a.respParent || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">Telefone do responsável</span>
+            <span class="verso-val">${a.respTel || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">E-mail do responsável</span>
+            <span class="verso-val" style="font-size:9px">${a.respEmail || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">Endereço</span>
+            <span class="verso-val" style="font-size:9px">${a.rua ? a.rua + (a.numero ? ', ' + a.numero : '') + ' — ' + (a.bairro || '') : '—'}</span>
+          </div>
+          <div class="verso-assinatura">
+            <span class="verso-lbl">Assinatura do responsável</span>
+            <div style="height:18px;border-bottom:1px solid #c5cae9;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logos rodapé -->
+      <div class="verso-logos-rodape">
+        ${logoNBDH2 ? `<img src="${logoNBDH2}" alt="NBDH2">` : ''}
+        <span>NBDH2 Barretos<br>Núcleo Barretense de Desenvolvimento e Habilidades Humanas</span>
+        ${logoHand ? `<img src="${logoHand}" alt="Handebol">` : ''}
+      </div>
+
+      <div class="verso-rodape"></div>
+    </div>
+  </div>
+
+</div><!-- /card-wrap -->
+</body>
+</html>`;
+
+  var janela = window.open('', '_blank');
+  if (janela) {
+    janela.document.write(html);
+    janela.document.close();
+    janela.focus();
+  } else {
+    alert('Pop-up bloqueado. Libere pop-ups para este site e tente novamente.');
+  }
+}
+
 function abrirConfirm(titulo, msg, cb) {
   document.getElementById('confirm-titulo').textContent = titulo;
   document.getElementById('confirm-msg').textContent    = msg;
