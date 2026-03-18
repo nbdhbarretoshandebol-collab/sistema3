@@ -1989,40 +1989,28 @@ function gerarCarteirinha() {
             <span class="verso-val">${fmtData(a.nascimento)}</span>
           </div>
           <div class="verso-campo">
-            <span class="verso-lbl">Modalidade / Categoria</span>
-            <span class="verso-val">${a.modalidade || '—'} &nbsp;/&nbsp; ${a.categoria || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">CPF</span>
-            <span class="verso-val">${a.cpf || '—'}</span>
+            <span class="verso-lbl">Modalidade</span>
+            <span class="verso-val">${a.modalidade || '—'}</span>
           </div>
           <div class="verso-campo">
             <span class="verso-lbl">RG</span>
             <span class="verso-val">${a.rg || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">CPF</span>
+            <span class="verso-val">${a.cpf || '—'}</span>
           </div>
         </div>
 
         <!-- Coluna 2 -->
         <div class="verso-col">
           <div class="verso-campo">
-            <span class="verso-lbl">Responsável</span>
+            <span class="verso-lbl">Nome do responsável</span>
             <span class="verso-val">${a.respNome || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">Parentesco</span>
-            <span class="verso-val">${a.respParent || '—'}</span>
           </div>
           <div class="verso-campo">
             <span class="verso-lbl">Telefone do responsável</span>
             <span class="verso-val">${a.respTel || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">E-mail do responsável</span>
-            <span class="verso-val" style="font-size:9px">${a.respEmail || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">Endereço</span>
-            <span class="verso-val" style="font-size:9px">${a.rua ? a.rua + (a.numero ? ', ' + a.numero : '') + ' — ' + (a.bairro || '') : '—'}</span>
           </div>
         </div>
       </div>
