@@ -592,7 +592,7 @@ tr:hover td { background: #f8f9fe; }
 // ══════════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════════
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx7CwFQS4c_3lAZ6EuQH2fPMFrUsVwa4rMu_aJwwmpI4fAlGsptnQVkl9b9_8ZoI0yq9g/exec';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS89SYrOyFvcQ9iCjxhVSJC_mhNZJUjOCU4P0xTCEv4K6Hgo04eFdIssFk29vorYwUSQ/exec';
 
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
@@ -637,29 +637,60 @@ window.addEventListener('load', function () {
 function fazerLogin() {
   var user = document.getElementById('login-user').value.trim();
   var pass = document.getElementById('login-pass').value.trim();
-  if (!user || !pass) return;
-  var btn = document.getElementById('btn-login');
+  var erro = document.getElementById('login-erro');
+  var btn  = document.getElementById('btn-login');
+
+  if (!user || !pass) {
+    erro.textContent = 'Preencha usuário e senha.';
+    erro.style.display = 'block';
+    return;
+  }
+
   btn.textContent = 'Entrando...';
   btn.disabled = true;
-  document.getElementById('login-erro').style.display = 'none';
-  var url = SCRIPT_URL + '?acao=login&usuario=' + encodeURIComponent(user) + '&senha=' + encodeURIComponent(pass);
+  erro.style.display = 'none';
+
+  function resetBtn(msg) {
+    erro.textContent = msg || 'Usuário ou senha incorretos.';
+    erro.style.display = 'block';
+    btn.textContent = 'Entrar';
+    btn.disabled = false;
+  }
+
+  var url = SCRIPT_URL
+    + '?acao=login'
+    + '&usuario=' + encodeURIComponent(user)
+    + '&senha='   + encodeURIComponent(pass)
+    + '&t='       + Date.now(); // evita cache
+
   fetch(url)
-    .then(function (r) { return r.text(); })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
     .then(function (t) {
-      var data = JSON.parse(t);
+      // Remove qualquer lixo antes do JSON (redirecionamentos do Apps Script)
+      var inicio = t.indexOf('{');
+      if (inicio > 0) t = t.substring(inicio);
+
+      var data;
+      try {
+        data = JSON.parse(t);
+      } catch (e) {
+        resetBtn('Resposta inválida do servidor. Tente novamente.');
+        return;
+      }
+
       if (data.ok) {
-        usuarioLogado = data.nome;
-        setCookie('nbdh2_user', data.nome, 30);
+        usuarioLogado = data.nome || user;
+        setCookie('nbdh2_user', usuarioLogado, 30);
         mostrarApp();
       } else {
-        document.getElementById('login-erro').style.display = 'block';
-        btn.textContent = 'Entrar'; btn.disabled = false;
+        resetBtn('Usuário ou senha incorretos.');
       }
     })
-    .catch(function () {
-      document.getElementById('login-erro').textContent = 'Erro de conexão. Tente novamente.';
-      document.getElementById('login-erro').style.display = 'block';
-      btn.textContent = 'Entrar'; btn.disabled = false;
+    .catch(function (e) {
+      resetBtn('Erro de conexão. Verifique sua internet e tente novamente.');
     });
 }
 
