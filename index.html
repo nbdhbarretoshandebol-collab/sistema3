@@ -1593,6 +1593,9 @@ function gerarCarteirinha() {
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
     background: #e8eaf6;
     display: flex;
     flex-direction: column;
@@ -1882,15 +1885,19 @@ function gerarCarteirinha() {
 
   /* ── PRINT ── */
   @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
     body {
-      background: white;
+      background: #e8eaf6 !important;
       padding: 10mm;
     }
     .no-print { display: none !important; }
     .card-wrap { page-break-inside: avoid; }
     .card {
-      box-shadow: none;
-      border: 1px solid #ccc;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
     }
     h2, .instrucao { display: none; }
   }
