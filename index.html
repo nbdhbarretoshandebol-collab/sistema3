@@ -2000,10 +2000,6 @@ function gerarCarteirinha() {
             <span class="verso-lbl">RG</span>
             <span class="verso-val">${a.rg || '—'}</span>
           </div>
-          <div class="verso-assinatura">
-            <span class="verso-lbl">Assinatura do atleta</span>
-            <div style="height:18px;border-bottom:1px solid #c5cae9;"></div>
-          </div>
         </div>
 
         <!-- Coluna 2 -->
@@ -2027,10 +2023,6 @@ function gerarCarteirinha() {
           <div class="verso-campo">
             <span class="verso-lbl">Endereço</span>
             <span class="verso-val" style="font-size:9px">${a.rua ? a.rua + (a.numero ? ', ' + a.numero : '') + ' — ' + (a.bairro || '') : '—'}</span>
-          </div>
-          <div class="verso-assinatura">
-            <span class="verso-lbl">Assinatura do responsável</span>
-            <div style="height:18px;border-bottom:1px solid #c5cae9;"></div>
           </div>
         </div>
       </div>
