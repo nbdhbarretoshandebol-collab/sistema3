@@ -1573,9 +1573,23 @@ function gerarCarteirinha() {
   var logoHand  = logos[1] ? logos[1].src : '';
 
   // Foto do rosto do atleta (se tiver link)
-  var fotoSrc = (a.fotoRosto && a.fotoRosto.startsWith('http'))
-    ? a.fotoRosto
-    : '';
+  // Converte qualquer link do Google Drive para URL de exibição direta
+  function converterUrlFoto(url) {
+    if (!url || !url.startsWith('http')) return '';
+    // Formato: https://drive.google.com/open?id=FILE_ID
+    var m1 = url.match(/[?&]id=([^&]+)/);
+    if (m1) return 'https://drive.google.com/thumbnail?id=' + m1[1] + '&sz=w300';
+    // Formato: https://drive.google.com/file/d/FILE_ID/view
+    var m2 = url.match(/\/file\/d\/([^\/]+)/);
+    if (m2) return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w300';
+    // Formato: https://drive.google.com/uc?id=FILE_ID
+    var m3 = url.match(/\/uc\?.*id=([^&]+)/);
+    if (m3) return 'https://drive.google.com/thumbnail?id=' + m3[1] + '&sz=w300';
+    // Se já for outro link direto, usa como está
+    return url;
+  }
+
+  var fotoSrc = converterUrlFoto(a.fotoRosto);
 
   var corMod = '#1a237e';
   if (a.modalidade === 'Xadrez') corMod = '#92400e';
@@ -1938,8 +1952,9 @@ function gerarCarteirinha() {
         <!-- Foto -->
         <div class="frente-foto">
           ${fotoSrc
-            ? `<img src="${fotoSrc}" alt="Foto">`
-            : `<span class="frente-foto-placeholder">👤</span>`}
+            ? `<img src="${fotoSrc}" alt="Foto" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ``}
+          <span class="frente-foto-placeholder" style="${fotoSrc ? 'display:none' : ''}">👤</span>
         </div>
 
         <!-- Dados -->
@@ -1978,31 +1993,7 @@ function gerarCarteirinha() {
       <div class="verso-topo"></div>
 
       <div class="verso-corpo">
-        <!-- Coluna 1 -->
-        <div class="verso-col">
-          <div class="verso-campo">
-            <span class="verso-lbl">Nome completo</span>
-            <span class="verso-val">${a.nome || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">Data de nascimento</span>
-            <span class="verso-val">${fmtData(a.nascimento)}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">Modalidade</span>
-            <span class="verso-val">${a.modalidade || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">RG</span>
-            <span class="verso-val">${a.rg || '—'}</span>
-          </div>
-          <div class="verso-campo">
-            <span class="verso-lbl">CPF</span>
-            <span class="verso-val">${a.cpf || '—'}</span>
-          </div>
-        </div>
-
-        <!-- Coluna 2 -->
+        <!-- Responsável -->
         <div class="verso-col">
           <div class="verso-campo">
             <span class="verso-lbl">Nome do responsável</span>
