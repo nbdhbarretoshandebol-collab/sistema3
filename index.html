@@ -234,23 +234,6 @@ tr:hover td { background: #f8f9fe; }
   .content { padding: 16px; }
 }
 </style>
-<script>
-(function(){
-  var d = window.location.hostname;
-  var ok = d === atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==') || d === 'localhost' || d === '127.0.0.1';
-  if (!ok) {
-    document.documentElement.innerHTML =
-      '<html><body style="margin:0;height:100vh;display:flex;align-items:center;'
-      +'justify-content:center;flex-direction:column;font-family:sans-serif;'
-      +'background:#0d1757;color:white;text-align:center;padding:40px">'
-      +'<div style="font-size:60px;margin-bottom:20px">&#x1F512;</div>'
-      +'<h1 style="font-size:22px;margin-bottom:12px">Acesso Restrito</h1>'
-      +'<p style="color:rgba(255,255,255,.6);font-size:14px;max-width:380px">'
-      +'Este sistema só pode ser acessado pelo endereço oficial.</p>'
-      +'</body></html>';
-  }
-})();
-</script>
 </head>
 <body>
 
@@ -1550,24 +1533,7 @@ function imprimirRelacao(id, linha) {
 
   var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relação — ' + rel.nome + '</title>';
   html += '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}.header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px}.org{font-size:12px;color:#555;margin-bottom:4px}.titulo{font-size:20px;font-weight:700;margin-bottom:4px}.meta{font-size:13px;color:#444}.secao{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 6px;color:#333;border-bottom:1px solid #ccc;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}th{background:#eee;padding:7px 10px;text-align:left;border:1px solid #ccc}td{padding:7px 10px;border:1px solid #ddd}tr:nth-child(even) td{background:#f9f9f9}</style>';
-  html += '<script>
-(function(){
-  var d = window.location.hostname;
-  var ok = d === atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==') || d === 'localhost' || d === '127.0.0.1';
-  if (!ok) {
-    document.documentElement.innerHTML =
-      '<html><body style="margin:0;height:100vh;display:flex;align-items:center;'
-      +'justify-content:center;flex-direction:column;font-family:sans-serif;'
-      +'background:#0d1757;color:white;text-align:center;padding:40px">'
-      +'<div style="font-size:60px;margin-bottom:20px">&#x1F512;</div>'
-      +'<h1 style="font-size:22px;margin-bottom:12px">Acesso Restrito</h1>'
-      +'<p style="color:rgba(255,255,255,.6);font-size:14px;max-width:380px">'
-      +'Este sistema só pode ser acessado pelo endereço oficial.</p>'
-      +'</body></html>';
-  }
-})();
-</script>
-</head><body>';
+  html += '</head><body>';
   html += '<div class="header"><div class="org">NBDH2 Barretos — Núcleo Barretense de Desenvolvimento e Habilidades Humanas</div><div class="titulo">' + rel.nome + '</div>';
   if (metaLinha.length) html += '<div class="meta">' + metaLinha.join(' &nbsp;|&nbsp; ') + '</div>';
   html += '</div>';
@@ -1976,23 +1942,6 @@ function gerarCarteirinha() {
     h2, .instrucao { display: none; }
   }
 </style>
-<script>
-(function(){
-  var d = window.location.hostname;
-  var ok = d === atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==') || d === 'localhost' || d === '127.0.0.1';
-  if (!ok) {
-    document.documentElement.innerHTML =
-      '<html><body style="margin:0;height:100vh;display:flex;align-items:center;'
-      +'justify-content:center;flex-direction:column;font-family:sans-serif;'
-      +'background:#0d1757;color:white;text-align:center;padding:40px">'
-      +'<div style="font-size:60px;margin-bottom:20px">&#x1F512;</div>'
-      +'<h1 style="font-size:22px;margin-bottom:12px">Acesso Restrito</h1>'
-      +'<p style="color:rgba(255,255,255,.6);font-size:14px;max-width:380px">'
-      +'Este sistema só pode ser acessado pelo endereço oficial.</p>'
-      +'</body></html>';
-  }
-})();
-</script>
 </head>
 <body>
 
