@@ -236,77 +236,19 @@ tr:hover td { background: #f8f9fe; }
 </style>
 <script>
 (function(){
-  'use strict';
-  var _allowed = [
-    atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==')
-  ];
-  var _host = window.location.hostname.toLowerCase();
-  var _proto = window.location.protocol;
-
-  // Bloqueia abertura direta como arquivo (file://)
-  if (_proto === 'file:') {
-    document.documentElement.innerHTML = _bloqueado('Acesso negado',
-      'Este sistema não pode ser aberto como arquivo local.');
-    throw new Error('blocked');
+  var d = window.location.hostname;
+  var ok = d === atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==') || d === 'localhost' || d === '127.0.0.1';
+  if (!ok) {
+    document.documentElement.innerHTML =
+      '<html><body style="margin:0;height:100vh;display:flex;align-items:center;'
+      +'justify-content:center;flex-direction:column;font-family:sans-serif;'
+      +'background:#0d1757;color:white;text-align:center;padding:40px">'
+      +'<div style="font-size:60px;margin-bottom:20px">&#x1F512;</div>'
+      +'<h1 style="font-size:22px;margin-bottom:12px">Acesso Restrito</h1>'
+      +'<p style="color:rgba(255,255,255,.6);font-size:14px;max-width:380px">'
+      +'Este sistema só pode ser acessado pelo endereço oficial.</p>'
+      +'</body></html>';
   }
-
-  // Verifica domínio permitido
-  var _ok = _allowed.some(function(d) {
-    return _host === d || _host.endsWith('.' + d);
-  });
-
-  if (!_ok) {
-    document.documentElement.innerHTML = _bloqueado('Acesso restrito',
-      'Este sistema só pode ser acessado pelo domínio oficial.');
-    throw new Error('blocked');
-  }
-
-  function _bloqueado(titulo, msg) {
-    return '<html><body style="margin:0;height:100vh;display:flex;'
-      + 'align-items:center;justify-content:center;flex-direction:column;'
-      + 'font-family:sans-serif;background:#0d1757;color:white;text-align:center;padding:40px">'
-      + '<div style="font-size:60px;margin-bottom:20px">🔒</div>'
-      + '<h1 style="font-size:24px;margin-bottom:12px">' + titulo + '</h1>'
-      + '<p style="color:rgba(255,255,255,.6);font-size:15px;max-width:400px">' + msg + '</p>'
-      + '</body></html>';
-  }
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var _blocked = false;
-  var _threshold = 160;
-
-  // Detecta DevTools aberto pelo tamanho da janela
-  function _check() {
-    var w = window.outerWidth - window.innerWidth > _threshold;
-    var h = window.outerHeight - window.innerHeight > _threshold;
-    if ((w || h) && !_blocked) {
-      _blocked = true;
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;'
-        + 'height:100vh;background:#0d1757;color:white;font-family:sans-serif;flex-direction:column;gap:16px">'
-        + '<span style="font-size:48px">🔒</span>'
-        + '<span style="font-size:20px;font-weight:700">Ferramentas de desenvolvedor detectadas</span>'
-        + '<span style="color:rgba(255,255,255,.5);font-size:14px">Recarregue a página para continuar.</span>'
-        + '</div>';
-    }
-  }
-  setInterval(_check, 1000);
-
-  // Bloqueia clique direito
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-
-  // Bloqueia F12 e atalhos de DevTools
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'F12') { e.preventDefault(); return false; }
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','J','C'].includes(e.key)) {
-      e.preventDefault(); return false;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'U') {
-      e.preventDefault(); return false;
-    }
-  });
 })();
 </script>
 </head>
@@ -665,9 +607,14 @@ tr:hover td { background: #f8f9fe; }
 <div id="print-area" style="display:none"></div>
 
 <script>
-(function(){
-'use strict';
-var SCRIPT_URL = atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J6Uzg5U1lyT3lGdmNROWlDanhoVlNKQ19taE5aSlVqT0NVNFAweFRDRXY0SzZIZ28wNGVGZElzc0ZrMjl2b3JZd1VTUS9leGVj');
+// ══════════════════════════════════════════════════
+// CONFIGURAÇÃO
+// ══════════════════════════════════════════════════
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS89SYrOyFvcQ9iCjxhVSJC_mhNZJUjOCU4P0xTCEv4K6Hgo04eFdIssFk29vorYwUSQ/exec';
+
+// ══════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════════════
 var usuarioLogado   = null;
 var todosAtletas    = [];
 var filtroSexoAtual = '';
@@ -678,1453 +625,1513 @@ var todasRelacoes   = [];
 var atletaAtual     = null;
 var linhaAtleta     = null;
 var confirmCallback = null;
+
+// ══════════════════════════════════════════════════
+// COOKIES
+// ══════════════════════════════════════════════════
 function setCookie(n, v, m) {
-var e = new Date(Date.now() + m * 60000);
-document.cookie = n + '=' + encodeURIComponent(v) + ';expires=' + e.toUTCString() + ';path=/';
+  var e = new Date(Date.now() + m * 60000);
+  document.cookie = n + '=' + encodeURIComponent(v) + ';expires=' + e.toUTCString() + ';path=/';
 }
 function getCookie(n) {
-var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
-return m ? decodeURIComponent(m[1]) : null;
+  var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
 }
 function deleteCookie(n) {
-document.cookie = n + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
+  document.cookie = n + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/';
 }
+
+// ══════════════════════════════════════════════════
+// INICIALIZAÇÃO
+// ══════════════════════════════════════════════════
 window.addEventListener('load', function () {
-var u = getCookie('nbdh2_user');
-if (u) { usuarioLogado = u; mostrarApp(); }
+  var u = getCookie('nbdh2_user');
+  if (u) { usuarioLogado = u; mostrarApp(); }
 });
-var _sessionToken = null;
-function _secureFetch(url, opts) {
-if (_sessionToken) {
-var sep = url.indexOf('?') > -1 ? '&' : '?';
-url = url + sep + '_tk=' + encodeURIComponent(_sessionToken);
-}
-return fetch(url, opts);
-}
+
+// ══════════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ══════════════════════════════════════════════════
 function fazerLogin() {
-var user = document.getElementById('login-user').value.trim();
-var pass = document.getElementById('login-pass').value.trim();
-var erro = document.getElementById('login-erro');
-var btn  = document.getElementById('btn-login');
-if (!user || !pass) {
-erro.textContent = 'Preencha usuário e senha.';
-erro.style.display = 'block';
-return;
+  var user = document.getElementById('login-user').value.trim();
+  var pass = document.getElementById('login-pass').value.trim();
+  var erro = document.getElementById('login-erro');
+  var btn  = document.getElementById('btn-login');
+
+  if (!user || !pass) {
+    erro.textContent = 'Preencha usuário e senha.';
+    erro.style.display = 'block';
+    return;
+  }
+
+  btn.textContent = 'Entrando...';
+  btn.disabled = true;
+  erro.style.display = 'none';
+
+  function resetBtn(msg) {
+    erro.textContent = msg || 'Usuário ou senha incorretos.';
+    erro.style.display = 'block';
+    btn.textContent = 'Entrar';
+    btn.disabled = false;
+  }
+
+  var url = SCRIPT_URL
+    + '?acao=login'
+    + '&usuario=' + encodeURIComponent(user)
+    + '&senha='   + encodeURIComponent(pass)
+    + '&t='       + Date.now(); // evita cache
+
+  fetch(url)
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function (t) {
+      // Remove qualquer lixo antes do JSON (redirecionamentos do Apps Script)
+      var inicio = t.indexOf('{');
+      if (inicio > 0) t = t.substring(inicio);
+
+      var data;
+      try {
+        data = JSON.parse(t);
+      } catch (e) {
+        resetBtn('Resposta inválida do servidor. Tente novamente.');
+        return;
+      }
+
+      if (data.ok) {
+        usuarioLogado = data.nome || user;
+        setCookie('nbdh2_user', usuarioLogado, 30);
+        mostrarApp();
+      } else {
+        resetBtn('Usuário ou senha incorretos.');
+      }
+    })
+    .catch(function (e) {
+      resetBtn('Erro de conexão. Verifique sua internet e tente novamente.');
+    });
 }
-btn.textContent = 'Entrando...';
-btn.disabled = true;
-erro.style.display = 'none';
-function resetBtn(msg) {
-erro.textContent = msg || 'Usuário ou senha incorretos.';
-erro.style.display = 'block';
-btn.textContent = 'Entrar';
-btn.disabled = false;
-}
-var url = SCRIPT_URL
-+ '?acao='+atob('bG9naW4=')+''
-+ '&usuario=' + encodeURIComponent(user)
-+ '&senha='   + encodeURIComponent(pass)
-+ '&t='       + Date.now(); 
-fetch(url)
-.then(function (r) {
-if (!r.ok) throw new Error('HTTP ' + r.status);
-return r.text();
-})
-.then(function (t) {
-var inicio = t.indexOf('{');
-if (inicio > 0) t = t.substring(inicio);
-var data;
-try {
-data = JSON.parse(t);
-} catch (e) {
-resetBtn('Resposta inválida do servidor. Tente novamente.');
-return;
-}
-if (data.ok) {
-usuarioLogado = data.nome || user;
-_sessionToken = data.token || null;
-setCookie('nbdh2_user', usuarioLogado, 30);
-mostrarApp();
-} else {
-resetBtn('Usuário ou senha incorretos.');
-}
-})
-.catch(function (e) {
-resetBtn('Erro de conexão. Verifique sua internet e tente novamente.');
-});
-}
+
 function mostrarApp() {
-document.getElementById('tela-login').style.display = 'none';
-document.getElementById('app').style.display = 'flex';
-document.getElementById('topbar-user').textContent = '👤 ' + usuarioLogado;
-document.getElementById('home-usuario').textContent = 'Olá, ' + usuarioLogado + '!';
-Promise.all([
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'').then(function (r) { return r.text(); }).then(function (t) {
-todosAtletas = JSON.parse(t).atletas || [];
-renderStatsAtletas();
-renderTabelaAtletas(todosAtletas);
-}).catch(function () {}),
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'Equipe').then(function (r) { return r.text(); }).then(function (t) {
-try {
-var inicio = t.indexOf('{');
-if (inicio > 0) t = t.substring(inicio);
-var lista = JSON.parse(t).equipe || [];
-todaEquipe = lista.filter(function (c) {
-return c.nome && isNaN(c.nome) && String(c.nome).trim() !== '';
-});
-renderEquipe(todaEquipe);
-} catch (e) {}
-}).catch(function () {})
-]).then(function () {
-carregarRelacoes();
-});
-carregarAgenda();
-carregarAnotacoes();
+  document.getElementById('tela-login').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('topbar-user').textContent = '👤 ' + usuarioLogado;
+  document.getElementById('home-usuario').textContent = 'Olá, ' + usuarioLogado + '!';
+
+  Promise.all([
+    fetch(SCRIPT_URL + '?acao=listar').then(function (r) { return r.text(); }).then(function (t) {
+      todosAtletas = JSON.parse(t).atletas || [];
+      renderStatsAtletas();
+      renderTabelaAtletas(todosAtletas);
+    }).catch(function () {}),
+    fetch(SCRIPT_URL + '?acao=listarEquipe').then(function (r) { return r.text(); }).then(function (t) {
+      try {
+        var inicio = t.indexOf('{');
+        if (inicio > 0) t = t.substring(inicio);
+        var lista = JSON.parse(t).equipe || [];
+        todaEquipe = lista.filter(function (c) {
+          return c.nome && isNaN(c.nome) && String(c.nome).trim() !== '';
+        });
+        renderEquipe(todaEquipe);
+      } catch (e) {}
+    }).catch(function () {})
+  ]).then(function () {
+    carregarRelacoes();
+  });
+
+  carregarAgenda();
+  carregarAnotacoes();
 }
+
 function logout() {
-usuarioLogado = null;
-deleteCookie('nbdh2_user');
-document.getElementById('tela-login').style.display = 'flex';
-document.getElementById('app').style.display = 'none';
-document.getElementById('login-user').value = '';
-document.getElementById('login-pass').value = '';
-document.getElementById('login-erro').style.display = 'none';
+  usuarioLogado = null;
+  deleteCookie('nbdh2_user');
+  document.getElementById('tela-login').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-erro').style.display = 'none';
 }
+
+// ══════════════════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════════════════
 function irHome() {
-document.querySelectorAll('.pagina').forEach(function (p) { p.classList.remove('ativa'); });
-document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('ativo'); });
-document.getElementById('pag-home').classList.add('ativa');
+  document.querySelectorAll('.pagina').forEach(function (p) { p.classList.remove('ativa'); });
+  document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('ativo'); });
+  document.getElementById('pag-home').classList.add('ativa');
 }
+
 function irPara(pag, el) {
-document.querySelectorAll('.pagina').forEach(function (p) { p.classList.remove('ativa'); });
-document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('ativo'); });
-document.getElementById('pag-' + pag).classList.add('ativa');
-if (el) el.classList.add('ativo');
+  document.querySelectorAll('.pagina').forEach(function (p) { p.classList.remove('ativa'); });
+  document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('ativo'); });
+  document.getElementById('pag-' + pag).classList.add('ativa');
+  if (el) el.classList.add('ativo');
 }
+
+// ══════════════════════════════════════════════════
+// ATLETAS — CARREGAMENTO
+// ══════════════════════════════════════════════════
+
+/**
+ * Recarrega a lista do servidor preservando qualquer filtro/busca ativo.
+ * CORREÇÃO: antes chamava renderTabelaAtletas(todosAtletas) diretamente,
+ * apagando a busca em andamento. Agora chama buscarAtletas() para reaplicar.
+ */
 function carregarAtletas() {
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'')
-.then(function (r) { return r.text(); })
-.then(function (t) {
-var data = JSON.parse(t);
-todosAtletas = data.atletas || [];
-renderStatsAtletas();
-buscarAtletas();
-})
-.catch(function () {
-document.getElementById('tbl-atletas').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
-});
+  fetch(SCRIPT_URL + '?acao=listar')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var data = JSON.parse(t);
+      todosAtletas = data.atletas || [];
+      renderStatsAtletas();
+      // ✅ Reaplica os filtros ativos em vez de exibir tudo
+      buscarAtletas();
+    })
+    .catch(function () {
+      document.getElementById('tbl-atletas').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
 }
+
+// ══════════════════════════════════════════════════
+// ATLETAS — BUSCA (CORRIGIDA)
+// ══════════════════════════════════════════════════
+
+/**
+ * Normaliza CPF/RG removendo pontos, traços, barras e espaços
+ * para comparação independente de formatação.
+ */
 function normalizaDoc(val) {
-return String(val || '').replace(/[\.\-\s\/]/g, '').toLowerCase();
+  return String(val || '').replace(/[\.\-\s\/]/g, '').toLowerCase();
 }
+
+/**
+ * Função de busca corrigida:
+ * - Dispara ao digitar (oninput) além do botão
+ * - Normaliza CPF/RG para encontrar com ou sem formatação
+ * - Mantém filtro de sexo ativo
+ */
 function buscarAtletas() {
-var txtRaw = (document.getElementById('busca-nome').value || '').trim();
-var txt    = txtRaw.toLowerCase();
-var mod    = document.getElementById('busca-mod').value;
-var st     = document.getElementById('busca-st').value;
-var txtNorm = normalizaDoc(txtRaw);
-var filtrado = todosAtletas.filter(function (a) {
-var matchTxt = !txt ||
-(a.nome  || '').toLowerCase().includes(txt) ||
-normalizaDoc(a.cpf).includes(txtNorm)       ||
-normalizaDoc(a.rg).includes(txtNorm);
-var matchMod = !mod || (a.modalidade || '') === mod;
-var matchSt  = !st  || (a.status     || '') === st;
-var matchSex = !filtroSexoAtual || (a.sexo || '') === filtroSexoAtual;
-return matchTxt && matchMod && matchSt && matchSex;
-});
-renderTabelaAtletas(filtrado);
+  var txtRaw = (document.getElementById('busca-nome').value || '').trim();
+  var txt    = txtRaw.toLowerCase();
+  var mod    = document.getElementById('busca-mod').value;
+  var st     = document.getElementById('busca-st').value;
+  var txtNorm = normalizaDoc(txtRaw);
+
+  var filtrado = todosAtletas.filter(function (a) {
+    var matchTxt = !txt ||
+      (a.nome  || '').toLowerCase().includes(txt) ||
+      normalizaDoc(a.cpf).includes(txtNorm)       ||
+      normalizaDoc(a.rg).includes(txtNorm);
+
+    var matchMod = !mod || (a.modalidade || '') === mod;
+    var matchSt  = !st  || (a.status     || '') === st;
+    var matchSex = !filtroSexoAtual || (a.sexo || '') === filtroSexoAtual;
+
+    return matchTxt && matchMod && matchSt && matchSex;
+  });
+
+  renderTabelaAtletas(filtrado);
 }
+
+/** Limpa todos os campos de busca e exibe todos os atletas. */
 function limparBusca() {
-document.getElementById('busca-nome').value = '';
-document.getElementById('busca-mod').value  = '';
-document.getElementById('busca-st').value   = '';
-filtroSexoAtual = '';
-document.querySelectorAll('.aba-sexo').forEach(function (b) { b.classList.remove('ativa'); });
-document.getElementById('aba-todos').classList.add('ativa');
-renderTabelaAtletas(todosAtletas);
+  document.getElementById('busca-nome').value = '';
+  document.getElementById('busca-mod').value  = '';
+  document.getElementById('busca-st').value   = '';
+  filtroSexoAtual = '';
+  document.querySelectorAll('.aba-sexo').forEach(function (b) { b.classList.remove('ativa'); });
+  document.getElementById('aba-todos').classList.add('ativa');
+  renderTabelaAtletas(todosAtletas);
 }
+
+// ══════════════════════════════════════════════════
+// ATLETAS — UTILITÁRIOS
+// ══════════════════════════════════════════════════
 function renderStatsAtletas() {
-var total = todosAtletas.length;
-var pend  = todosAtletas.filter(function (a) { return a.status === 'Pendente'; }).length;
-var aprov = todosAtletas.filter(function (a) { return a.status === 'Aprovado' || a.status === 'Ativo'; }).length;
-var mods  = {};
-todosAtletas.forEach(function (a) { if (a.modalidade) mods[a.modalidade] = (mods[a.modalidade] || 0) + 1; });
-var top = Object.entries(mods).sort(function (a, b) { return b[1] - a[1]; })[0];
-document.getElementById('stats-atletas').innerHTML =
-sc(total, 'Total de atletas') + sc(pend, 'Pendentes') + sc(aprov, 'Aprovados/Ativos') +
-sc(top ? top[1] : 0, top ? top[0] : 'Modalidades');
+  var total = todosAtletas.length;
+  var pend  = todosAtletas.filter(function (a) { return a.status === 'Pendente'; }).length;
+  var aprov = todosAtletas.filter(function (a) { return a.status === 'Aprovado' || a.status === 'Ativo'; }).length;
+  var mods  = {};
+  todosAtletas.forEach(function (a) { if (a.modalidade) mods[a.modalidade] = (mods[a.modalidade] || 0) + 1; });
+  var top = Object.entries(mods).sort(function (a, b) { return b[1] - a[1]; })[0];
+  document.getElementById('stats-atletas').innerHTML =
+    sc(total, 'Total de atletas') + sc(pend, 'Pendentes') + sc(aprov, 'Aprovados/Ativos') +
+    sc(top ? top[1] : 0, top ? top[0] : 'Modalidades');
 }
+
 function sc(n, l) {
-return '<div class="stat-card"><div class="stat-num">' + n + '</div><div class="stat-lbl">' + l + '</div></div>';
+  return '<div class="stat-card"><div class="stat-num">' + n + '</div><div class="stat-lbl">' + l + '</div></div>';
 }
+
 function calcIdade(nascimento) {
-if (!nascimento) return '';
-var s = String(nascimento);
-if (s.indexOf('T') > -1) s = s.split('T')[0];
-var p = s.split('-');
-if (p.length !== 3) return s;
-var hoje = new Date();
-var dn   = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
-var idade = hoje.getFullYear() - dn.getFullYear();
-var m = hoje.getMonth() - dn.getMonth();
-if (m < 0 || (m === 0 && hoje.getDate() < dn.getDate())) idade--;
-return idade + ' anos';
+  if (!nascimento) return '';
+  var s = String(nascimento);
+  if (s.indexOf('T') > -1) s = s.split('T')[0];
+  var p = s.split('-');
+  if (p.length !== 3) return s;
+  var hoje = new Date();
+  var dn   = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+  var idade = hoje.getFullYear() - dn.getFullYear();
+  var m = hoje.getMonth() - dn.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < dn.getDate())) idade--;
+  return idade + ' anos';
 }
+
 function fmtNasc(nascimento) {
-if (!nascimento) return '';
-var s = String(nascimento);
-if (s.indexOf('T') > -1) s = s.split('T')[0];
-var p = s.split('-');
-if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-return s;
+  if (!nascimento) return '';
+  var s = String(nascimento);
+  if (s.indexOf('T') > -1) s = s.split('T')[0];
+  var p = s.split('-');
+  if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+  return s;
 }
+
 function filtrarSexo(sexo) {
-filtroSexoAtual = sexo;
-document.querySelectorAll('.aba-sexo').forEach(function (b) { b.classList.remove('ativa'); });
-var id = sexo === 'Masculino' ? 'aba-masc' : sexo === 'Feminino' ? 'aba-fem' : 'aba-todos';
-document.getElementById(id).classList.add('ativa');
-buscarAtletas();
+  filtroSexoAtual = sexo;
+  document.querySelectorAll('.aba-sexo').forEach(function (b) { b.classList.remove('ativa'); });
+  var id = sexo === 'Masculino' ? 'aba-masc' : sexo === 'Feminino' ? 'aba-fem' : 'aba-todos';
+  document.getElementById(id).classList.add('ativa');
+  // ✅ Reaplica a busca com o novo filtro de sexo
+  buscarAtletas();
 }
+
 function renderTabelaAtletas(lista) {
-if (!lista.length) {
-document.getElementById('tbl-atletas').innerHTML =
-'<div class="vazio"><div class="vazio-icon">🔍</div>Nenhum atleta encontrado.</div>';
-return;
+  if (!lista.length) {
+    document.getElementById('tbl-atletas').innerHTML =
+      '<div class="vazio"><div class="vazio-icon">🔍</div>Nenhum atleta encontrado.</div>';
+    return;
+  }
+  var h = '<table><thead><tr><th>Atleta</th><th>Sexo</th><th>Idade</th><th>Nascimento</th><th>Modalidade</th><th>Status</th><th>Aprovação</th><th></th></tr></thead><tbody>';
+  lista.forEach(function (a) {
+    var ini  = (a.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
+    var cor  = corMod(a.modalidade);
+    var aprov = a.status === 'Aprovado' || a.status === 'Ativo';
+    var sexoIcon = a.sexo === 'Feminino' ? '♀' : a.sexo === 'Masculino' ? '♂' : '';
+    var sexoCor  = a.sexo === 'Feminino' ? 'color:#c2185b' : a.sexo === 'Masculino' ? 'color:#1565c0' : 'color:var(--leve)';
+    h += '<tr>'
+      + '<td><div class="td-nome"><div class="avatar" style="background:' + cor.bg + ';color:' + cor.txt + '">' + ini + '</div>'
+      + '<span style="font-weight:500">' + (a.nome || '') + '</span></div></td>'
+      + '<td><span style="' + sexoCor + ';font-weight:600">' + sexoIcon + ' ' + (a.sexo || '—') + '</span></td>'
+      + '<td style="color:var(--leve);font-weight:500">' + calcIdade(a.nascimento) + '</td>'
+      + '<td style="color:var(--leve)">' + fmtNasc(a.nascimento) + '</td>'
+      + '<td><span class="badge ' + badgeMod(a.modalidade) + '">' + (a.modalidade || '') + '</span></td>'
+      + '<td><span class="badge ' + badgeSt(a.status) + '" id="st-' + a.linha + '">' + (a.status || '') + '</span></td>'
+      + '<td style="text-align:center"><div class="toggle-wrap">'
+      + '<label class="toggle"><input type="checkbox" id="tog-' + a.linha + '" ' + (aprov ? 'checked' : '') + ' onchange="toggleAprovacao(' + a.linha + ',this)">'
+      + '<span class="toggle-slider"></span></label>'
+      + '<span class="toggle-label" id="tog-lbl-' + a.linha + '" style="color:' + (aprov ? 'var(--verde)' : '#92400e') + '">'
+      + (aprov ? 'Aprovado' : 'Pendente') + '</span></div></td>'
+      + '<td><button class="btn btn-ghost btn-sm" onclick="abrirAtleta(' + a.linha + ')">Ver perfil</button></td>'
+      + '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('tbl-atletas').innerHTML = h;
 }
-var h = '<table><thead><tr><th>Atleta</th><th>Sexo</th><th>Idade</th><th>Nascimento</th><th>Modalidade</th><th>Status</th><th>Aprovação</th><th></th></tr></thead><tbody>';
-lista.forEach(function (a) {
-var ini  = (a.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
-var cor  = corMod(a.modalidade);
-var aprov = a.status === 'Aprovado' || a.status === 'Ativo';
-var sexoIcon = a.sexo === 'Feminino' ? '♀' : a.sexo === 'Masculino' ? '♂' : '';
-var sexoCor  = a.sexo === 'Feminino' ? 'color:#c2185b' : a.sexo === 'Masculino' ? 'color:#1565c0' : 'color:var(--leve)';
-h += '<tr>'
-+ '<td><div class="td-nome"><div class="avatar" style="background:' + cor.bg + ';color:' + cor.txt + '">' + ini + '</div>'
-+ '<span style="font-weight:500">' + (a.nome || '') + '</span></div></td>'
-+ '<td><span style="' + sexoCor + ';font-weight:600">' + sexoIcon + ' ' + (a.sexo || '—') + '</span></td>'
-+ '<td style="color:var(--leve);font-weight:500">' + calcIdade(a.nascimento) + '</td>'
-+ '<td style="color:var(--leve)">' + fmtNasc(a.nascimento) + '</td>'
-+ '<td><span class="badge ' + badgeMod(a.modalidade) + '">' + (a.modalidade || '') + '</span></td>'
-+ '<td><span class="badge ' + badgeSt(a.status) + '" id="st-' + a.linha + '">' + (a.status || '') + '</span></td>'
-+ '<td style="text-align:center"><div class="toggle-wrap">'
-+ '<label class="toggle"><input type="checkbox" id="tog-' + a.linha + '" ' + (aprov ? 'checked' : '') + ' onchange="toggleAprovacao(' + a.linha + ',this)">'
-+ '<span class="toggle-slider"></span></label>'
-+ '<span class="toggle-label" id="tog-lbl-' + a.linha + '" style="color:' + (aprov ? 'var(--verde)' : '#92400e') + '">'
-+ (aprov ? 'Aprovado' : 'Pendente') + '</span></div></td>'
-+ '<td><button class="btn btn-ghost btn-sm" onclick="abrirAtleta(' + a.linha + ')">Ver perfil</button></td>'
-+ '</tr>';
-});
-h += '</tbody></table>';
-document.getElementById('tbl-atletas').innerHTML = h;
-}
+
 function badgeMod(m) {
-if (m === 'Handebol') return 'badge-azul';
-if (m === 'Xadrez')   return 'badge-amarelo';
-if (m === 'Vôlei')    return 'badge-cinza';
-return 'badge-cinza';
+  if (m === 'Handebol') return 'badge-azul';
+  if (m === 'Xadrez')   return 'badge-amarelo';
+  if (m === 'Vôlei')    return 'badge-cinza';
+  return 'badge-cinza';
 }
 function badgeSt(s) {
-if (s === 'Aprovado') return 'badge-verde';
-if (s === 'Reprovado') return 'badge-vermelho';
-if (s === 'Ativo')    return 'badge-azul';
-return 'badge-amarelo';
+  if (s === 'Aprovado') return 'badge-verde';
+  if (s === 'Reprovado') return 'badge-vermelho';
+  if (s === 'Ativo')    return 'badge-azul';
+  return 'badge-amarelo';
 }
 function corMod(m) {
-if (m === 'Handebol') return { bg: '#dbeafe', txt: '#1e40af' };
-if (m === 'Xadrez')   return { bg: '#fef3c7', txt: '#92400e' };
-if (m === 'Vôlei')    return { bg: '#e0f2fe', txt: '#0369a1' };
-return { bg: '#f1f5f9', txt: '#475569' };
+  if (m === 'Handebol') return { bg: '#dbeafe', txt: '#1e40af' };
+  if (m === 'Xadrez')   return { bg: '#fef3c7', txt: '#92400e' };
+  if (m === 'Vôlei')    return { bg: '#e0f2fe', txt: '#0369a1' };
+  return { bg: '#f1f5f9', txt: '#475569' };
 }
+
+// ══════════════════════════════════════════════════
+// ATLETAS — APROVAÇÃO RÁPIDA
+// ══════════════════════════════════════════════════
 function toggleAprovacao(linha, el) {
-el.disabled = true;
-var novoStatus = el.checked ? 'Aprovado' : 'Reprovado';
-var lbl    = document.getElementById('tog-lbl-' + linha);
-var stBadge = document.getElementById('st-' + linha);
-_secureFetch(SCRIPT_URL, {
-method: 'POST', mode: 'no-cors',
-headers: { 'Content-Type': 'text/plain' },
-body: JSON.stringify({ acao:atob('ZWRpdGFy'), dados: { linha: linha, status: novoStatus } })
-})
-.then(function () {
-lbl.textContent = novoStatus;
-lbl.style.color = el.checked ? 'var(--verde)' : '#c0392b';
-if (stBadge) { stBadge.textContent = novoStatus; stBadge.className = 'badge ' + (el.checked ? 'badge-verde' : 'badge-vermelho'); }
-todosAtletas = todosAtletas.map(function (a) { return a.linha === linha ? Object.assign({}, a, { status: novoStatus }) : a; });
-renderStatsAtletas();
-carregarAtletas();
-})
-.catch(function () { el.checked = !el.checked; })
-.finally(function () { el.disabled = false; });
+  el.disabled = true;
+  var novoStatus = el.checked ? 'Aprovado' : 'Reprovado';
+  var lbl    = document.getElementById('tog-lbl-' + linha);
+  var stBadge = document.getElementById('st-' + linha);
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'editar', dados: { linha: linha, status: novoStatus } })
+  })
+    .then(function () {
+      lbl.textContent = novoStatus;
+      lbl.style.color = el.checked ? 'var(--verde)' : '#c0392b';
+      if (stBadge) { stBadge.textContent = novoStatus; stBadge.className = 'badge ' + (el.checked ? 'badge-verde' : 'badge-vermelho'); }
+      todosAtletas = todosAtletas.map(function (a) { return a.linha === linha ? Object.assign({}, a, { status: novoStatus }) : a; });
+      renderStatsAtletas();
+      // ✅ recarrega preservando filtros
+      carregarAtletas();
+    })
+    .catch(function () { el.checked = !el.checked; })
+    .finally(function () { el.disabled = false; });
 }
+
+// ══════════════════════════════════════════════════
+// ATLETAS — PERFIL / EDIÇÃO
+// ══════════════════════════════════════════════════
 function abrirAtleta(linha) {
-linhaAtleta = linha;
-document.getElementById('overlay-atleta').classList.add('aberto');
-document.getElementById('ma-body').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
-document.getElementById('ma-btn-editar').style.display  = 'inline-flex';
-document.getElementById('ma-btn-salvar').style.display  = 'none';
-document.getElementById('ma-btn-cancelar').style.display = 'none';
-_secureFetch(SCRIPT_URL + '?acao='+atob('YXRsZXRh')+'&linha=' + linha)
-.then(function (r) { return r.text(); })
-.then(function (t) {
-atletaAtual = JSON.parse(t);
-renderPerfilAtleta(atletaAtual, false);
-})
-.catch(function () {
-document.getElementById('ma-body').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
-});
+  linhaAtleta = linha;
+  document.getElementById('overlay-atleta').classList.add('aberto');
+  document.getElementById('ma-body').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  document.getElementById('ma-btn-editar').style.display  = 'inline-flex';
+  document.getElementById('ma-btn-salvar').style.display  = 'none';
+  document.getElementById('ma-btn-cancelar').style.display = 'none';
+  fetch(SCRIPT_URL + '?acao=atleta&linha=' + linha)
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      atletaAtual = JSON.parse(t);
+      renderPerfilAtleta(atletaAtual, false);
+    })
+    .catch(function () {
+      document.getElementById('ma-body').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
 }
+
 function renderPerfilAtleta(a, edit) {
-var ini = (a.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
-document.getElementById('ma-avatar').textContent = ini;
-document.getElementById('ma-nome').textContent   = a.nome || '';
-document.getElementById('ma-sub').textContent    = (a.modalidade || '') + ' - ' + (a.categoria || '');
-function c(lbl, val, key, tipo) {
-tipo = tipo || 'text';
-if (!key) return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><div class="dado-val">' + (val || '-') + '</div></div>';
-if (edit) {
-if (key === 'modalidade') return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option' + (val === 'Handebol' ? ' selected' : '') + '>Handebol</option><option' + (val === 'Xadrez' ? ' selected' : '') + '>Xadrez</option><option' + (val === 'Vôlei' ? ' selected' : '') + '>Vôlei</option></select></div>';
-if (key === 'status')     return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option' + (val === 'Pendente' ? ' selected' : '') + '>Pendente</option><option' + (val === 'Aprovado' ? ' selected' : '') + '>Aprovado</option><option' + (val === 'Ativo' ? ' selected' : '') + '>Ativo</option><option' + (val === 'Reprovado' ? ' selected' : '') + '>Reprovado</option></select></div>';
-if (key === 'sexo')       return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option value="">—</option><option' + (val === 'Masculino' ? ' selected' : '') + '>Masculino</option><option' + (val === 'Feminino' ? ' selected' : '') + '>Feminino</option></select></div>';
-return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><input type="' + tipo + '" name="' + key + '" value="' + (val || '') + '"></div>';
+  var ini = (a.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
+  document.getElementById('ma-avatar').textContent = ini;
+  document.getElementById('ma-nome').textContent   = a.nome || '';
+  document.getElementById('ma-sub').textContent    = (a.modalidade || '') + ' - ' + (a.categoria || '');
+
+  function c(lbl, val, key, tipo) {
+    tipo = tipo || 'text';
+    if (!key) return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><div class="dado-val">' + (val || '-') + '</div></div>';
+    if (edit) {
+      if (key === 'modalidade') return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option' + (val === 'Handebol' ? ' selected' : '') + '>Handebol</option><option' + (val === 'Xadrez' ? ' selected' : '') + '>Xadrez</option><option' + (val === 'Vôlei' ? ' selected' : '') + '>Vôlei</option></select></div>';
+      if (key === 'status')     return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option' + (val === 'Pendente' ? ' selected' : '') + '>Pendente</option><option' + (val === 'Aprovado' ? ' selected' : '') + '>Aprovado</option><option' + (val === 'Ativo' ? ' selected' : '') + '>Ativo</option><option' + (val === 'Reprovado' ? ' selected' : '') + '>Reprovado</option></select></div>';
+      if (key === 'sexo')       return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><select name="' + key + '"><option value="">—</option><option' + (val === 'Masculino' ? ' selected' : '') + '>Masculino</option><option' + (val === 'Feminino' ? ' selected' : '') + '>Feminino</option></select></div>';
+      return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><input type="' + tipo + '" name="' + key + '" value="' + (val || '') + '"></div>';
+    }
+    return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><div class="dado-val">' + (val || '-') + '</div></div>';
+  }
+
+  var frh = a.fotoRosto && a.fotoRosto.startsWith('http')
+    ? '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>'
+    : '<span class="btn-foto-vazio">Não enviada</span>';
+  var frg = a.fotoRG && a.fotoRG.startsWith('http')
+    ? '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>'
+    : '<span class="btn-foto-vazio">Não enviado</span>';
+
+  document.getElementById('ma-body').innerHTML =
+    '<div class="modal-sec">Dados pessoais</div><div class="dados-grid">'
+    + c('CPF', a.cpf, 'cpf') + c('RG', a.rg, 'rg')
+    + c('Nascimento', a.nascimento, 'nascimento', 'date') + c('Idade', calcIdade(a.nascimento), null)
+    + c('Sexo', a.sexo, 'sexo') + c('Modalidade', a.modalidade, 'modalidade')
+    + c('Categoria', a.categoria, 'categoria') + c('Status', a.status, 'status') + '</div>'
+    + '<div class="modal-sec">Endereço</div><div class="dados-grid">'
+    + c('Rua', a.rua, 'rua') + c('Número', a.numero, 'numero')
+    + c('Bairro', a.bairro, 'bairro') + c('Cidade', a.cidade, 'cidade')
+    + c('Estado', a.estado, 'estado') + c('CEP', a.cep, 'cep') + '</div>'
+    + '<div class="modal-sec">Responsável</div><div class="dados-grid">'
+    + c('Nome', a.respNome, 'respNome') + c('Telefone', a.respTel, 'respTel')
+    + c('E-mail', a.respEmail, 'respEmail') + c('Parentesco', a.respParent, 'respParent') + '</div>'
+    + '<div class="modal-sec">Documentos</div><div class="fotos-grid">'
+    + '<div class="foto-card"><div class="foto-label">Foto do rosto</div>' + frh + '</div>'
+    + '<div class="foto-card"><div class="foto-label">Foto do RG</div>' + frg + '</div></div>';
 }
-return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><div class="dado-val">' + (val || '-') + '</div></div>';
-}
-var frh = a.fotoRosto && a.fotoRosto.startsWith('http')
-? '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>'
-: '<span class="btn-foto-vazio">Não enviada</span>';
-var frg = a.fotoRG && a.fotoRG.startsWith('http')
-? '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>'
-: '<span class="btn-foto-vazio">Não enviado</span>';
-document.getElementById('ma-body').innerHTML =
-'<div class="modal-sec">Dados pessoais</div><div class="dados-grid">'
-+ c('CPF', a.cpf, 'cpf') + c('RG', a.rg, 'rg')
-+ c('Nascimento', a.nascimento, 'nascimento', 'date') + c('Idade', calcIdade(a.nascimento), null)
-+ c('Sexo', a.sexo, 'sexo') + c('Modalidade', a.modalidade, 'modalidade')
-+ c('Categoria', a.categoria, 'categoria') + c('Status', a.status, 'status') + '</div>'
-+ '<div class="modal-sec">Endereço</div><div class="dados-grid">'
-+ c('Rua', a.rua, 'rua') + c('Número', a.numero, 'numero')
-+ c('Bairro', a.bairro, 'bairro') + c('Cidade', a.cidade, 'cidade')
-+ c('Estado', a.estado, 'estado') + c('CEP', a.cep, 'cep') + '</div>'
-+ '<div class="modal-sec">Responsável</div><div class="dados-grid">'
-+ c('Nome', a.respNome, 'respNome') + c('Telefone', a.respTel, 'respTel')
-+ c('E-mail', a.respEmail, 'respEmail') + c('Parentesco', a.respParent, 'respParent') + '</div>'
-+ '<div class="modal-sec">Documentos</div><div class="fotos-grid">'
-+ '<div class="foto-card"><div class="foto-label">Foto do rosto</div>' + frh + '</div>'
-+ '<div class="foto-card"><div class="foto-label">Foto do RG</div>' + frg + '</div></div>';
-}
+
 function ativarEdicaoAtleta() {
-renderPerfilAtleta(atletaAtual, true);
-document.getElementById('ma-btn-editar').style.display   = 'none';
-document.getElementById('ma-btn-salvar').style.display   = 'inline-flex';
-document.getElementById('ma-btn-cancelar').style.display = 'inline-flex';
+  renderPerfilAtleta(atletaAtual, true);
+  document.getElementById('ma-btn-editar').style.display   = 'none';
+  document.getElementById('ma-btn-salvar').style.display   = 'inline-flex';
+  document.getElementById('ma-btn-cancelar').style.display = 'inline-flex';
 }
+
 function cancelarEdicaoAtleta() {
-renderPerfilAtleta(atletaAtual, false);
-document.getElementById('ma-btn-editar').style.display   = 'inline-flex';
-document.getElementById('ma-btn-salvar').style.display   = 'none';
-document.getElementById('ma-btn-cancelar').style.display = 'none';
+  renderPerfilAtleta(atletaAtual, false);
+  document.getElementById('ma-btn-editar').style.display   = 'inline-flex';
+  document.getElementById('ma-btn-salvar').style.display   = 'none';
+  document.getElementById('ma-btn-cancelar').style.display = 'none';
 }
+
 function salvarEdicaoAtleta() {
-var inputs = document.getElementById('ma-body').querySelectorAll('input,select');
-var d = { linha: linhaAtleta };
-inputs.forEach(function (el) { if (el.name) d[el.name] = el.value; });
-var btn = document.getElementById('ma-btn-salvar');
-btn.textContent = 'Salvando...'; btn.disabled = true;
-_secureFetch(SCRIPT_URL, {
-method: 'POST', mode: 'no-cors',
-headers: { 'Content-Type': 'text/plain' },
-body: JSON.stringify({ acao:atob('ZWRpdGFy'), dados: d })
-})
-.then(function () {
-Object.assign(atletaAtual, d);
-todosAtletas = todosAtletas.map(function (a) { return a.linha === linhaAtleta ? Object.assign({}, a, d) : a; });
-cancelarEdicaoAtleta();
-renderStatsAtletas();
-carregarAtletas();
-})
-.catch(function () { alert('Erro ao salvar.'); })
-.finally(function () { btn.textContent = '✓ Salvar'; btn.disabled = false; });
+  var inputs = document.getElementById('ma-body').querySelectorAll('input,select');
+  var d = { linha: linhaAtleta };
+  inputs.forEach(function (el) { if (el.name) d[el.name] = el.value; });
+  var btn = document.getElementById('ma-btn-salvar');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'editar', dados: d })
+  })
+    .then(function () {
+      Object.assign(atletaAtual, d);
+      todosAtletas = todosAtletas.map(function (a) { return a.linha === linhaAtleta ? Object.assign({}, a, d) : a; });
+      cancelarEdicaoAtleta();
+      renderStatsAtletas();
+      carregarAtletas();
+    })
+    .catch(function () { alert('Erro ao salvar.'); })
+    .finally(function () { btn.textContent = '✓ Salvar'; btn.disabled = false; });
 }
+
 function confirmarExclusao(tipo) {
-var msg = tipo === 'atleta'
-? 'Excluir o atleta "' + atletaAtual.nome + '"? Esta ação não pode ser desfeita.'
-: 'Excluir este colaborador?';
-abrirConfirm('Confirmar exclusão', msg, function () {
-if (tipo === 'atleta') excluirAtleta();
-else excluirColaborador();
-});
+  var msg = tipo === 'atleta'
+    ? 'Excluir o atleta "' + atletaAtual.nome + '"? Esta ação não pode ser desfeita.'
+    : 'Excluir este colaborador?';
+  abrirConfirm('Confirmar exclusão', msg, function () {
+    if (tipo === 'atleta') excluirAtleta();
+    else excluirColaborador();
+  });
 }
+
 function excluirAtleta() {
-fecharOverlay('atleta');
-todosAtletas = todosAtletas.filter(function (a) { return Number(a.linha) !== Number(linhaAtleta); });
-buscarAtletas();
-renderStatsAtletas();
-_secureFetch(SCRIPT_URL + '?acao='+atob('ZXhjbHVpcg==')+'&tipo=atleta&linha=' + linhaAtleta + '&t=' + Date.now())
-.then(function () { carregarAtletas(); })
-.catch(function () { carregarAtletas(); });
+  fecharOverlay('atleta');
+  todosAtletas = todosAtletas.filter(function (a) { return Number(a.linha) !== Number(linhaAtleta); });
+  // ✅ usa buscarAtletas() para preservar filtros
+  buscarAtletas();
+  renderStatsAtletas();
+  fetch(SCRIPT_URL + '?acao=excluir&tipo=atleta&linha=' + linhaAtleta + '&t=' + Date.now())
+    .then(function () { carregarAtletas(); })
+    .catch(function () { carregarAtletas(); });
 }
+
 function fecharOverlay(tipo, e) {
-if (e && e.target !== document.getElementById('overlay-' + tipo)) return;
-document.getElementById('overlay-' + tipo).classList.remove('aberto');
+  if (e && e.target !== document.getElementById('overlay-' + tipo)) return;
+  document.getElementById('overlay-' + tipo).classList.remove('aberto');
 }
+
+// ══════════════════════════════════════════════════
+// AGENDA
+// ══════════════════════════════════════════════════
 function carregarAgenda() {
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'Agenda')
-.then(function (r) { return r.text(); })
-.then(function (t) {
-todosEventos = JSON.parse(t).eventos || [];
-renderAgenda(todosEventos);
-})
-.catch(function () {
-document.getElementById('lista-eventos').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
-});
+  fetch(SCRIPT_URL + '?acao=listarAgenda')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      todosEventos = JSON.parse(t).eventos || [];
+      renderAgenda(todosEventos);
+    })
+    .catch(function () {
+      document.getElementById('lista-eventos').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
 }
+
 function renderAgenda(lista) {
-if (!lista.length) {
-document.getElementById('lista-eventos').innerHTML = '<div class="vazio"><div class="vazio-icon">📅</div>Nenhum evento cadastrado.</div>';
-return;
+  if (!lista.length) {
+    document.getElementById('lista-eventos').innerHTML = '<div class="vazio"><div class="vazio-icon">📅</div>Nenhum evento cadastrado.</div>';
+    return;
+  }
+  var cores = { Treino: '#dbeafe|#1e40af', Jogo: '#d1fae5|#065f46', Reunião: '#fef3c7|#92400e', Evento: '#f3e8ff|#7c3aed', Outro: '#f1f5f9|#475569' };
+  var h = '<div class="agenda-grid">';
+  lista.forEach(function (ev) {
+    var cor = (cores[ev.tipo] || cores['Outro']).split('|');
+    h += '<div class="evento-card">'
+      + '<div class="evento-tipo" style="color:' + cor[1] + '">' + ev.tipo + '</div>'
+      + '<div class="evento-titulo">' + ev.titulo + '</div>'
+      + '<div class="evento-data">' + ev.data + (ev.hora ? ' às ' + ev.hora : '') + '</div>'
+      + (ev.desc ? '<div class="evento-desc">' + ev.desc + '</div>' : '')
+      + '<div class="evento-footer"><button class="btn btn-danger btn-sm" onclick="excluirEvento(' + ev.linha + ')">Excluir</button></div>'
+      + '</div>';
+  });
+  h += '</div>';
+  document.getElementById('lista-eventos').innerHTML = h;
 }
-var cores = { Treino: '#dbeafe|#1e40af', Jogo: '#d1fae5|#065f46', Reunião: '#fef3c7|#92400e', Evento: '#f3e8ff|#7c3aed', Outro: '#f1f5f9|#475569' };
-var h = '<div class="agenda-grid">';
-lista.forEach(function (ev) {
-var cor = (cores[ev.tipo] || cores['Outro']).split('|');
-h += '<div class="evento-card">'
-+ '<div class="evento-tipo" style="color:' + cor[1] + '">' + ev.tipo + '</div>'
-+ '<div class="evento-titulo">' + ev.titulo + '</div>'
-+ '<div class="evento-data">' + ev.data + (ev.hora ? ' às ' + ev.hora : '') + '</div>'
-+ (ev.desc ? '<div class="evento-desc">' + ev.desc + '</div>' : '')
-+ '<div class="evento-footer"><button class="btn btn-danger btn-sm" onclick="excluirEvento(' + ev.linha + ')">Excluir</button></div>'
-+ '</div>';
-});
-h += '</div>';
-document.getElementById('lista-eventos').innerHTML = h;
-}
+
 function toggleFormEvento(show) { document.getElementById('form-evento').style.display = show ? 'block' : 'none'; }
+
 function salvarEvento() {
-var titulo = document.getElementById('ev-titulo').value.trim();
-var data   = document.getElementById('ev-data').value;
-if (!titulo || !data) { alert('Título e data são obrigatórios.'); return; }
-var ev = { titulo: titulo, tipo: document.getElementById('ev-tipo').value, data: data, hora: document.getElementById('ev-hora').value, desc: document.getElementById('ev-desc').value, autor: usuarioLogado };
-toggleFormEvento(false);
-['ev-titulo', 'ev-data', 'ev-hora', 'ev-desc'].forEach(function (id) { document.getElementById(id).value = ''; });
-_secureFetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao:atob('YWRpY2lvbmFyRXZlbnRv'), dados: ev }) })
-.then(function () { setTimeout(carregarAgenda, 1500); })
-.catch(function () { setTimeout(carregarAgenda, 1500); });
+  var titulo = document.getElementById('ev-titulo').value.trim();
+  var data   = document.getElementById('ev-data').value;
+  if (!titulo || !data) { alert('Título e data são obrigatórios.'); return; }
+  var ev = { titulo: titulo, tipo: document.getElementById('ev-tipo').value, data: data, hora: document.getElementById('ev-hora').value, desc: document.getElementById('ev-desc').value, autor: usuarioLogado };
+  toggleFormEvento(false);
+  ['ev-titulo', 'ev-data', 'ev-hora', 'ev-desc'].forEach(function (id) { document.getElementById(id).value = ''; });
+  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarEvento', dados: ev }) })
+    .then(function () { setTimeout(carregarAgenda, 1500); })
+    .catch(function () { setTimeout(carregarAgenda, 1500); });
 }
+
 function excluirEvento(linha) {
-abrirConfirm('Excluir evento', 'Deseja excluir este evento?', function () {
-todosEventos = todosEventos.filter(function (ev) { return Number(ev.linha) !== Number(linha); });
-renderAgenda(todosEventos);
-_secureFetch(SCRIPT_URL + '?acao='+atob('ZXhjbHVpcg==')+'&tipo=agenda&linha=' + linha)
-.then(carregarAgenda).catch(carregarAgenda);
-});
+  abrirConfirm('Excluir evento', 'Deseja excluir este evento?', function () {
+    todosEventos = todosEventos.filter(function (ev) { return Number(ev.linha) !== Number(linha); });
+    renderAgenda(todosEventos);
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=agenda&linha=' + linha)
+      .then(carregarAgenda).catch(carregarAgenda);
+  });
 }
+
+// ══════════════════════════════════════════════════
+// EQUIPE
+// ══════════════════════════════════════════════════
 function carregarEquipe() {
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'Equipe')
-.then(function (r) { return r.text(); })
-.then(function (t) {
-try {
-var inicio = t.indexOf('{');
-if (inicio > 0) t = t.substring(inicio);
-var lista = JSON.parse(t).equipe || [];
-todaEquipe = lista.filter(function (c) {
-return c.nome && isNaN(c.nome) && String(c.nome).trim() !== '';
-});
-renderEquipe(todaEquipe);
-if (todasRelacoes.length) renderRelacoes();
-} catch (e) {
-document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+  fetch(SCRIPT_URL + '?acao=listarEquipe')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      try {
+        var inicio = t.indexOf('{');
+        if (inicio > 0) t = t.substring(inicio);
+        var lista = JSON.parse(t).equipe || [];
+        todaEquipe = lista.filter(function (c) {
+          return c.nome && isNaN(c.nome) && String(c.nome).trim() !== '';
+        });
+        renderEquipe(todaEquipe);
+        if (todasRelacoes.length) renderRelacoes();
+      } catch (e) {
+        document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+      }
+    })
+    .catch(function () {
+      document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
 }
-})
-.catch(function () {
-document.getElementById('tbl-equipe').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
-});
-}
+
 function renderEquipe(lista) {
-if (!lista.length) {
-document.getElementById('tbl-equipe').innerHTML = '<div class="vazio"><div class="vazio-icon">👥</div>Nenhum colaborador cadastrado.</div>';
-return;
+  if (!lista.length) {
+    document.getElementById('tbl-equipe').innerHTML = '<div class="vazio"><div class="vazio-icon">👥</div>Nenhum colaborador cadastrado.</div>';
+    return;
+  }
+  var h = '<table><thead><tr><th>Nome</th><th>Cargo</th><th>Modalidade</th><th>Telefone</th><th>E-mail</th><th>Status</th><th></th></tr></thead><tbody>';
+  lista.forEach(function (c) {
+    var nomeStr = String(c.nome || '?');
+    var ini = nomeStr.split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
+    h += '<tr>'
+      + '<td><div class="td-nome"><div class="avatar" style="background:var(--azul-cl);color:var(--azul)">' + ini + '</div><span style="font-weight:500">' + (c.nome || '') + '</span></div></td>'
+      + '<td>' + (c.cargo || '') + '</td>'
+      + '<td>' + (c.modalidade || 'Geral') + '</td>'
+      + '<td style="color:var(--leve)">' + (c.telefone || '') + '</td>'
+      + '<td style="color:var(--leve)">' + (c.email || '') + '</td>'
+      + '<td><span class="badge ' + (c.status === 'Ativo' ? 'badge-verde' : 'badge-cinza') + '">' + (c.status || '') + '</span></td>'
+      + '<td><button class="btn btn-danger btn-sm" data-linha="' + c.linha + '" data-nome="' + encodeURIComponent(c.nome || '') + '" onclick="excluirColaboradorDireto(this.dataset.linha,this.dataset.nome)">Excluir</button></td>'
+      + '</tr>';
+  });
+  h += '</tbody></table>';
+  document.getElementById('tbl-equipe').innerHTML = h;
 }
-var h = '<table><thead><tr><th>Nome</th><th>Cargo</th><th>Modalidade</th><th>Telefone</th><th>E-mail</th><th>Status</th><th></th></tr></thead><tbody>';
-lista.forEach(function (c) {
-var nomeStr = String(c.nome || '?');
-var ini = nomeStr.split(' ').slice(0, 2).map(function (n) { return n[0]; }).join('');
-h += '<tr>'
-+ '<td><div class="td-nome"><div class="avatar" style="background:var(--azul-cl);color:var(--azul)">' + ini + '</div><span style="font-weight:500">' + (c.nome || '') + '</span></div></td>'
-+ '<td>' + (c.cargo || '') + '</td>'
-+ '<td>' + (c.modalidade || 'Geral') + '</td>'
-+ '<td style="color:var(--leve)">' + (c.telefone || '') + '</td>'
-+ '<td style="color:var(--leve)">' + (c.email || '') + '</td>'
-+ '<td><span class="badge ' + (c.status === 'Ativo' ? 'badge-verde' : 'badge-cinza') + '">' + (c.status || '') + '</span></td>'
-+ '<td><button class="btn btn-danger btn-sm" data-linha="' + c.linha + '" data-nome="' + encodeURIComponent(c.nome || '') + '" onclick="excluirColaboradorDireto(this.dataset.linha,this.dataset.nome)">Excluir</button></td>'
-+ '</tr>';
-});
-h += '</tbody></table>';
-document.getElementById('tbl-equipe').innerHTML = h;
-}
+
 function toggleFormColaborador(show) { document.getElementById('form-colaborador').style.display = show ? 'block' : 'none'; }
+
 function salvarColaborador() {
-var nome  = document.getElementById('col-nome').value.trim();
-var cargo = document.getElementById('col-cargo').value.trim();
-if (!nome || !cargo) { alert('Nome e cargo são obrigatórios.'); return; }
-var col = {
-nome: nome, cargo: cargo,
-cpf: document.getElementById('col-cpf').value.trim(),
-cref: document.getElementById('col-cref').value.trim(),
-telefone: document.getElementById('col-tel').value,
-email: document.getElementById('col-email').value,
-modalidade: document.getElementById('col-modal').value,
-status: document.getElementById('col-status').value
-};
-toggleFormColaborador(false);
-['col-nome', 'col-cargo', 'col-cpf', 'col-cref', 'col-tel', 'col-email'].forEach(function (id) { document.getElementById(id).value = ''; });
-_secureFetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao:atob('YWRpY2lvbmFyQ29sYWJvcmFkb3I='), dados: col }) })
-.then(function () { setTimeout(carregarEquipe, 1500); })
-.catch(function () { setTimeout(carregarEquipe, 1500); });
+  var nome  = document.getElementById('col-nome').value.trim();
+  var cargo = document.getElementById('col-cargo').value.trim();
+  if (!nome || !cargo) { alert('Nome e cargo são obrigatórios.'); return; }
+  var col = {
+    nome: nome, cargo: cargo,
+    cpf: document.getElementById('col-cpf').value.trim(),
+    cref: document.getElementById('col-cref').value.trim(),
+    telefone: document.getElementById('col-tel').value,
+    email: document.getElementById('col-email').value,
+    modalidade: document.getElementById('col-modal').value,
+    status: document.getElementById('col-status').value
+  };
+  toggleFormColaborador(false);
+  ['col-nome', 'col-cargo', 'col-cpf', 'col-cref', 'col-tel', 'col-email'].forEach(function (id) { document.getElementById(id).value = ''; });
+  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarColaborador', dados: col }) })
+    .then(function () { setTimeout(carregarEquipe, 1500); })
+    .catch(function () { setTimeout(carregarEquipe, 1500); });
 }
+
 function excluirColaboradorDireto(linha, nome) {
-abrirConfirm('Excluir colaborador', 'Excluir "' + decodeURIComponent(nome) + '"?', function () {
-todaEquipe = todaEquipe.filter(function (c) { return Number(c.linha) !== Number(linha); });
-renderEquipe(todaEquipe);
-_secureFetch(SCRIPT_URL + '?acao='+atob('ZXhjbHVpcg==')+'&tipo=equipe&linha=' + linha)
-.then(carregarEquipe).catch(carregarEquipe);
-});
+  abrirConfirm('Excluir colaborador', 'Excluir "' + decodeURIComponent(nome) + '"?', function () {
+    todaEquipe = todaEquipe.filter(function (c) { return Number(c.linha) !== Number(linha); });
+    renderEquipe(todaEquipe);
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=equipe&linha=' + linha)
+      .then(carregarEquipe).catch(carregarEquipe);
+  });
 }
+
 function excluirColaborador() {
-excluirColaboradorDireto(linhaAtleta, encodeURIComponent((atletaAtual && atletaAtual.nome) || ''));
+  excluirColaboradorDireto(linhaAtleta, encodeURIComponent((atletaAtual && atletaAtual.nome) || ''));
 }
+
+// ══════════════════════════════════════════════════
+// ANOTAÇÕES
+// ══════════════════════════════════════════════════
 function carregarAnotacoes() {
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'Anotacoes')
-.then(function (r) { return r.text(); })
-.then(function (t) {
-todasAnotacoes = JSON.parse(t).anotacoes || [];
-renderAnotacoes(todasAnotacoes);
-})
-.catch(function () {
-document.getElementById('lista-anot').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
-});
+  fetch(SCRIPT_URL + '?acao=listarAnotacoes')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      todasAnotacoes = JSON.parse(t).anotacoes || [];
+      renderAnotacoes(todasAnotacoes);
+    })
+    .catch(function () {
+      document.getElementById('lista-anot').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    });
 }
+
 function renderAnotacoes(lista) {
-if (!lista.length) {
-document.getElementById('lista-anot').innerHTML = '<div class="vazio"><div class="vazio-icon">📝</div>Nenhuma anotação.</div>';
-return;
+  if (!lista.length) {
+    document.getElementById('lista-anot').innerHTML = '<div class="vazio"><div class="vazio-icon">📝</div>Nenhuma anotação.</div>';
+    return;
+  }
+  var h = '<div class="anot-grid">';
+  lista.forEach(function (a) {
+    h += '<div class="anot-card ' + (a.prioridade || 'media') + '">'
+      + '<div class="anot-header"><span class="badge ' + (a.prioridade === 'alta' ? 'badge-vermelho' : a.prioridade === 'baixa' ? 'badge-verde' : 'badge-amarelo') + '">' + a.prioridade + '</span><span class="anot-autor">' + a.autor + '</span></div>'
+      + '<div class="anot-texto">' + a.texto + '</div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span class="anot-data">' + a.data + '</span><button class="btn btn-danger btn-sm" onclick="excluirAnot(' + a.linha + ')">Excluir</button></div>'
+      + '</div>';
+  });
+  h += '</div>';
+  document.getElementById('lista-anot').innerHTML = h;
 }
-var h = '<div class="anot-grid">';
-lista.forEach(function (a) {
-h += '<div class="anot-card ' + (a.prioridade || 'media') + '">'
-+ '<div class="anot-header"><span class="badge ' + (a.prioridade === 'alta' ? 'badge-vermelho' : a.prioridade === 'baixa' ? 'badge-verde' : 'badge-amarelo') + '">' + a.prioridade + '</span><span class="anot-autor">' + a.autor + '</span></div>'
-+ '<div class="anot-texto">' + a.texto + '</div>'
-+ '<div style="display:flex;justify-content:space-between;align-items:center"><span class="anot-data">' + a.data + '</span><button class="btn btn-danger btn-sm" onclick="excluirAnot(' + a.linha + ')">Excluir</button></div>'
-+ '</div>';
-});
-h += '</div>';
-document.getElementById('lista-anot').innerHTML = h;
-}
+
 function toggleFormAnot(show) { document.getElementById('form-anot').style.display = show ? 'block' : 'none'; }
+
 function salvarAnot() {
-var texto = document.getElementById('anot-texto').value.trim();
-if (!texto) { alert('Escreva algo antes de salvar.'); return; }
-var anot = { texto: texto, prioridade: document.getElementById('anot-prior').value, autor: usuarioLogado, data: new Date().toLocaleDateString('pt-BR') };
-toggleFormAnot(false);
-document.getElementById('anot-texto').value = '';
-_secureFetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao:atob('YWRpY2lvbmFyQW5vdGFjYW8='), dados: anot }) })
-.then(function () { setTimeout(carregarAnotacoes, 1500); })
-.catch(function () { setTimeout(carregarAnotacoes, 1500); });
+  var texto = document.getElementById('anot-texto').value.trim();
+  if (!texto) { alert('Escreva algo antes de salvar.'); return; }
+  var anot = { texto: texto, prioridade: document.getElementById('anot-prior').value, autor: usuarioLogado, data: new Date().toLocaleDateString('pt-BR') };
+  toggleFormAnot(false);
+  document.getElementById('anot-texto').value = '';
+  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarAnotacao', dados: anot }) })
+    .then(function () { setTimeout(carregarAnotacoes, 1500); })
+    .catch(function () { setTimeout(carregarAnotacoes, 1500); });
 }
+
 function excluirAnot(linha) {
-abrirConfirm('Excluir anotação', 'Deseja excluir esta anotação?', function () {
-todasAnotacoes = todasAnotacoes.filter(function (a) { return Number(a.linha) !== Number(linha); });
-renderAnotacoes(todasAnotacoes);
-_secureFetch(SCRIPT_URL + '?acao='+atob('ZXhjbHVpcg==')+'&tipo=anotacao&linha=' + linha)
-.then(carregarAnotacoes).catch(carregarAnotacoes);
-});
+  abrirConfirm('Excluir anotação', 'Deseja excluir esta anotação?', function () {
+    todasAnotacoes = todasAnotacoes.filter(function (a) { return Number(a.linha) !== Number(linha); });
+    renderAnotacoes(todasAnotacoes);
+    fetch(SCRIPT_URL + '?acao=excluir&tipo=anotacao&linha=' + linha)
+      .then(carregarAnotacoes).catch(carregarAnotacoes);
+  });
 }
+
+// ══════════════════════════════════════════════════
+// RELAÇÕES NOMINAIS
+// ══════════════════════════════════════════════════
 function toggleFormRelacao(show) {
-document.getElementById('form-relacao').style.display = show ? 'block' : 'none';
-if (show) {
-['rel-nome', 'rel-evento', 'rel-adversario', 'rel-local', 'rel-data', 'rel-hora', 'rel-categoria'].forEach(function (id) { document.getElementById(id).value = ''; });
-document.getElementById('rel-modalidade').value = '';
+  document.getElementById('form-relacao').style.display = show ? 'block' : 'none';
+  if (show) {
+    ['rel-nome', 'rel-evento', 'rel-adversario', 'rel-local', 'rel-data', 'rel-hora', 'rel-categoria'].forEach(function (id) { document.getElementById(id).value = ''; });
+    document.getElementById('rel-modalidade').value = '';
+  }
 }
-}
+
 function carregarRelacoes() {
-_secureFetch(SCRIPT_URL + '?acao='+atob('bGlzdGFy')+'Relacoes')
-.then(function (r) { return r.text(); })
-.then(function (t) {
-var data = JSON.parse(t);
-function enriquecerAtleta(m) {
-if (m.cpf || m.rg) return m;
-var linhaId = String(m.id).replace('atleta_', '');
-var a = todosAtletas.find(function (x) { return String(x.linha) === linhaId; });
-if (a) { m.cpf = a.cpf || ''; m.rg = a.rg || ''; m.nascimento = a.nascimento || ''; }
-return m;
+  fetch(SCRIPT_URL + '?acao=listarRelacoes')
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var data = JSON.parse(t);
+
+      function enriquecerAtleta(m) {
+        if (m.cpf || m.rg) return m;
+        var linhaId = String(m.id).replace('atleta_', '');
+        var a = todosAtletas.find(function (x) { return String(x.linha) === linhaId; });
+        if (a) { m.cpf = a.cpf || ''; m.rg = a.rg || ''; m.nascimento = a.nascimento || ''; }
+        return m;
+      }
+
+      function enriquecerColab(m) {
+        if (m.cpf) return m;
+        var linhaId = String(m.id).replace('professor_', '').replace('auxiliar_', '');
+        var c = todaEquipe.find(function (x) { return String(x.linha) === linhaId; });
+        if (c) { m.cpf = c.cpf || ''; m.cref = c.cref || ''; }
+        return m;
+      }
+
+      todasRelacoes = (data.relacoes || []).map(function (r) {
+        var atletas     = (r.atletas     ? JSON.parse(r.atletas)     : []).map(enriquecerAtleta);
+        var professores = (r.professores ? JSON.parse(r.professores) : []).map(enriquecerColab);
+        var auxiliares  = (r.auxiliares  ? JSON.parse(r.auxiliares)  : []).map(enriquecerColab);
+        return {
+          id: r.id, linha: r.linha, nome: r.nome,
+          evento: r.evento || '', adversario: r.adversario || '',
+          local: r.local || '', data: r.data || '', hora: r.hora || '',
+          modalidade: r.modalidade || '', categoria: r.categoria || '',
+          atletas: atletas, professores: professores, auxiliares: auxiliares
+        };
+      });
+      renderRelacoes();
+    })
+    .catch(function () {
+      document.getElementById('lista-relacoes').innerHTML = '<div class="vazio">Erro ao carregar relações.</div>';
+    });
 }
-function enriquecerColab(m) {
-if (m.cpf) return m;
-var linhaId = String(m.id).replace('professor_', '').replace('auxiliar_', '');
-var c = todaEquipe.find(function (x) { return String(x.linha) === linhaId; });
-if (c) { m.cpf = c.cpf || ''; m.cref = c.cref || ''; }
-return m;
-}
-todasRelacoes = (data.relacoes || []).map(function (r) {
-var atletas     = (r.atletas     ? JSON.parse(r.atletas)     : []).map(enriquecerAtleta);
-var professores = (r.professores ? JSON.parse(r.professores) : []).map(enriquecerColab);
-var auxiliares  = (r.auxiliares  ? JSON.parse(r.auxiliares)  : []).map(enriquecerColab);
-return {
-id: r.id, linha: r.linha, nome: r.nome,
-evento: r.evento || '', adversario: r.adversario || '',
-local: r.local || '', data: r.data || '', hora: r.hora || '',
-modalidade: r.modalidade || '', categoria: r.categoria || '',
-atletas: atletas, professores: professores, auxiliares: auxiliares
-};
-});
-renderRelacoes();
-})
-.catch(function () {
-document.getElementById('lista-relacoes').innerHTML = '<div class="vazio">Erro ao carregar relações.</div>';
-});
-}
+
 function criarRelacao() {
-var nome = document.getElementById('rel-nome').value.trim();
-if (!nome) { alert('Informe o nome da relação.'); return; }
-var rel = {
-id: Date.now(), linha: null, nome: nome,
-evento: document.getElementById('rel-evento').value.trim(),
-adversario: document.getElementById('rel-adversario').value.trim(),
-local: document.getElementById('rel-local').value.trim(),
-data: document.getElementById('rel-data').value,
-hora: document.getElementById('rel-hora').value,
-modalidade: document.getElementById('rel-modalidade').value,
-categoria: document.getElementById('rel-categoria').value.trim(),
-atletas: [], professores: [], auxiliares: []
-};
-todasRelacoes.push(rel);
-toggleFormRelacao(false);
-renderRelacoes();
-salvarRelacao(rel);
+  var nome = document.getElementById('rel-nome').value.trim();
+  if (!nome) { alert('Informe o nome da relação.'); return; }
+  var rel = {
+    id: Date.now(), linha: null, nome: nome,
+    evento: document.getElementById('rel-evento').value.trim(),
+    adversario: document.getElementById('rel-adversario').value.trim(),
+    local: document.getElementById('rel-local').value.trim(),
+    data: document.getElementById('rel-data').value,
+    hora: document.getElementById('rel-hora').value,
+    modalidade: document.getElementById('rel-modalidade').value,
+    categoria: document.getElementById('rel-categoria').value.trim(),
+    atletas: [], professores: [], auxiliares: []
+  };
+  todasRelacoes.push(rel);
+  toggleFormRelacao(false);
+  renderRelacoes();
+  salvarRelacao(rel);
 }
+
 function salvarRelacao(rel) {
-var dados = {
-id: String(rel.id), linha: rel.linha || '', nome: rel.nome,
-evento: rel.evento || '', adversario: rel.adversario || '',
-local: rel.local || '', data: rel.data || '', hora: rel.hora || '',
-modalidade: rel.modalidade || '', categoria: rel.categoria || '',
-atletas: JSON.stringify(rel.atletas),
-professores: JSON.stringify(rel.professores),
-auxiliares: JSON.stringify(rel.auxiliares)
-};
-_secureFetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao:atob('c2FsdmFyUmVsYWNhbw=='), dados: dados }) });
+  var dados = {
+    id: String(rel.id), linha: rel.linha || '', nome: rel.nome,
+    evento: rel.evento || '', adversario: rel.adversario || '',
+    local: rel.local || '', data: rel.data || '', hora: rel.hora || '',
+    modalidade: rel.modalidade || '', categoria: rel.categoria || '',
+    atletas: JSON.stringify(rel.atletas),
+    professores: JSON.stringify(rel.professores),
+    auxiliares: JSON.stringify(rel.auxiliares)
+  };
+  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'salvarRelacao', dados: dados }) });
 }
+
 function excluirRelacao(id, linha) {
-abrirConfirm('Excluir relação', 'Deseja excluir esta relação nominal?', function () {
-var rel = todasRelacoes.find(function (r) { return String(r.id) === String(id); });
-if (!rel && linha) rel = todasRelacoes.find(function (r) { return Number(r.linha) === Number(linha); });
-todasRelacoes = todasRelacoes.filter(function (r) { return String(r.id) !== String(id) && Number(r.linha) !== Number(linha); });
-renderRelacoes();
-var linhaExcluir = rel ? rel.linha : linha;
-if (linhaExcluir) _secureFetch(SCRIPT_URL + '?acao='+atob('ZXhjbHVpcg==')+'Relacao&linha=' + linhaExcluir).catch(function () {});
-});
+  abrirConfirm('Excluir relação', 'Deseja excluir esta relação nominal?', function () {
+    var rel = todasRelacoes.find(function (r) { return String(r.id) === String(id); });
+    if (!rel && linha) rel = todasRelacoes.find(function (r) { return Number(r.linha) === Number(linha); });
+    todasRelacoes = todasRelacoes.filter(function (r) { return String(r.id) !== String(id) && Number(r.linha) !== Number(linha); });
+    renderRelacoes();
+    var linhaExcluir = rel ? rel.linha : linha;
+    if (linhaExcluir) fetch(SCRIPT_URL + '?acao=excluirRelacao&linha=' + linhaExcluir).catch(function () {});
+  });
 }
+
 function addMembroRelacao(idx, tipo) {
-var rel = todasRelacoes[idx];
-if (!rel) return;
-var sel = document.getElementById('sel-' + tipo + '-' + idx);
-if (!sel || !sel.value) return;
-var val = sel.value;
-var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
-var jaExiste = lista.find(function (m) { return m.id === (tipo + '_' + val); });
-if (jaExiste) { sel.value = ''; return; }
-var membro;
-if (tipo === 'atleta') {
-var a = todosAtletas.find(function (x) { return String(x.linha) === val; });
-if (!a) return;
-membro = { id: tipo + '_' + val, nome: a.nome, sub: (a.modalidade || '') + (a.categoria ? ' · ' + a.categoria : ''), cpf: a.cpf || '', rg: a.rg || '', nascimento: a.nascimento || '' };
-} else {
-var c = todaEquipe.find(function (x) { return String(x.linha) === val; });
-if (!c) { if (todaEquipe.length === 0) { alert('A lista de colaboradores ainda está carregando. Aguarde e tente novamente.'); carregarEquipe(); } sel.value = ''; return; }
-membro = { id: tipo + '_' + val, nome: c.nome, sub: c.cargo || '', cpf: c.cpf || '', cref: c.cref || '' };
+  var rel = todasRelacoes[idx];
+  if (!rel) return;
+  var sel = document.getElementById('sel-' + tipo + '-' + idx);
+  if (!sel || !sel.value) return;
+  var val = sel.value;
+  var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
+  var jaExiste = lista.find(function (m) { return m.id === (tipo + '_' + val); });
+  if (jaExiste) { sel.value = ''; return; }
+  var membro;
+  if (tipo === 'atleta') {
+    var a = todosAtletas.find(function (x) { return String(x.linha) === val; });
+    if (!a) return;
+    membro = { id: tipo + '_' + val, nome: a.nome, sub: (a.modalidade || '') + (a.categoria ? ' · ' + a.categoria : ''), cpf: a.cpf || '', rg: a.rg || '', nascimento: a.nascimento || '' };
+  } else {
+    var c = todaEquipe.find(function (x) { return String(x.linha) === val; });
+    if (!c) { if (todaEquipe.length === 0) { alert('A lista de colaboradores ainda está carregando. Aguarde e tente novamente.'); carregarEquipe(); } sel.value = ''; return; }
+    membro = { id: tipo + '_' + val, nome: c.nome, sub: c.cargo || '', cpf: c.cpf || '', cref: c.cref || '' };
+  }
+  lista.push(membro);
+  sel.value = '';
+  renderRelacoes();
+  salvarRelacao(rel);
 }
-lista.push(membro);
-sel.value = '';
-renderRelacoes();
-salvarRelacao(rel);
-}
+
 function removerMembroRelacao(idx, tipo, memId) {
-var rel = todasRelacoes[idx];
-if (!rel) return;
-if (tipo === 'atleta')     rel.atletas     = rel.atletas.filter(function (m) { return m.id !== memId; });
-else if (tipo === 'professor') rel.professores = rel.professores.filter(function (m) { return m.id !== memId; });
-else                       rel.auxiliares  = rel.auxiliares.filter(function (m) { return m.id !== memId; });
-renderRelacoes();
-salvarRelacao(rel);
+  var rel = todasRelacoes[idx];
+  if (!rel) return;
+  if (tipo === 'atleta')     rel.atletas     = rel.atletas.filter(function (m) { return m.id !== memId; });
+  else if (tipo === 'professor') rel.professores = rel.professores.filter(function (m) { return m.id !== memId; });
+  else                       rel.auxiliares  = rel.auxiliares.filter(function (m) { return m.id !== memId; });
+  renderRelacoes();
+  salvarRelacao(rel);
 }
+
 function renderSecaoRelacao(rel, idx, tipo, label, emoji, bgCor, txtCor, opcoes) {
-var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
-var h = '<div class="rel-secao">' + emoji + ' ' + label + ' (' + lista.length + ')</div>';
-if (lista.length) {
-lista.forEach(function (m, i) {
-h += '<div class="rel-membro">'
-+ '<div class="avatar" style="background:' + bgCor + ';color:' + txtCor + ';font-size:11px;width:28px;height:28px">'
-+ (tipo === 'atleta' ? (i + 1) : (m.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join(''))
-+ '</div>'
-+ '<div class="rel-membro-info"><div class="rel-membro-nome">' + m.nome + '</div><div class="rel-membro-sub">' + m.sub + '</div></div>'
-+ '<button class="rel-membro-rm" onclick="removerMembroRelacao(' + idx + ',\'' + tipo + '\',\'' + m.id + '\')" title="Remover">×</button>'
-+ '</div>';
-});
-} else {
-h += '<div class="rel-empty">Nenhum ' + label.toLowerCase() + ' adicionado</div>';
-}
-h += '<div class="rel-add-row"><select id="sel-' + tipo + '-' + idx + '" onchange="addMembroRelacao(' + idx + ',\'' + tipo + '\')">' + opcoes + '</select></div>';
-return h;
-}
-function renderRelacoes() {
-var cont = document.getElementById('lista-relacoes');
-if (!todasRelacoes.length) {
-cont.innerHTML = '<div class="vazio"><div class="vazio-icon">📋</div>Nenhuma relação criada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova relação" para começar.</small></div>';
-return;
-}
-if (todaEquipe.length === 0) carregarEquipe();
-var optsAtletas = '<option value="">➕ Adicionar atleta</option>'
-+ todosAtletas.filter(function (a) { return a.status === 'Aprovado' || a.status === 'Ativo'; })
-.map(function (a) { return '<option value="' + a.linha + '">' + a.nome + (a.modalidade ? ' (' + a.modalidade + ')' : '') + '</option>'; }).join('')
-+ (todosAtletas.filter(function (a) { return a.status !== 'Aprovado' && a.status !== 'Ativo'; }).length
-? '<optgroup label="── Pendentes/Outros ──">'
-+ todosAtletas.filter(function (a) { return a.status !== 'Aprovado' && a.status !== 'Ativo'; })
-.map(function (a) { return '<option value="' + a.linha + '">' + a.nome + ' (' + (a.status || '') + ')</option>'; }).join('')
-+ '</optgroup>' : '');
-var optsProf = '<option value="">➕ Adicionar professor</option>'
-+ (todaEquipe.length
-? todaEquipe.map(function (c) { return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('')
-: '<option disabled>Carregando colaboradores...</option>');
-var optsAux = '<option value="">➕ Adicionar auxiliar</option>'
-+ (todaEquipe.length
-? todaEquipe.map(function (c) { return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('')
-: '<option disabled>Carregando colaboradores...</option>');
-var h = '<div class="rel-grid">';
-todasRelacoes.forEach(function (rel, idx) {
-var meta = [];
-if (rel.data) meta.push('📅 ' + rel.data.split('-').reverse().join('/') + (rel.hora ? ' às ' + rel.hora : ''));
-if (rel.adversario) meta.push('⚔️ x ' + rel.adversario);
-if (rel.local)      meta.push('📍 ' + rel.local);
-if (rel.modalidade) meta.push(rel.modalidade);
-if (rel.categoria)  meta.push(rel.categoria);
-var total = rel.atletas.length + rel.professores.length + rel.auxiliares.length;
-h += '<div class="rel-card">';
-h += '<div class="rel-card-header">';
-h += '<div><div class="rel-card-titulo">' + rel.nome + '</div>';
-if (rel.evento) h += '<div class="rel-card-meta">' + rel.evento + '</div>';
-if (meta.length) h += '<div class="rel-card-meta" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:8px">' + meta.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>';
-h += '</div>';
-h += '<span class="badge badge-azul" style="align-self:flex-start;white-space:nowrap">' + total + ' pessoa' + (total !== 1 ? 's' : '') + '</span>';
-h += '</div>';
-h += '<div class="rel-card-body">';
-h += renderSecaoRelacao(rel, idx, 'atleta',    'Atletas',    '🏃', 'var(--azul-cl)', 'var(--azul)', optsAtletas);
-h += renderSecaoRelacao(rel, idx, 'professor', 'Professores','🎓', '#d1fae5', '#065f46', optsProf);
-h += renderSecaoRelacao(rel, idx, 'auxiliar',  'Auxiliares', '🤝', '#fef3c7', '#92400e', optsAux);
-h += '</div>';
-h += '<div class="rel-card-footer">';
-h += '<button class="btn btn-danger btn-sm" onclick="excluirRelacao(\'' + rel.id + '\',' + rel.linha + ')">🗑 Excluir</button>';
-h += '<button class="btn btn-primary btn-sm" onclick="imprimirRelacao(\'' + rel.id + '\',' + rel.linha + ')">🖨️ Imprimir</button>';
-h += '</div>';
-h += '</div>';
-});
-h += '</div>';
-cont.innerHTML = h;
-}
-function imprimirRelacao(id, linha) {
-var rel = todasRelacoes.find(function (r) { return String(r.id) === String(id); });
-if (!rel && linha) rel = todasRelacoes.find(function (r) { return Number(r.linha) === Number(linha); });
-if (!rel) { alert('Relação não encontrada. Tente recarregar a página.'); return; }
-var dataFmt = rel.data ? rel.data.split('-').reverse().join('/') : '';
-var metaLinha = [];
-if (rel.evento)     metaLinha.push(rel.evento);
-if (rel.adversario) metaLinha.push('Adversário: ' + rel.adversario);
-if (rel.local)      metaLinha.push('Local: ' + rel.local);
-if (dataFmt)        metaLinha.push('Data: ' + dataFmt + (rel.hora ? ' às ' + rel.hora : ''));
-if (rel.modalidade) metaLinha.push('Modalidade: ' + rel.modalidade);
-if (rel.categoria)  metaLinha.push('Categoria: ' + rel.categoria);
-function fmtData(d) {
-if (!d) return '';
-var s = String(d);
-if (s.indexOf('T') > -1) s = s.split('T')[0];
-var p = s.split('-');
-if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-return s;
-}
-function tabelaPrint(lista, titulo, tipo) {
-if (!lista.length) return '';
-var t = '<div class="secao">' + titulo + ' — ' + lista.length + ' pessoa' + (lista.length !== 1 ? 's' : '') + '</div>';
-if (tipo === 'atleta') {
-t += '<table><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>CPF</th><th>RG</th><th>Nascimento</th><th>Modalidade/Cat.</th></tr></thead><tbody>';
-lista.forEach(function (m, idx) {
-t += '<tr><td>' + (idx + 1) + '</td><td>' + m.nome + '</td><td>' + (m.cpf || '') + '</td><td>' + (m.rg || '') + '</td><td>' + fmtData(m.nascimento) + '</td><td>' + (m.sub || '') + '</td></tr>';
-});
-} else {
-t += '<table><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>CREF</th></tr></thead><tbody>';
-lista.forEach(function (m, idx) {
-t += '<tr><td>' + (idx + 1) + '</td><td>' + m.nome + '</td><td>' + (m.sub || '') + '</td><td>' + (m.cpf || '') + '</td><td>' + (m.cref || '') + '</td></tr>';
-});
-}
-t += '</tbody></table>';
-return t;
-}
-var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relação — ' + rel.nome + '</title>';
-html += '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}.header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px}.org{font-size:12px;color:#555;margin-bottom:4px}.titulo{font-size:20px;font-weight:700;margin-bottom:4px}.meta{font-size:13px;color:#444}.secao{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 6px;color:#333;border-bottom:1px solid #ccc;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}th{background:#eee;padding:7px 10px;text-align:left;border:1px solid #ccc}td{padding:7px 10px;border:1px solid #ddd}tr:nth-child(even) td{background:#f9f9f9}</style>';
-html += '<script>
-(function(){
-  'use strict';
-  var _allowed = [
-    atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==')
-  ];
-  var _host = window.location.hostname.toLowerCase();
-  var _proto = window.location.protocol;
-
-  // Bloqueia abertura direta como arquivo (file://)
-  if (_proto === 'file:') {
-    document.documentElement.innerHTML = _bloqueado('Acesso negado',
-      'Este sistema não pode ser aberto como arquivo local.');
-    throw new Error('blocked');
-  }
-
-  // Verifica domínio permitido
-  var _ok = _allowed.some(function(d) {
-    return _host === d || _host.endsWith('.' + d);
-  });
-
-  if (!_ok) {
-    document.documentElement.innerHTML = _bloqueado('Acesso restrito',
-      'Este sistema só pode ser acessado pelo domínio oficial.');
-    throw new Error('blocked');
-  }
-
-  function _bloqueado(titulo, msg) {
-    return '<html><body style="margin:0;height:100vh;display:flex;'
-      + 'align-items:center;justify-content:center;flex-direction:column;'
-      + 'font-family:sans-serif;background:#0d1757;color:white;text-align:center;padding:40px">'
-      + '<div style="font-size:60px;margin-bottom:20px">🔒</div>'
-      + '<h1 style="font-size:24px;margin-bottom:12px">' + titulo + '</h1>'
-      + '<p style="color:rgba(255,255,255,.6);font-size:15px;max-width:400px">' + msg + '</p>'
-      + '</body></html>';
-  }
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var _blocked = false;
-  var _threshold = 160;
-
-  // Detecta DevTools aberto pelo tamanho da janela
-  function _check() {
-    var w = window.outerWidth - window.innerWidth > _threshold;
-    var h = window.outerHeight - window.innerHeight > _threshold;
-    if ((w || h) && !_blocked) {
-      _blocked = true;
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;'
-        + 'height:100vh;background:#0d1757;color:white;font-family:sans-serif;flex-direction:column;gap:16px">'
-        + '<span style="font-size:48px">🔒</span>'
-        + '<span style="font-size:20px;font-weight:700">Ferramentas de desenvolvedor detectadas</span>'
-        + '<span style="color:rgba(255,255,255,.5);font-size:14px">Recarregue a página para continuar.</span>'
+  var lista = tipo === 'atleta' ? rel.atletas : tipo === 'professor' ? rel.professores : rel.auxiliares;
+  var h = '<div class="rel-secao">' + emoji + ' ' + label + ' (' + lista.length + ')</div>';
+  if (lista.length) {
+    lista.forEach(function (m, i) {
+      h += '<div class="rel-membro">'
+        + '<div class="avatar" style="background:' + bgCor + ';color:' + txtCor + ';font-size:11px;width:28px;height:28px">'
+        + (tipo === 'atleta' ? (i + 1) : (m.nome || '?').split(' ').slice(0, 2).map(function (n) { return n[0]; }).join(''))
+        + '</div>'
+        + '<div class="rel-membro-info"><div class="rel-membro-nome">' + m.nome + '</div><div class="rel-membro-sub">' + m.sub + '</div></div>'
+        + '<button class="rel-membro-rm" onclick="removerMembroRelacao(' + idx + ',\'' + tipo + '\',\'' + m.id + '\')" title="Remover">×</button>'
         + '</div>';
-    }
+    });
+  } else {
+    h += '<div class="rel-empty">Nenhum ' + label.toLowerCase() + ' adicionado</div>';
   }
-  setInterval(_check, 1000);
+  h += '<div class="rel-add-row"><select id="sel-' + tipo + '-' + idx + '" onchange="addMembroRelacao(' + idx + ',\'' + tipo + '\')">' + opcoes + '</select></div>';
+  return h;
+}
 
-  // Bloqueia clique direito
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+function renderRelacoes() {
+  var cont = document.getElementById('lista-relacoes');
+  if (!todasRelacoes.length) {
+    cont.innerHTML = '<div class="vazio"><div class="vazio-icon">📋</div>Nenhuma relação criada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova relação" para começar.</small></div>';
+    return;
+  }
+  if (todaEquipe.length === 0) carregarEquipe();
 
-  // Bloqueia F12 e atalhos de DevTools
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'F12') { e.preventDefault(); return false; }
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','J','C'].includes(e.key)) {
-      e.preventDefault(); return false;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'U') {
-      e.preventDefault(); return false;
-    }
+  var optsAtletas = '<option value="">➕ Adicionar atleta</option>'
+    + todosAtletas.filter(function (a) { return a.status === 'Aprovado' || a.status === 'Ativo'; })
+      .map(function (a) { return '<option value="' + a.linha + '">' + a.nome + (a.modalidade ? ' (' + a.modalidade + ')' : '') + '</option>'; }).join('')
+    + (todosAtletas.filter(function (a) { return a.status !== 'Aprovado' && a.status !== 'Ativo'; }).length
+      ? '<optgroup label="── Pendentes/Outros ──">'
+        + todosAtletas.filter(function (a) { return a.status !== 'Aprovado' && a.status !== 'Ativo'; })
+          .map(function (a) { return '<option value="' + a.linha + '">' + a.nome + ' (' + (a.status || '') + ')</option>'; }).join('')
+        + '</optgroup>' : '');
+
+  var optsProf = '<option value="">➕ Adicionar professor</option>'
+    + (todaEquipe.length
+      ? todaEquipe.map(function (c) { return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('')
+      : '<option disabled>Carregando colaboradores...</option>');
+
+  var optsAux = '<option value="">➕ Adicionar auxiliar</option>'
+    + (todaEquipe.length
+      ? todaEquipe.map(function (c) { return '<option value="' + c.linha + '">' + c.nome + (c.cargo ? ' — ' + c.cargo : '') + '</option>'; }).join('')
+      : '<option disabled>Carregando colaboradores...</option>');
+
+  var h = '<div class="rel-grid">';
+  todasRelacoes.forEach(function (rel, idx) {
+    var meta = [];
+    if (rel.data) meta.push('📅 ' + rel.data.split('-').reverse().join('/') + (rel.hora ? ' às ' + rel.hora : ''));
+    if (rel.adversario) meta.push('⚔️ x ' + rel.adversario);
+    if (rel.local)      meta.push('📍 ' + rel.local);
+    if (rel.modalidade) meta.push(rel.modalidade);
+    if (rel.categoria)  meta.push(rel.categoria);
+    var total = rel.atletas.length + rel.professores.length + rel.auxiliares.length;
+
+    h += '<div class="rel-card">';
+    h += '<div class="rel-card-header">';
+    h += '<div><div class="rel-card-titulo">' + rel.nome + '</div>';
+    if (rel.evento) h += '<div class="rel-card-meta">' + rel.evento + '</div>';
+    if (meta.length) h += '<div class="rel-card-meta" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:8px">' + meta.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>';
+    h += '</div>';
+    h += '<span class="badge badge-azul" style="align-self:flex-start;white-space:nowrap">' + total + ' pessoa' + (total !== 1 ? 's' : '') + '</span>';
+    h += '</div>';
+    h += '<div class="rel-card-body">';
+    h += renderSecaoRelacao(rel, idx, 'atleta',    'Atletas',    '🏃', 'var(--azul-cl)', 'var(--azul)', optsAtletas);
+    h += renderSecaoRelacao(rel, idx, 'professor', 'Professores','🎓', '#d1fae5', '#065f46', optsProf);
+    h += renderSecaoRelacao(rel, idx, 'auxiliar',  'Auxiliares', '🤝', '#fef3c7', '#92400e', optsAux);
+    h += '</div>';
+    h += '<div class="rel-card-footer">';
+    h += '<button class="btn btn-danger btn-sm" onclick="excluirRelacao(\'' + rel.id + '\',' + rel.linha + ')">🗑 Excluir</button>';
+    h += '<button class="btn btn-primary btn-sm" onclick="imprimirRelacao(\'' + rel.id + '\',' + rel.linha + ')">🖨️ Imprimir</button>';
+    h += '</div>';
+    h += '</div>';
   });
+  h += '</div>';
+  cont.innerHTML = h;
+}
+
+function imprimirRelacao(id, linha) {
+  var rel = todasRelacoes.find(function (r) { return String(r.id) === String(id); });
+  if (!rel && linha) rel = todasRelacoes.find(function (r) { return Number(r.linha) === Number(linha); });
+  if (!rel) { alert('Relação não encontrada. Tente recarregar a página.'); return; }
+
+  var dataFmt = rel.data ? rel.data.split('-').reverse().join('/') : '';
+  var metaLinha = [];
+  if (rel.evento)     metaLinha.push(rel.evento);
+  if (rel.adversario) metaLinha.push('Adversário: ' + rel.adversario);
+  if (rel.local)      metaLinha.push('Local: ' + rel.local);
+  if (dataFmt)        metaLinha.push('Data: ' + dataFmt + (rel.hora ? ' às ' + rel.hora : ''));
+  if (rel.modalidade) metaLinha.push('Modalidade: ' + rel.modalidade);
+  if (rel.categoria)  metaLinha.push('Categoria: ' + rel.categoria);
+
+  function fmtData(d) {
+    if (!d) return '';
+    var s = String(d);
+    if (s.indexOf('T') > -1) s = s.split('T')[0];
+    var p = s.split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return s;
+  }
+
+  function tabelaPrint(lista, titulo, tipo) {
+    if (!lista.length) return '';
+    var t = '<div class="secao">' + titulo + ' — ' + lista.length + ' pessoa' + (lista.length !== 1 ? 's' : '') + '</div>';
+    if (tipo === 'atleta') {
+      t += '<table><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>CPF</th><th>RG</th><th>Nascimento</th><th>Modalidade/Cat.</th></tr></thead><tbody>';
+      lista.forEach(function (m, idx) {
+        t += '<tr><td>' + (idx + 1) + '</td><td>' + m.nome + '</td><td>' + (m.cpf || '') + '</td><td>' + (m.rg || '') + '</td><td>' + fmtData(m.nascimento) + '</td><td>' + (m.sub || '') + '</td></tr>';
+      });
+    } else {
+      t += '<table><thead><tr><th style="width:30px">#</th><th>Nome completo</th><th>Cargo / Função</th><th>CPF</th><th>CREF</th></tr></thead><tbody>';
+      lista.forEach(function (m, idx) {
+        t += '<tr><td>' + (idx + 1) + '</td><td>' + m.nome + '</td><td>' + (m.sub || '') + '</td><td>' + (m.cpf || '') + '</td><td>' + (m.cref || '') + '</td></tr>';
+      });
+    }
+    t += '</tbody></table>';
+    return t;
+  }
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relação — ' + rel.nome + '</title>';
+  html += '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111}.header{text-align:center;border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px}.org{font-size:12px;color:#555;margin-bottom:4px}.titulo{font-size:20px;font-weight:700;margin-bottom:4px}.meta{font-size:13px;color:#444}.secao{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 6px;color:#333;border-bottom:1px solid #ccc;padding-bottom:4px}table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px}th{background:#eee;padding:7px 10px;text-align:left;border:1px solid #ccc}td{padding:7px 10px;border:1px solid #ddd}tr:nth-child(even) td{background:#f9f9f9}</style>';
+  html += '<script>
+(function(){
+  var d = window.location.hostname;
+  var ok = d === atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==') || d === 'localhost' || d === '127.0.0.1';
+  if (!ok) {
+    document.documentElement.innerHTML =
+      '<html><body style="margin:0;height:100vh;display:flex;align-items:center;'
+      +'justify-content:center;flex-direction:column;font-family:sans-serif;'
+      +'background:#0d1757;color:white;text-align:center;padding:40px">'
+      +'<div style="font-size:60px;margin-bottom:20px">&#x1F512;</div>'
+      +'<h1 style="font-size:22px;margin-bottom:12px">Acesso Restrito</h1>'
+      +'<p style="color:rgba(255,255,255,.6);font-size:14px;max-width:380px">'
+      +'Este sistema só pode ser acessado pelo endereço oficial.</p>'
+      +'</body></html>';
+  }
 })();
 </script>
 </head><body>';
-html += '<div class="header"><div class="org">NBDH2 Barretos — Núcleo Barretense de Desenvolvimento e Habilidades Humanas</div><div class="titulo">' + rel.nome + '</div>';
-if (metaLinha.length) html += '<div class="meta">' + metaLinha.join(' &nbsp;|&nbsp; ') + '</div>';
-html += '</div>';
-html += tabelaPrint(rel.atletas,    'Atletas',    'atleta');
-html += tabelaPrint(rel.professores,'Professores','professor');
-html += tabelaPrint(rel.auxiliares, 'Auxiliares', 'auxiliar');
-html += '</body></html>';
-var janela = window.open('', '_blank');
-if (janela) {
-janela.document.write(html);
-janela.document.close();
-janela.focus();
-janela.print();
+  html += '<div class="header"><div class="org">NBDH2 Barretos — Núcleo Barretense de Desenvolvimento e Habilidades Humanas</div><div class="titulo">' + rel.nome + '</div>';
+  if (metaLinha.length) html += '<div class="meta">' + metaLinha.join(' &nbsp;|&nbsp; ') + '</div>';
+  html += '</div>';
+  html += tabelaPrint(rel.atletas,    'Atletas',    'atleta');
+  html += tabelaPrint(rel.professores,'Professores','professor');
+  html += tabelaPrint(rel.auxiliares, 'Auxiliares', 'auxiliar');
+  html += '</body></html>';
+
+  var janela = window.open('', '_blank');
+  if (janela) {
+    janela.document.write(html);
+    janela.document.close();
+    janela.focus();
+    janela.print();
+  }
 }
-}
+
+// ══════════════════════════════════════════════════
+// CARTEIRINHA DO ATLETA
+// ══════════════════════════════════════════════════
 function gerarCarteirinha() {
-if (!atletaAtual) return;
-var a = atletaAtual;
-function fmtData(d) {
-if (!d) return '—';
-var s = String(d);
-if (s.indexOf('T') > -1) s = s.split('T')[0];
-var p = s.split('-');
-if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
-return s;
-}
-var logos = document.querySelectorAll('.login-logos img');
-var logoNBDH2 = logos[0] ? logos[0].src : '';
-var logoHand  = logos[1] ? logos[1].src : '';
-function converterUrlFoto(url) {
-if (!url || !url.startsWith('http')) return '';
-// Formato: https://drive.google.com/open?id=FILE_ID
-var m1 = url.match(/[?&]id=([^&]+)/);
-if (m1) return 'https://drive.google.com/thumbnail?id=' + m1[1] + '&sz=w300';
-// Formato: https://drive.google.com/file/d/FILE_ID/view
-var m2 = url.match(/\/file\/d\/([^\/]+)/);
-if (m2) return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w300';
-// Formato: https://drive.google.com/uc?id=FILE_ID
-var m3 = url.match(/\/uc\?.*id=([^&]+)/);
-if (m3) return 'https://drive.google.com/thumbnail?id=' + m3[1] + '&sz=w300';
-return url;
-}
-var fotoSrc = converterUrlFoto(a.fotoRosto);
-var corMod = '#1a237e';
-if (a.modalidade === 'Xadrez') corMod = '#92400e';
-if (a.modalidade === 'Vôlei')  corMod = '#0369a1';
-var nomeCurto = (a.nome || '').split(' ').slice(0,2).join(' ').toUpperCase();
-var nomeCompleto = (a.nome || '').toUpperCase();
-var html = `<!DOCTYPE html>
+  if (!atletaAtual) return;
+  var a = atletaAtual;
+
+  function fmtData(d) {
+    if (!d) return '—';
+    var s = String(d);
+    if (s.indexOf('T') > -1) s = s.split('T')[0];
+    var p = s.split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+    return s;
+  }
+
+  // Lê as logos embutidas no próprio documento
+  var logos = document.querySelectorAll('.login-logos img');
+  var logoNBDH2 = logos[0] ? logos[0].src : '';
+  var logoHand  = logos[1] ? logos[1].src : '';
+
+  // Foto do rosto do atleta (se tiver link)
+  // Converte qualquer link do Google Drive para URL de exibição direta
+  function converterUrlFoto(url) {
+    if (!url || !url.startsWith('http')) return '';
+    // Formato: https://drive.google.com/open?id=FILE_ID
+    var m1 = url.match(/[?&]id=([^&]+)/);
+    if (m1) return 'https://drive.google.com/thumbnail?id=' + m1[1] + '&sz=w300';
+    // Formato: https://drive.google.com/file/d/FILE_ID/view
+    var m2 = url.match(/\/file\/d\/([^\/]+)/);
+    if (m2) return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w300';
+    // Formato: https://drive.google.com/uc?id=FILE_ID
+    var m3 = url.match(/\/uc\?.*id=([^&]+)/);
+    if (m3) return 'https://drive.google.com/thumbnail?id=' + m3[1] + '&sz=w300';
+    // Se já for outro link direto, usa como está
+    return url;
+  }
+
+  var fotoSrc = converterUrlFoto(a.fotoRosto);
+
+  var corMod = '#1a237e';
+  if (a.modalidade === 'Xadrez') corMod = '#92400e';
+  if (a.modalidade === 'Vôlei')  corMod = '#0369a1';
+
+  var nomeCurto = (a.nome || '').split(' ').slice(0,2).join(' ').toUpperCase();
+  var nomeCompleto = (a.nome || '').toUpperCase();
+
+  var html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <title>Carteirinha — ${a.nome || 'Atleta'}</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
--webkit-print-color-adjust: exact;
-print-color-adjust: exact;
-color-adjust: exact;
-background: #e8eaf6;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-min-height: 100vh;
-font-family: 'DM Sans', sans-serif;
-padding: 40px 20px;
-gap: 32px;
-}
-h2 {
-font-family: 'Sora', sans-serif;
-color: #1a237e;
-font-size: 18px;
-margin-bottom: 4px;
-}
-.instrucao {
-font-size: 13px;
-color: #6b6b8a;
-margin-bottom: 8px;
-}
-.btn-print {
-background: #1a237e;
-color: white;
-border: none;
-padding: 12px 32px;
-border-radius: 10px;
-font-size: 15px;
-font-weight: 600;
-cursor: pointer;
-font-family: 'Sora', sans-serif;
-margin-bottom: 8px;
-}
-.btn-print:hover { background: #0d1757; }
-.card-wrap {
-display: flex;
-flex-direction: column;
-gap: 24px;
-align-items: center;
-}
-.label-side {
-font-family: 'Sora', sans-serif;
-font-size: 11px;
-font-weight: 700;
-text-transform: uppercase;
-letter-spacing: .1em;
-color: #6b6b8a;
-margin-bottom: 6px;
-text-align: center;
-}
-.card {
-width: 340px;
-height: 214px;
-border-radius: 14px;
-overflow: hidden;
-box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-position: relative;
-font-family: 'DM Sans', sans-serif;
-}
-.frente {
-background: linear-gradient(135deg, #0d1757 0%, #1a237e 60%, #283593 100%);
-display: flex;
-flex-direction: column;
-}
-.frente-topo {
-background: ${corMod};
-padding: 8px 14px;
-display: flex;
-align-items: center;
-gap: 10px;
-position: relative;
-}
-.frente-topo-logos {
-display: flex;
-gap: 6px;
-align-items: center;
-}
-.frente-topo-logos img {
-height: 34px;
-width: 34px;
-object-fit: contain;
-border-radius: 6px;
-background: white;
-padding: 2px;
-}
-.frente-topo-titulo {
-flex: 1;
-text-align: center;
-}
-.frente-topo-titulo .org {
-font-family: 'Sora', sans-serif;
-font-size: 6px;
-font-weight: 700;
-color: rgba(255,255,255,0.9);
-text-transform: uppercase;
-letter-spacing: .04em;
-line-height: 1.35;
-}
-.frente-topo-titulo .mod {
-font-family: 'Sora', sans-serif;
-font-size: 13px;
-font-weight: 800;
-color: #f9c900;
-text-transform: uppercase;
-letter-spacing: .14em;
-margin-top: 2px;
-}
-.frente-corpo {
-flex: 1;
-display: flex;
-gap: 0;
-padding: 10px 14px;
-align-items: flex-start;
-}
-.frente-foto {
-width: 72px;
-height: 90px;
-border-radius: 8px;
-border: 3px solid #f9c900;
-overflow: hidden;
-flex-shrink: 0;
-background: #283593;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-.frente-foto img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-.frente-foto-placeholder {
-font-size: 32px;
-color: rgba(255,255,255,0.3);
-}
-.frente-dados {
-flex: 1;
-padding-left: 12px;
-display: flex;
-flex-direction: column;
-gap: 4px;
-justify-content: flex-start;
-}
-.frente-nome {
-font-family: 'Sora', sans-serif;
-font-size: 13px;
-font-weight: 800;
-color: white;
-line-height: 1.2;
-word-break: break-word;
-}
-.frente-cat {
-font-size: 9px;
-font-weight: 600;
-color: #f9c900;
-text-transform: uppercase;
-letter-spacing: .1em;
-margin-bottom: 2px;
-}
-.dado-linha {
-display: flex;
-flex-direction: column;
-gap: 0px;
-}
-.dado-lbl {
-font-size: 7px;
-font-weight: 700;
-text-transform: uppercase;
-letter-spacing: .08em;
-color: rgba(255,255,255,0.5);
-}
-.dado-val {
-font-size: 10px;
-font-weight: 600;
-color: rgba(255,255,255,0.95);
-line-height: 1.2;
-}
-.frente-rodape {
-background: rgba(0,0,0,0.25);
-padding: 5px 14px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-.frente-rodape span {
-font-size: 8px;
-color: rgba(255,255,255,0.5);
-font-weight: 500;
-}
-.frente-rodape .validade {
-font-size: 8px;
-color: #f9c900;
-font-weight: 700;
-}
-.deco-circle {
-position: absolute;
-border-radius: 50%;
-background: rgba(255,255,255,0.04);
-pointer-events: none;
-}
-.verso {
-background: #f0f2fa;
-display: flex;
-flex-direction: column;
-}
-.verso-topo {
-background: ${corMod};
-height: 12px;
-}
-.verso-corpo {
-flex: 1;
-display: flex;
-gap: 12px;
-padding: 10px 14px;
-}
-.verso-col {
-flex: 1;
-display: flex;
-flex-direction: column;
-gap: 6px;
-}
-.verso-campo {
-display: flex;
-flex-direction: column;
-gap: 1px;
-}
-.verso-lbl {
-font-size: 7px;
-font-weight: 700;
-text-transform: uppercase;
-letter-spacing: .08em;
-color: #6b6b8a;
-}
-.verso-val {
-font-size: 10px;
-font-weight: 600;
-color: #1a1a2e;
-border-bottom: 1px solid #dde0f0;
-padding-bottom: 2px;
-}
-.verso-patrocinadores {
-margin-top: 8px;
-padding-top: 8px;
-border-top: 1px dashed #c5cae9;
-}
-.verso-patrocinadores-logos {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
-align-items: center;
-margin-top: 4px;
-}
-.verso-patrocinadores-logos img {
-height: 24px;
-max-width: 60px;
-object-fit: contain;
-border-radius: 4px;
-background: white;
-padding: 2px;
-border: 1px solid #e8eaf6;
-}
-.patrocinador-placeholder {
-font-size: 8px;
-color: #c5cae9;
-font-style: italic;
-}
-.verso-assinatura {
-border-top: 1px solid #c5cae9;
-margin-top: 4px;
-padding-top: 3px;
-}
-.verso-assinatura .verso-lbl {
-color: #9b9bc0;
-}
-.verso-logos-rodape {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-padding: 6px 14px;
-background: #e8eaf6;
-border-top: 1px solid #c5cae9;
-}
-.verso-logos-rodape img {
-height: 22px;
-width: 22px;
-object-fit: contain;
-border-radius: 4px;
-background: white;
-padding: 1px;
-}
-.verso-logos-rodape span {
-font-family: 'Sora', sans-serif;
-font-size: 8px;
-font-weight: 700;
-color: #1a237e;
-text-align: center;
-line-height: 1.3;
-}
-.verso-rodape {
-background: ${corMod};
-height: 8px;
-}
-@media print {
-* {
--webkit-print-color-adjust: exact !important;
-print-color-adjust: exact !important;
-color-adjust: exact !important;
-}
-body {
-background: #e8eaf6 !important;
-padding: 10mm;
-}
-.no-print { display: none !important; }
-.card-wrap { page-break-inside: avoid; }
-.card {
-box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
-}
-h2, .instrucao { display: none; }
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+    background: #e8eaf6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    padding: 40px 20px;
+    gap: 32px;
+  }
+  h2 {
+    font-family: 'Sora', sans-serif;
+    color: #1a237e;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .instrucao {
+    font-size: 13px;
+    color: #6b6b8a;
+    margin-bottom: 8px;
+  }
+  .btn-print {
+    background: #1a237e;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    margin-bottom: 8px;
+  }
+  .btn-print:hover { background: #0d1757; }
+
+  /* ── CARD ── */
+  .card-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  .label-side {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #6b6b8a;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  /* Carteirinha — tamanho CR80 = 85.6mm × 54mm */
+  .card {
+    width: 340px;
+    height: 214px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    position: relative;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ══ FRENTE ══ */
+  .frente {
+    background: linear-gradient(135deg, #0d1757 0%, #1a237e 60%, #283593 100%);
+    display: flex;
+    flex-direction: column;
+  }
+  .frente-topo {
+    background: ${corMod};
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .frente-topo-logos {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .frente-topo-logos img {
+    height: 34px;
+    width: 34px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: white;
+    padding: 2px;
+  }
+  .frente-topo-titulo {
+    flex: 1;
+    text-align: center;
+  }
+  .frente-topo-titulo .org {
+    font-family: 'Sora', sans-serif;
+    font-size: 6px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    line-height: 1.35;
+  }
+  .frente-topo-titulo .mod {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: #f9c900;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    margin-top: 2px;
+  }
+  .frente-corpo {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    padding: 10px 14px;
+    align-items: flex-start;
+  }
+  .frente-foto {
+    width: 72px;
+    height: 90px;
+    border-radius: 8px;
+    border: 3px solid #f9c900;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #283593;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .frente-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .frente-foto-placeholder {
+    font-size: 32px;
+    color: rgba(255,255,255,0.3);
+  }
+  .frente-dados {
+    flex: 1;
+    padding-left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: flex-start;
+  }
+  .frente-nome {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .frente-cat {
+    font-size: 9px;
+    font-weight: 600;
+    color: #f9c900;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 2px;
+  }
+  .dado-linha {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+  }
+  .dado-lbl {
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: rgba(255,255,255,0.5);
+  }
+  .dado-val {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.95);
+    line-height: 1.2;
+  }
+  .frente-rodape {
+    background: rgba(0,0,0,0.25);
+    padding: 5px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .frente-rodape span {
+    font-size: 8px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+  }
+  .frente-rodape .validade {
+    font-size: 8px;
+    color: #f9c900;
+    font-weight: 700;
+  }
+  /* Detalhe geométrico decorativo */
+  .deco-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
+
+  /* ══ VERSO ══ */
+  .verso {
+    background: #f0f2fa;
+    display: flex;
+    flex-direction: column;
+  }
+  .verso-topo {
+    background: ${corMod};
+    height: 12px;
+  }
+  .verso-corpo {
+    flex: 1;
+    display: flex;
+    gap: 12px;
+    padding: 10px 14px;
+  }
+  .verso-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .verso-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .verso-lbl {
+    font-size: 7px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #6b6b8a;
+  }
+  .verso-val {
+    font-size: 10px;
+    font-weight: 600;
+    color: #1a1a2e;
+    border-bottom: 1px solid #dde0f0;
+    padding-bottom: 2px;
+  }
+  .verso-patrocinadores {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #c5cae9;
+  }
+  .verso-patrocinadores-logos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .verso-patrocinadores-logos img {
+    height: 24px;
+    max-width: 60px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: white;
+    padding: 2px;
+    border: 1px solid #e8eaf6;
+  }
+  .patrocinador-placeholder {
+    font-size: 8px;
+    color: #c5cae9;
+    font-style: italic;
+  }
+  .verso-assinatura {
+    border-top: 1px solid #c5cae9;
+    margin-top: 4px;
+    padding-top: 3px;
+  }
+  .verso-assinatura .verso-lbl {
+    color: #9b9bc0;
+  }
+  .verso-logos-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: #e8eaf6;
+    border-top: 1px solid #c5cae9;
+  }
+  .verso-logos-rodape img {
+    height: 22px;
+    width: 22px;
+    object-fit: contain;
+    border-radius: 4px;
+    background: white;
+    padding: 1px;
+  }
+  .verso-logos-rodape span {
+    font-family: 'Sora', sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    color: #1a237e;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .verso-rodape {
+    background: ${corMod};
+    height: 8px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    body {
+      background: #e8eaf6 !important;
+      padding: 10mm;
+    }
+    .no-print { display: none !important; }
+    .card-wrap { page-break-inside: avoid; }
+    .card {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+    }
+    h2, .instrucao { display: none; }
+  }
 </style>
 <script>
 (function(){
-  'use strict';
-  var _allowed = [
-    atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==')
-  ];
-  var _host = window.location.hostname.toLowerCase();
-  var _proto = window.location.protocol;
-
-  // Bloqueia abertura direta como arquivo (file://)
-  if (_proto === 'file:') {
-    document.documentElement.innerHTML = _bloqueado('Acesso negado',
-      'Este sistema não pode ser aberto como arquivo local.');
-    throw new Error('blocked');
+  var d = window.location.hostname;
+  var ok = d === atob('bmJkaGJhcnJldG9zaGFuZGVib2wtY29sbGFiLmdpdGh1Yi5pbw==') || d === 'localhost' || d === '127.0.0.1';
+  if (!ok) {
+    document.documentElement.innerHTML =
+      '<html><body style="margin:0;height:100vh;display:flex;align-items:center;'
+      +'justify-content:center;flex-direction:column;font-family:sans-serif;'
+      +'background:#0d1757;color:white;text-align:center;padding:40px">'
+      +'<div style="font-size:60px;margin-bottom:20px">&#x1F512;</div>'
+      +'<h1 style="font-size:22px;margin-bottom:12px">Acesso Restrito</h1>'
+      +'<p style="color:rgba(255,255,255,.6);font-size:14px;max-width:380px">'
+      +'Este sistema só pode ser acessado pelo endereço oficial.</p>'
+      +'</body></html>';
   }
-
-  // Verifica domínio permitido
-  var _ok = _allowed.some(function(d) {
-    return _host === d || _host.endsWith('.' + d);
-  });
-
-  if (!_ok) {
-    document.documentElement.innerHTML = _bloqueado('Acesso restrito',
-      'Este sistema só pode ser acessado pelo domínio oficial.');
-    throw new Error('blocked');
-  }
-
-  function _bloqueado(titulo, msg) {
-    return '<html><body style="margin:0;height:100vh;display:flex;'
-      + 'align-items:center;justify-content:center;flex-direction:column;'
-      + 'font-family:sans-serif;background:#0d1757;color:white;text-align:center;padding:40px">'
-      + '<div style="font-size:60px;margin-bottom:20px">🔒</div>'
-      + '<h1 style="font-size:24px;margin-bottom:12px">' + titulo + '</h1>'
-      + '<p style="color:rgba(255,255,255,.6);font-size:15px;max-width:400px">' + msg + '</p>'
-      + '</body></html>';
-  }
-})();
-</script>
-<script>
-(function(){
-  'use strict';
-  var _blocked = false;
-  var _threshold = 160;
-
-  // Detecta DevTools aberto pelo tamanho da janela
-  function _check() {
-    var w = window.outerWidth - window.innerWidth > _threshold;
-    var h = window.outerHeight - window.innerHeight > _threshold;
-    if ((w || h) && !_blocked) {
-      _blocked = true;
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;'
-        + 'height:100vh;background:#0d1757;color:white;font-family:sans-serif;flex-direction:column;gap:16px">'
-        + '<span style="font-size:48px">🔒</span>'
-        + '<span style="font-size:20px;font-weight:700">Ferramentas de desenvolvedor detectadas</span>'
-        + '<span style="color:rgba(255,255,255,.5);font-size:14px">Recarregue a página para continuar.</span>'
-        + '</div>';
-    }
-  }
-  setInterval(_check, 1000);
-
-  // Bloqueia clique direito
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-
-  // Bloqueia F12 e atalhos de DevTools
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'F12') { e.preventDefault(); return false; }
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I','J','C'].includes(e.key)) {
-      e.preventDefault(); return false;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'U') {
-      e.preventDefault(); return false;
-    }
-  });
 })();
 </script>
 </head>
 <body>
+
 <div class="no-print" style="text-align:center">
-<h2>🪪 Carteirinha — ${a.nome || 'Atleta'}</h2>
-<p class="instrucao">Verifique frente e verso, depois clique em imprimir. Recomendado papel A4 em paisagem.</p>
-<button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  <h2>🪪 Carteirinha — ${a.nome || 'Atleta'}</h2>
+  <p class="instrucao">Verifique frente e verso, depois clique em imprimir. Recomendado papel A4 em paisagem.</p>
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
 </div>
+
 <div class="card-wrap">
-<!-- ══ FRENTE ══ -->
-<div>
-<div class="label-side no-print">FRENTE</div>
-<div class="card frente">
-<!-- Decorações -->
-<div class="deco-circle" style="width:120px;height:120px;top:-40px;right:-30px;"></div>
-<div class="deco-circle" style="width:80px;height:80px;bottom:-20px;left:10px;"></div>
-<!-- Topo -->
-<div class="frente-topo">
-<div class="frente-topo-logos">
-${logoNBDH2 ? `<img src="${logoNBDH2}" alt="NBDH2">` : ''}
-${logoHand  ? `<img src="${logoHand}"  alt="Handebol Barretos">` : ''}
-</div>
-<div class="frente-topo-titulo">
-<div class="org">NÚCLEO BARRETENSE DE DESENVOLVIMENTO DE HABILIDADES HUMANAS</div>
-<div class="mod">${a.modalidade || 'Atleta'}</div>
-</div>
-</div>
-<!-- Corpo -->
-<div class="frente-corpo">
-<!-- Foto -->
-<div class="frente-foto">
-${fotoSrc
-? `<img src="${fotoSrc}" alt="Foto" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-: ``}
-<span class="frente-foto-placeholder" style="${fotoSrc ? 'display:none' : ''}">👤</span>
-</div>
-<!-- Dados -->
-<div class="frente-dados">
-<div class="frente-cat">${a.categoria || ''}</div>
-<div class="frente-nome">${nomeCompleto}</div>
-<div style="margin-top:4px; display:flex; flex-direction:column; gap:4px;">
-<div class="dado-linha">
-<span class="dado-lbl">Nascimento</span>
-<span class="dado-val">${fmtData(a.nascimento)} &nbsp;·&nbsp; ${calcIdade(a.nascimento)}</span>
-</div>
-<div class="dado-linha">
-<span class="dado-lbl">CPF</span>
-<span class="dado-val">${a.cpf || '—'}</span>
-</div>
-<div class="dado-linha">
-<span class="dado-lbl">RG</span>
-<span class="dado-val">${a.rg || '—'}</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Rodapé -->
-<div class="frente-rodape">
-<span>Barretos — SP</span>
-<span class="validade">VÁLIDA ATÉ 31/12/${new Date().getFullYear()}</span>
-</div>
-</div>
-</div>
-<!-- ══ VERSO ══ -->
-<div>
-<div class="label-side no-print">VERSO</div>
-<div class="card verso">
-<div class="verso-topo"></div>
-<div class="verso-corpo">
-<!-- Responsável -->
-<div class="verso-col">
-<div class="verso-campo">
-<span class="verso-lbl">Nome do responsável</span>
-<span class="verso-val">${a.respNome || '—'}</span>
-</div>
-<div class="verso-campo">
-<span class="verso-lbl">Telefone do responsável</span>
-<span class="verso-val">${a.respTel || '—'}</span>
-</div>
-<!-- Patrocinadores -->
-<div class="verso-patrocinadores">
-<span class="verso-lbl">Patrocinadores</span>
-<div class="verso-patrocinadores-logos">
-<img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIbGNtcwIQAABtbnRyUkdCIFhZWiAH4gADABQACQAOAB1hY3NwTVNGVAAAAABzYXdzY3RybAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWhhbmSdkQA9QICwPUB0LIGepSKOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAAF9jcHJ0AAABDAAAAAx3dHB0AAABGAAAABRyWFlaAAABLAAAABRnWFlaAAABQAAAABRiWFlaAAABVAAAABRyVFJDAAABaAAAAGBnVFJDAAABaAAAAGBiVFJDAAABaAAAAGBkZXNjAAAAAAAAAAV1UkdCAAAAAAAAAAAAAAAAdGV4dAAAAABDQzAAWFlaIAAAAAAAAPNUAAEAAAABFslYWVogAAAAAAAAb6AAADjyAAADj1hZWiAAAAAAAABilgAAt4kAABjaWFlaIAAAAAAAACSgAAAPhQAAtsRjdXJ2AAAAAAAAACoAAAB8APgBnAJ1A4MEyQZOCBIKGAxiDvQRzxT2GGocLiBDJKwpai5+M+s5sz/WRldNNlR2XBdkHWyGdVZ+jYgskjacq6eMstu+mcrH12Xkd/H5
-</div>
-</div>
-</div>
-</div>
-<!-- Logos rodapé -->
-<div class="verso-logos-rodape">
-${logoNBDH2 ? `<img src="${logoNBDH2}" alt="NBDH2">` : ''}
-<span>NBDH2 Barretos<br>Núcleo Barretense de Desenvolvimento e Habilidades Humanas</span>
-${logoHand ? `<img src="${logoHand}" alt="Handebol">` : ''}
-</div>
-<div class="verso-rodape"></div>
-</div>
-</div>
+
+  <!-- ══ FRENTE ══ -->
+  <div>
+    <div class="label-side no-print">FRENTE</div>
+    <div class="card frente">
+      <!-- Decorações -->
+      <div class="deco-circle" style="width:120px;height:120px;top:-40px;right:-30px;"></div>
+      <div class="deco-circle" style="width:80px;height:80px;bottom:-20px;left:10px;"></div>
+
+      <!-- Topo -->
+      <div class="frente-topo">
+        <div class="frente-topo-logos">
+          ${logoNBDH2 ? `<img src="${logoNBDH2}" alt="NBDH2">` : ''}
+          ${logoHand  ? `<img src="${logoHand}"  alt="Handebol Barretos">` : ''}
+        </div>
+        <div class="frente-topo-titulo">
+          <div class="org">NÚCLEO BARRETENSE DE DESENVOLVIMENTO DE HABILIDADES HUMANAS</div>
+          <div class="mod">${a.modalidade || 'Atleta'}</div>
+        </div>
+      </div>
+
+      <!-- Corpo -->
+      <div class="frente-corpo">
+        <!-- Foto -->
+        <div class="frente-foto">
+          ${fotoSrc
+            ? `<img src="${fotoSrc}" alt="Foto" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ``}
+          <span class="frente-foto-placeholder" style="${fotoSrc ? 'display:none' : ''}">👤</span>
+        </div>
+
+        <!-- Dados -->
+        <div class="frente-dados">
+          <div class="frente-cat">${a.categoria || ''}</div>
+          <div class="frente-nome">${nomeCompleto}</div>
+          <div style="margin-top:4px; display:flex; flex-direction:column; gap:4px;">
+            <div class="dado-linha">
+              <span class="dado-lbl">Nascimento</span>
+              <span class="dado-val">${fmtData(a.nascimento)} &nbsp;·&nbsp; ${calcIdade(a.nascimento)}</span>
+            </div>
+            <div class="dado-linha">
+              <span class="dado-lbl">CPF</span>
+              <span class="dado-val">${a.cpf || '—'}</span>
+            </div>
+            <div class="dado-linha">
+              <span class="dado-lbl">RG</span>
+              <span class="dado-val">${a.rg || '—'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="frente-rodape">
+        <span>Barretos — SP</span>
+        <span class="validade">VÁLIDA ATÉ 31/12/${new Date().getFullYear()}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ VERSO ══ -->
+  <div>
+    <div class="label-side no-print">VERSO</div>
+    <div class="card verso">
+      <div class="verso-topo"></div>
+
+      <div class="verso-corpo">
+        <!-- Responsável -->
+        <div class="verso-col">
+          <div class="verso-campo">
+            <span class="verso-lbl">Nome do responsável</span>
+            <span class="verso-val">${a.respNome || '—'}</span>
+          </div>
+          <div class="verso-campo">
+            <span class="verso-lbl">Telefone do responsável</span>
+            <span class="verso-val">${a.respTel || '—'}</span>
+          </div>
+
+          <!-- Patrocinadores -->
+          <div class="verso-patrocinadores">
+            <span class="verso-lbl">Patrocinadores</span>
+            <div class="verso-patrocinadores-logos">
+              <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIbGNtcwIQAABtbnRyUkdCIFhZWiAH4gADABQACQAOAB1hY3NwTVNGVAAAAABzYXdzY3RybAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWhhbmSdkQA9QICwPUB0LIGepSKOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAAF9jcHJ0AAABDAAAAAx3dHB0AAABGAAAABRyWFlaAAABLAAAABRnWFlaAAABQAAAABRiWFlaAAABVAAAABRyVFJDAAABaAAAAGBnVFJDAAABaAAAAGBiVFJDAAABaAAAAGBkZXNjAAAAAAAAAAV1UkdCAAAAAAAAAAAAAAAAdGV4dAAAAABDQzAAWFlaIAAAAAAAAPNUAAEAAAABFslYWVogAAAAAAAAb6AAADjyAAADj1hZWiAAAAAAAABilgAAt4kAABjaWFlaIAAAAAAAACSgAAAPhQAAtsRjdXJ2AAAAAAAAACoAAAB8APgBnAJ1A4MEyQZOCBIKGAxiDvQRzxT2GGocLiBDJKwpai5+M+s5sz/WRldNNlR2XBdkHWyGdVZ+jYgskjacq6eMstu+mcrH12Xkd/H5////2wBDAAcHBwcHBwwHBwwRDAwMERcRERERFx4XFxcXFx4kHh4eHh4eJCQkJCQkJCQrKysrKysyMjIyMjg4ODg4ODg4ODj/2wBDAQkJCQ4NDhkNDRk7KCEoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAK9Ar0DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDxKiiigYUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUU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xCkzAtuwf4fpxmqGo+PPFesZjuLuQK3GyIbQfwHWqGn+HdRv38y6UxQ5yWfqQfrzWdSrGCvJmdWtCkuabsdd4XBTRgJOrSsRW9TY4kt4Vt4FxFGMLTq+Yqz5puR8Bi6qqVZTQUfUZoorM5zltd8Ni8/020UCU9U7N9PeuCQzWd0DKjK0TA7W6jFezcd+fpVa/wBLtNQXZdQjcQcMPvCvQw+PcV7OeqPewWbuMfZ1tUWw/nIkq/dcAr+I/wAMVBdW8d1bSWbf8tFI/Ht+tFvELe1itw24IMAnrU3XgVxcyjNyieQ6nLV5odzxSWFraRoJPvoxU/hUddf4q02YagbmGJiroCxHTNchyc7gQR2r6ehUU4KSPvsNXVampoKKKK1NwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAcsjJ904NDSSN95iR9abRQAUUUUAPilkhkEsTFGXkEcEH2r6J+G/wAQ5tSZdD1uTdNj91Kerf7Le+O9fOdSwTy206XEDbZI2DKfQjpQB97A806ub8K61Hr+iW2pIfmdQr/769a6SgQUUUUAFFFIeRQAHpzXO+IvEeneGrFr3UXx/cQfeY+gqzres2Whae+o3zhY0HQdWPQAe5NfIniPxBqnjDWTcPuIb5Yoh/Cv+PrSbsribSV2T+JPF2t+LbzErMIsny4E+6B7j19TTrPwdOyKb6Ty1PO1fmI/wrptJ0SDS4skB7hh87f3fYVsZPQ142JzGTfLTPmcdnclLkoHMp4T0pcBzI/6Vej0HR4eFtg59XJNa9FcLxNV7yPHnmGIl9tkcdtbwp+6jjTH90c1MXGNoptFYNt6tnNOpKWrCiiiggKKKKACiiigAooooAUAk4AB+vSsXVvD9lqe5o18q4A++vQn3raBwc0/7n4irp1ZU3zQOjD4mdF81NnidzBNbTNbTrh4z81Q13njG0Rkh1BOv3Grg6+lw9X2kFM+7wmIVakpoKKKK3OkKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKK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+v8A9VcLQMKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKTOKWkzjn0oA9E8AxbZry69E2VwVzJ5txLL/fdm/76NeieEh9k0HUrn0z/AOOivNenH+eKADpXoHgayjje41mf/VQKQv1xz+lefYzwOp6V6den+x/BUUMf+tu/5Nz/ACAoEcHql7JqGoS3cv8AG2V+nb9K3/A9qJ9ZWVukQLfnkVx5wRjvwPx7frXpXg9BY6Rfas/YEL+A/wAaAOP8R3Ru9auZV6byv5cf0rFpzsZHZn+8ST/n86bQMKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKB1ooHXmgD0jRSU8D3rD/pp+qivP1tbloDcpG3kqcFu2ea7bwrq+mJptxpOrHYkmSD65pNb8R2MdmNF0CMeSAAzf5/nQBwsQzKinuw/nXonj0iOGxtf7in9Bj+tecowQqw4Cn+VekeM4mvtMsNViG4FME+mcf4UAebqCSAOp4r0vXtujeF7XSv+WkuGf+Z/XFYfhLRDqF4L64XEEB3fVh/9eqfinVhq+rO8X+piG1Pzwf1oA5vJOTRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFACc9q7HQvFJ02BrC6j+0W55C/wB2uPooA7TWPGD3tt9i0+IW0J4rih0wOgPX1paKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA/9k=" alt="Absolut Gym">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Logos rodapé -->
+      <div class="verso-logos-rodape">
+        ${logoNBDH2 ? `<img src="${logoNBDH2}" alt="NBDH2">` : ''}
+        <span>NBDH2 Barretos<br>Núcleo Barretense de Desenvolvimento e Habilidades Humanas</span>
+        ${logoHand ? `<img src="${logoHand}" alt="Handebol">` : ''}
+      </div>
+
+      <div class="verso-rodape"></div>
+    </div>
+  </div>
+
 </div><!-- /card-wrap -->
 </body>
 </html>`;
-var janela = window.open('', '_blank');
-if (janela) {
-janela.document.write(html);
-janela.document.close();
-janela.focus();
-} else {
-alert('Pop-up bloqueado. Libere pop-ups para este site e tente novamente.');
+
+  var janela = window.open('', '_blank');
+  if (janela) {
+    janela.document.write(html);
+    janela.document.close();
+    janela.focus();
+  } else {
+    alert('Pop-up bloqueado. Libere pop-ups para este site e tente novamente.');
+  }
 }
-}
+
 function abrirConfirm(titulo, msg, cb) {
-document.getElementById('confirm-titulo').textContent = titulo;
-document.getElementById('confirm-msg').textContent    = msg;
-confirmCallback = cb;
-document.getElementById('confirm-overlay').classList.add('aberto');
+  document.getElementById('confirm-titulo').textContent = titulo;
+  document.getElementById('confirm-msg').textContent    = msg;
+  confirmCallback = cb;
+  document.getElementById('confirm-overlay').classList.add('aberto');
 }
 function executarConfirm() {
-var cb = confirmCallback;
-fecharConfirm();
-if (cb) cb();
+  var cb = confirmCallback;
+  fecharConfirm();
+  if (cb) cb();
 }
 function fecharConfirm() {
-document.getElementById('confirm-overlay').classList.remove('aberto');
-confirmCallback = null;
+  document.getElementById('confirm-overlay').classList.remove('aberto');
+  confirmCallback = null;
 }
-})();
 </script>
 </body>
 </html>
