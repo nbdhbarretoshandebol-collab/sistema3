@@ -140,6 +140,24 @@ tr:hover td { background: #f8f9fe; }
 .btn-foto { display: block; padding: 7px 12px; background: var(--azul); color: white; border-radius: 8px; font-size: 13px; text-decoration: none; font-weight: 500; }
 .btn-foto-vazio { display: block; padding: 7px 12px; background: #f1f5f9; color: var(--leve); border-radius: 8px; font-size: 13px; }
 
+/* ── FOTO UPLOAD WIDGET ── */
+.foto-upload-box { border: 2px dashed #c5cae9; border-radius: 10px; overflow: hidden; transition: border-color .2s, background .2s; }
+.foto-upload-box:hover { border-color: var(--azul); }
+.foto-upload-box.tem-foto { border-style: solid; border-color: var(--verde); }
+.foto-upload-vazio { padding: 18px 12px; text-align: center; cursor: pointer; }
+.foto-upload-vazio-icon { font-size: 28px; margin-bottom: 6px; }
+.foto-upload-vazio-txt { font-size: 12px; color: var(--leve); line-height: 1.4; }
+.foto-preview-img { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; }
+.foto-upload-acoes { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0; border-top: 1px solid var(--borda); }
+.foto-upload-acoes button { padding: 8px 6px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background .15s; }
+.foto-btn-galeria { background: #e8eaf6; color: var(--azul); border-right: 1px solid var(--borda) !important; }
+.foto-btn-galeria:hover { background: #c5cae9; }
+.foto-btn-camera  { background: #e8f5e9; color: var(--verde); border-right: 1px solid var(--borda) !important; }
+.foto-btn-camera:hover  { background: #c8e6c9; }
+.foto-btn-remover { background: #fef2f2; color: var(--vermelho); }
+.foto-btn-remover:hover { background: #fee2e2; }
+.foto-compress-badge { display: inline-block; background: #d1fae5; color: #065f46; border-radius: 20px; font-size: 10px; font-weight: 600; padding: 2px 7px; margin-top: 4px; }
+
 /* ── CONFIRMAÇÃO ── */
 .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 400; align-items: center; justify-content: center; }
 .confirm-overlay.aberto { display: flex; }
@@ -642,17 +660,35 @@ tr:hover td { background: #f8f9fe; }
       </div>
 
       <div class="modal-sec">Fotos e documentos</div>
-      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:9px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#92400e">
-        💡 <strong>Dica:</strong> Você pode adicionar as fotos depois pela opção <em>Editar</em> no perfil do atleta. Basta colar o link (URL) da imagem hospedada no Google Drive, Dropbox ou qualquer outro serviço.
+      <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:9px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#1b5e20">
+        📸 Tire uma foto na hora ou escolha da galeria. A imagem é comprimida automaticamente antes de salvar.
       </div>
       <div class="fotos-grid">
         <div class="foto-card">
-          <div class="foto-label">📷 Foto do rosto (URL)</div>
-          <input type="url" id="na-fotoRosto" placeholder="https://... (pode deixar em branco)" style="width:100%;margin-top:6px;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+          <div class="foto-label">📷 Foto do rosto</div>
+          <div class="foto-upload-box" id="na-box-rosto">
+            <div class="foto-upload-vazio" onclick="selecionarFoto('na','rosto',false)">
+              <div class="foto-upload-vazio-icon">🤳</div>
+              <div class="foto-upload-vazio-txt">Clique para escolher<br>ou tirar uma foto</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button class="btn btn-ghost btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto('na','rosto',false)">📁 Galeria</button>
+            <button class="btn btn-success btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto('na','rosto',true)">📷 Câmera</button>
+          </div>
         </div>
         <div class="foto-card">
-          <div class="foto-label">🪪 Foto do RG (URL)</div>
-          <input type="url" id="na-fotoRG" placeholder="https://... (pode deixar em branco)" style="width:100%;margin-top:6px;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+          <div class="foto-label">🪪 Foto do RG</div>
+          <div class="foto-upload-box" id="na-box-rg">
+            <div class="foto-upload-vazio" onclick="selecionarFoto('na','rg',false)">
+              <div class="foto-upload-vazio-icon">🪪</div>
+              <div class="foto-upload-vazio-txt">Clique para escolher<br>ou fotografar o RG</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button class="btn btn-ghost btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto('na','rg',false)">📁 Galeria</button>
+            <button class="btn btn-success btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto('na','rg',true)">📷 Câmera</button>
+          </div>
         </div>
       </div>
 
@@ -1089,14 +1125,50 @@ function renderPerfilAtleta(a, edit) {
 
   var frh, frg;
   if (edit) {
-    frh = '<input type="url" name="fotoRosto" value="' + (a.fotoRosto || '') + '" placeholder="Cole o link da foto aqui..." style="width:100%;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:\'DM Sans\',sans-serif;margin-top:4px">';
-    frg = '<input type="url" name="fotoRG" value="' + (a.fotoRG || '') + '" placeholder="Cole o link do RG aqui..." style="width:100%;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:\'DM Sans\',sans-serif;margin-top:4px">';
+    frh = '<div class="foto-upload-box' + (a.fotoRosto ? ' tem-foto' : '') + '" id="ed-box-rosto">'
+        + (a.fotoRosto
+          ? '<img src="' + a.fotoRosto + '" class="foto-preview-img">'
+            + '<div class="foto-upload-acoes">'
+            + '<button class="foto-btn-galeria" onclick="selecionarFoto(\'ed\',\'rosto\',false)">📁 Galeria</button>'
+            + '<button class="foto-btn-camera"  onclick="selecionarFoto(\'ed\',\'rosto\',true)">📷 Câmera</button>'
+            + '<button class="foto-btn-remover" onclick="removerFotoEdit(\'rosto\')">🗑</button>'
+            + '</div>'
+          : '<div class="foto-upload-vazio" onclick="selecionarFoto(\'ed\',\'rosto\',false)">'
+            + '<div class="foto-upload-vazio-icon">🤳</div>'
+            + '<div class="foto-upload-vazio-txt">Clique para adicionar</div>'
+            + '</div>')
+        + '</div>'
+        + '<div style="display:flex;gap:6px;margin-top:6px">'
+        + '<button class="btn btn-ghost btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto(\'ed\',\'rosto\',false)">📁 Galeria</button>'
+        + '<button class="btn btn-success btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto(\'ed\',\'rosto\',true)">📷 Câmera</button>'
+        + '</div>';
+    frg = '<div class="foto-upload-box' + (a.fotoRG ? ' tem-foto' : '') + '" id="ed-box-rg">'
+        + (a.fotoRG
+          ? '<img src="' + a.fotoRG + '" class="foto-preview-img">'
+            + '<div class="foto-upload-acoes">'
+            + '<button class="foto-btn-galeria" onclick="selecionarFoto(\'ed\',\'rg\',false)">📁 Galeria</button>'
+            + '<button class="foto-btn-camera"  onclick="selecionarFoto(\'ed\',\'rg\',true)">📷 Câmera</button>'
+            + '<button class="foto-btn-remover" onclick="removerFotoEdit(\'rg\')">🗑</button>'
+            + '</div>'
+          : '<div class="foto-upload-vazio" onclick="selecionarFoto(\'ed\',\'rg\',false)">'
+            + '<div class="foto-upload-vazio-icon">🪪</div>'
+            + '<div class="foto-upload-vazio-txt">Clique para adicionar</div>'
+            + '</div>')
+        + '</div>'
+        + '<div style="display:flex;gap:6px;margin-top:6px">'
+        + '<button class="btn btn-ghost btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto(\'ed\',\'rg\',false)">📁 Galeria</button>'
+        + '<button class="btn btn-success btn-sm" style="flex:1;font-size:12px" onclick="selecionarFoto(\'ed\',\'rg\',true)">📷 Câmera</button>'
+        + '</div>';
   } else {
-    frh = a.fotoRosto && a.fotoRosto.startsWith('http')
-      ? '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>'
+    frh = a.fotoRosto
+      ? (a.fotoRosto.startsWith('data:')
+          ? '<img src="' + a.fotoRosto + '" style="width:100%;border-radius:8px;max-height:160px;object-fit:cover">'
+          : '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>')
       : '<span class="btn-foto-vazio">Não enviada</span>';
-    frg = a.fotoRG && a.fotoRG.startsWith('http')
-      ? '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>'
+    frg = a.fotoRG
+      ? (a.fotoRG.startsWith('data:')
+          ? '<img src="' + a.fotoRG + '" style="width:100%;border-radius:8px;max-height:160px;object-fit:cover">'
+          : '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>')
       : '<span class="btn-foto-vazio">Não enviado</span>';
   }
 
@@ -1119,6 +1191,7 @@ function renderPerfilAtleta(a, edit) {
 }
 
 function ativarEdicaoAtleta() {
+  fotosEdit = { rosto: null, rg: null };
   renderPerfilAtleta(atletaAtual, true);
   document.getElementById('ma-btn-editar').style.display   = 'none';
   document.getElementById('ma-btn-salvar').style.display   = 'inline-flex';
@@ -1126,6 +1199,7 @@ function ativarEdicaoAtleta() {
 }
 
 function cancelarEdicaoAtleta() {
+  fotosEdit = { rosto: null, rg: null };
   renderPerfilAtleta(atletaAtual, false);
   document.getElementById('ma-btn-editar').style.display   = 'inline-flex';
   document.getElementById('ma-btn-salvar').style.display   = 'none';
@@ -1136,6 +1210,9 @@ function salvarEdicaoAtleta() {
   var inputs = document.getElementById('ma-body').querySelectorAll('input,select');
   var d = { linha: linhaAtleta };
   inputs.forEach(function (el) { if (el.name) d[el.name] = el.value; });
+  // Aplica fotos novas se foram selecionadas nesta edição
+  if (fotosEdit.rosto !== null) d.fotoRosto = fotosEdit.rosto;
+  if (fotosEdit.rg    !== null) d.fotoRG    = fotosEdit.rg;
   var btn = document.getElementById('ma-btn-salvar');
   btn.textContent = 'Salvando...'; btn.disabled = true;
   fetch(SCRIPT_URL, {
@@ -2164,24 +2241,122 @@ function gerarCarteirinha() {
 }
 
 // ══════════════════════════════════════════════════
+// FOTOS — ESTADO GLOBAL
+// ══════════════════════════════════════════════════
+var fotosNovas = { rosto: null, rg: null }; // para novo cadastro
+var fotosEdit  = { rosto: null, rg: null }; // para edição de perfil
+
+// ══════════════════════════════════════════════════
+// FOTOS — COMPRESSÃO VIA CANVAS
+// ══════════════════════════════════════════════════
+function comprimirImagem(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    var img = new Image();
+    img.onload = function () {
+      var MAX = 800;
+      var w = img.width, h = img.height;
+      if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+      else        { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var base64 = canvas.toDataURL('image/jpeg', 0.78);
+      callback(base64, w, h);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ══════════════════════════════════════════════════
+// FOTOS — SELEÇÃO (galeria ou câmera)
+// ══════════════════════════════════════════════════
+function selecionarFoto(prefixo, campo, usarCamera) {
+  var input = document.createElement('input');
+  input.type    = 'file';
+  input.accept  = 'image/*';
+  if (usarCamera) input.capture = 'environment';
+  input.onchange = function () {
+    if (!input.files || !input.files[0]) return;
+    var boxId = prefixo + '-box-' + campo;
+    var box   = document.getElementById(boxId);
+    if (box) { box.innerHTML = '<div style="padding:14px;text-align:center;color:var(--leve);font-size:13px">⏳ Comprimindo...</div>'; }
+    comprimirImagem(input.files[0], function (base64, w, h) {
+      var kb = Math.round(base64.length * 0.75 / 1024);
+      if (prefixo === 'na') {
+        fotosNovas[campo] = base64;
+      } else {
+        fotosEdit[campo] = base64;
+      }
+      renderFotoBox(prefixo, campo, base64, kb);
+    });
+  };
+  input.click();
+}
+
+function removerFoto(prefixo, campo) {
+  if (prefixo === 'na') fotosNovas[campo] = '';
+  else                  fotosEdit[campo]  = '';
+  renderFotoBox(prefixo, campo, null, 0);
+}
+
+function removerFotoEdit(campo) { removerFoto('ed', campo); }
+
+function renderFotoBox(prefixo, campo, base64, kb) {
+  var boxId = prefixo + '-box-' + campo;
+  var box = document.getElementById(boxId);
+  if (!box) return;
+  if (base64) {
+    box.className = 'foto-upload-box tem-foto';
+    box.innerHTML =
+      '<img src="' + base64 + '" class="foto-preview-img">'
+      + '<div class="foto-upload-acoes">'
+      + '<button class="foto-btn-galeria" onclick="selecionarFoto(\'' + prefixo + '\',\'' + campo + '\',false)">📁 Trocar</button>'
+      + '<button class="foto-btn-camera"  onclick="selecionarFoto(\'' + prefixo + '\',\'' + campo + '\',true)">📷 Câmera</button>'
+      + '<button class="foto-btn-remover" onclick="removerFoto(\'' + prefixo + '\',\'' + campo + '\')">🗑</button>'
+      + '</div>';
+    // badge de tamanho
+    var lbl = box.closest('.foto-card');
+    if (lbl) {
+      var badge = lbl.querySelector('.foto-compress-badge');
+      if (!badge) { badge = document.createElement('div'); badge.className = 'foto-compress-badge'; lbl.insertBefore(badge, box.nextSibling); }
+      badge.textContent = '✓ ' + kb + ' KB comprimido';
+    }
+  } else {
+    box.className = 'foto-upload-box';
+    var icon = campo === 'rosto' ? '🤳' : '🪪';
+    var txt  = campo === 'rosto' ? 'Clique para adicionar' : 'Fotografar o RG';
+    box.innerHTML =
+      '<div class="foto-upload-vazio" onclick="selecionarFoto(\'' + prefixo + '\',\'' + campo + '\',false)">'
+      + '<div class="foto-upload-vazio-icon">' + icon + '</div>'
+      + '<div class="foto-upload-vazio-txt">' + txt + '</div>'
+      + '</div>';
+    var lbl = box.closest('.foto-card');
+    if (lbl) { var badge = lbl.querySelector('.foto-compress-badge'); if (badge) badge.remove(); }
+  }
+}
+
+// ══════════════════════════════════════════════════
 // CADASTRO MANUAL DE ATLETA
 // ══════════════════════════════════════════════════
 function abrirNovoAtleta() {
-  // Limpa todos os campos
   ['na-nome','na-cpf','na-rg','na-nascimento','na-rua','na-numero','na-bairro',
-   'na-cidade','na-estado','na-cep','na-respNome','na-respParent','na-respTel',
-   'na-respEmail','na-fotoRosto','na-fotoRG','na-categoria'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.value = '';
+   'na-cidade','na-estado','na-cep','na-respNome','na-respParent',
+   'na-respTel','na-respEmail','na-categoria'].forEach(function (id) {
+    var el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('na-sexo').value       = '';
   document.getElementById('na-modalidade').value = '';
   document.getElementById('na-status').value     = 'Pendente';
   document.getElementById('na-erro').style.display = 'none';
-  document.getElementById('na-btn-salvar').disabled = false;
+  document.getElementById('na-btn-salvar').disabled    = false;
   document.getElementById('na-btn-salvar').textContent = '✓ Cadastrar atleta';
+  fotosNovas = { rosto: null, rg: null };
+  renderFotoBox('na', 'rosto', null, 0);
+  renderFotoBox('na', 'rg',    null, 0);
   document.getElementById('overlay-novo-atleta').classList.add('aberto');
-  setTimeout(function() { document.getElementById('na-nome').focus(); }, 150);
+  setTimeout(function () { document.getElementById('na-nome').focus(); }, 150);
 }
 
 function fecharNovoAtleta(e) {
@@ -2199,33 +2374,31 @@ function salvarNovoAtleta() {
     return;
   }
   erro.style.display = 'none';
-
   var btn = document.getElementById('na-btn-salvar');
-  btn.textContent = 'Salvando...';
-  btn.disabled = true;
+  btn.textContent = 'Salvando...'; btn.disabled = true;
 
   var dados = {
-    nome:        nome,
-    cpf:         document.getElementById('na-cpf').value.trim(),
-    rg:          document.getElementById('na-rg').value.trim(),
-    nascimento:  document.getElementById('na-nascimento').value,
-    sexo:        document.getElementById('na-sexo').value,
-    modalidade:  document.getElementById('na-modalidade').value,
-    categoria:   document.getElementById('na-categoria').value.trim(),
-    status:      document.getElementById('na-status').value,
-    rua:         document.getElementById('na-rua').value.trim(),
-    numero:      document.getElementById('na-numero').value.trim(),
-    bairro:      document.getElementById('na-bairro').value.trim(),
-    cidade:      document.getElementById('na-cidade').value.trim(),
-    estado:      document.getElementById('na-estado').value.trim(),
-    cep:         document.getElementById('na-cep').value.trim(),
-    respNome:    document.getElementById('na-respNome').value.trim(),
-    respParent:  document.getElementById('na-respParent').value.trim(),
-    respTel:     document.getElementById('na-respTel').value.trim(),
-    respEmail:   document.getElementById('na-respEmail').value.trim(),
-    fotoRosto:   document.getElementById('na-fotoRosto').value.trim(),
-    fotoRG:      document.getElementById('na-fotoRG').value.trim(),
-    origem:      'Manual — ' + usuarioLogado
+    nome:       nome,
+    cpf:        document.getElementById('na-cpf').value.trim(),
+    rg:         document.getElementById('na-rg').value.trim(),
+    nascimento: document.getElementById('na-nascimento').value,
+    sexo:       document.getElementById('na-sexo').value,
+    modalidade: document.getElementById('na-modalidade').value,
+    categoria:  document.getElementById('na-categoria').value.trim(),
+    status:     document.getElementById('na-status').value,
+    rua:        document.getElementById('na-rua').value.trim(),
+    numero:     document.getElementById('na-numero').value.trim(),
+    bairro:     document.getElementById('na-bairro').value.trim(),
+    cidade:     document.getElementById('na-cidade').value.trim(),
+    estado:     document.getElementById('na-estado').value.trim(),
+    cep:        document.getElementById('na-cep').value.trim(),
+    respNome:   document.getElementById('na-respNome').value.trim(),
+    respParent: document.getElementById('na-respParent').value.trim(),
+    respTel:    document.getElementById('na-respTel').value.trim(),
+    respEmail:  document.getElementById('na-respEmail').value.trim(),
+    fotoRosto:  fotosNovas.rosto || '',
+    fotoRG:     fotosNovas.rg    || '',
+    origem:     'Manual — ' + usuarioLogado
   };
 
   fetch(SCRIPT_URL, {
@@ -2235,19 +2408,16 @@ function salvarNovoAtleta() {
   })
   .then(function () {
     document.getElementById('overlay-novo-atleta').classList.remove('aberto');
-    // Adiciona otimisticamente na lista local para feedback imediato
     var novoLocal = Object.assign({}, dados, { linha: Date.now(), _pendente: true });
     todosAtletas.unshift(novoLocal);
     renderStatsAtletas();
     buscarAtletas();
-    // Recarrega do servidor após 2s para obter a linha real
-    setTimeout(carregarAtletas, 2000);
+    setTimeout(carregarAtletas, 2500);
   })
   .catch(function () {
     erro.textContent = '❌ Erro ao salvar. Verifique sua conexão e tente novamente.';
     erro.style.display = 'block';
-    btn.textContent = '✓ Cadastrar atleta';
-    btn.disabled = false;
+    btn.textContent = '✓ Cadastrar atleta'; btn.disabled = false;
   });
 }
 
