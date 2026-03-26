@@ -346,6 +346,7 @@ tr:hover td { background: #f8f9fe; }
               </select>
               <button class="btn btn-primary" onclick="buscarAtletas()">Buscar</button>
               <button class="btn btn-ghost" onclick="limparBusca()">Limpar</button>
+              <button class="btn btn-amarelo" onclick="abrirNovoAtleta()">+ Cadastrar Atleta</button>
             </div>
             <!-- Abas Masculino / Feminino -->
             <div style="display:flex;gap:8px;margin-top:12px;border-bottom:2px solid var(--borda);padding-bottom:0">
@@ -570,6 +571,96 @@ tr:hover td { background: #f8f9fe; }
       <button class="btn btn-ghost btn-sm" id="ma-btn-editar" onclick="ativarEdicaoAtleta()">✏️ Editar</button>
       <button class="btn btn-success btn-sm" id="ma-btn-salvar" onclick="salvarEdicaoAtleta()" style="display:none">✓ Salvar</button>
       <button class="btn btn-amarelo btn-sm" id="ma-btn-carteirinha" onclick="gerarCarteirinha()">🪪 Carteirinha</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CADASTRO ATLETA ══ -->
+<div class="overlay" id="overlay-novo-atleta" onclick="fecharNovoAtleta(event)">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <div class="modal-avatar" style="background:var(--amarelo);color:var(--azul-esc);font-size:22px">➕</div>
+      <div><div class="modal-nome">Cadastrar Atleta</div><div class="modal-sub">Todos os campos são opcionais exceto o nome</div></div>
+      <button class="modal-close" onclick="fecharNovoAtleta()">×</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+
+      <div class="modal-sec">Dados pessoais</div>
+      <div class="dados-grid" style="grid-template-columns:1fr 1fr">
+        <div class="dado" style="grid-column:1/-1">
+          <div class="dado-lbl">Nome completo <span style="color:var(--vermelho)">*</span></div>
+          <input type="text" id="na-nome" placeholder="Nome do atleta">
+        </div>
+        <div class="dado"><div class="dado-lbl">CPF</div><input type="text" id="na-cpf" placeholder="000.000.000-00"></div>
+        <div class="dado"><div class="dado-lbl">RG</div><input type="text" id="na-rg" placeholder="00.000.000-0"></div>
+        <div class="dado"><div class="dado-lbl">Data de nascimento</div><input type="date" id="na-nascimento"></div>
+        <div class="dado">
+          <div class="dado-lbl">Sexo</div>
+          <select id="na-sexo">
+            <option value="">— Selecione —</option>
+            <option>Masculino</option>
+            <option>Feminino</option>
+          </select>
+        </div>
+        <div class="dado">
+          <div class="dado-lbl">Modalidade</div>
+          <select id="na-modalidade">
+            <option value="">— Selecione —</option>
+            <option>Handebol</option>
+            <option>Xadrez</option>
+            <option>Vôlei</option>
+          </select>
+        </div>
+        <div class="dado"><div class="dado-lbl">Categoria</div><input type="text" id="na-categoria" placeholder="Ex: Sub-18, Adulto..."></div>
+        <div class="dado">
+          <div class="dado-lbl">Status</div>
+          <select id="na-status">
+            <option>Pendente</option>
+            <option>Aprovado</option>
+            <option>Ativo</option>
+            <option>Reprovado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-sec">Endereço</div>
+      <div class="dados-grid" style="grid-template-columns:1fr 1fr">
+        <div class="dado"><div class="dado-lbl">Rua</div><input type="text" id="na-rua" placeholder="Nome da rua"></div>
+        <div class="dado"><div class="dado-lbl">Número</div><input type="text" id="na-numero" placeholder="Nº"></div>
+        <div class="dado"><div class="dado-lbl">Bairro</div><input type="text" id="na-bairro" placeholder="Bairro"></div>
+        <div class="dado"><div class="dado-lbl">Cidade</div><input type="text" id="na-cidade" placeholder="Cidade"></div>
+        <div class="dado"><div class="dado-lbl">Estado</div><input type="text" id="na-estado" placeholder="UF" maxlength="2"></div>
+        <div class="dado"><div class="dado-lbl">CEP</div><input type="text" id="na-cep" placeholder="00000-000"></div>
+      </div>
+
+      <div class="modal-sec">Responsável</div>
+      <div class="dados-grid" style="grid-template-columns:1fr 1fr">
+        <div class="dado"><div class="dado-lbl">Nome do responsável</div><input type="text" id="na-respNome" placeholder="Nome completo"></div>
+        <div class="dado"><div class="dado-lbl">Parentesco</div><input type="text" id="na-respParent" placeholder="Ex: Pai, Mãe, Avó..."></div>
+        <div class="dado"><div class="dado-lbl">Telefone</div><input type="tel" id="na-respTel" placeholder="(00) 00000-0000"></div>
+        <div class="dado"><div class="dado-lbl">E-mail</div><input type="email" id="na-respEmail" placeholder="email@exemplo.com"></div>
+      </div>
+
+      <div class="modal-sec">Fotos e documentos</div>
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:9px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#92400e">
+        💡 <strong>Dica:</strong> Você pode adicionar as fotos depois pela opção <em>Editar</em> no perfil do atleta. Basta colar o link (URL) da imagem hospedada no Google Drive, Dropbox ou qualquer outro serviço.
+      </div>
+      <div class="fotos-grid">
+        <div class="foto-card">
+          <div class="foto-label">📷 Foto do rosto (URL)</div>
+          <input type="url" id="na-fotoRosto" placeholder="https://... (pode deixar em branco)" style="width:100%;margin-top:6px;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+        </div>
+        <div class="foto-card">
+          <div class="foto-label">🪪 Foto do RG (URL)</div>
+          <input type="url" id="na-fotoRG" placeholder="https://... (pode deixar em branco)" style="width:100%;margin-top:6px;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <div id="na-erro" style="color:var(--vermelho);font-size:13px;display:none;flex:1"></div>
+      <button class="btn btn-ghost" onclick="fecharNovoAtleta()">Cancelar</button>
+      <button class="btn btn-success" id="na-btn-salvar" onclick="salvarNovoAtleta()">✓ Cadastrar atleta</button>
     </div>
   </div>
 </div>
@@ -996,12 +1087,18 @@ function renderPerfilAtleta(a, edit) {
     return '<div class="dado"><div class="dado-lbl">' + lbl + '</div><div class="dado-val">' + (val || '-') + '</div></div>';
   }
 
-  var frh = a.fotoRosto && a.fotoRosto.startsWith('http')
-    ? '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>'
-    : '<span class="btn-foto-vazio">Não enviada</span>';
-  var frg = a.fotoRG && a.fotoRG.startsWith('http')
-    ? '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>'
-    : '<span class="btn-foto-vazio">Não enviado</span>';
+  var frh, frg;
+  if (edit) {
+    frh = '<input type="url" name="fotoRosto" value="' + (a.fotoRosto || '') + '" placeholder="Cole o link da foto aqui..." style="width:100%;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:\'DM Sans\',sans-serif;margin-top:4px">';
+    frg = '<input type="url" name="fotoRG" value="' + (a.fotoRG || '') + '" placeholder="Cole o link do RG aqui..." style="width:100%;padding:7px 10px;border:1.5px solid var(--borda);border-radius:7px;font-size:13px;font-family:\'DM Sans\',sans-serif;margin-top:4px">';
+  } else {
+    frh = a.fotoRosto && a.fotoRosto.startsWith('http')
+      ? '<a class="btn-foto" href="' + a.fotoRosto + '" target="_blank">Ver foto</a>'
+      : '<span class="btn-foto-vazio">Não enviada</span>';
+    frg = a.fotoRG && a.fotoRG.startsWith('http')
+      ? '<a class="btn-foto" href="' + a.fotoRG + '" target="_blank">Ver RG</a>'
+      : '<span class="btn-foto-vazio">Não enviado</span>';
+  }
 
   document.getElementById('ma-body').innerHTML =
     '<div class="modal-sec">Dados pessoais</div><div class="dados-grid">'
@@ -2064,6 +2161,94 @@ function gerarCarteirinha() {
   } else {
     alert('Pop-up bloqueado. Libere pop-ups para este site e tente novamente.');
   }
+}
+
+// ══════════════════════════════════════════════════
+// CADASTRO MANUAL DE ATLETA
+// ══════════════════════════════════════════════════
+function abrirNovoAtleta() {
+  // Limpa todos os campos
+  ['na-nome','na-cpf','na-rg','na-nascimento','na-rua','na-numero','na-bairro',
+   'na-cidade','na-estado','na-cep','na-respNome','na-respParent','na-respTel',
+   'na-respEmail','na-fotoRosto','na-fotoRG','na-categoria'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('na-sexo').value       = '';
+  document.getElementById('na-modalidade').value = '';
+  document.getElementById('na-status').value     = 'Pendente';
+  document.getElementById('na-erro').style.display = 'none';
+  document.getElementById('na-btn-salvar').disabled = false;
+  document.getElementById('na-btn-salvar').textContent = '✓ Cadastrar atleta';
+  document.getElementById('overlay-novo-atleta').classList.add('aberto');
+  setTimeout(function() { document.getElementById('na-nome').focus(); }, 150);
+}
+
+function fecharNovoAtleta(e) {
+  if (e && e.target !== document.getElementById('overlay-novo-atleta')) return;
+  document.getElementById('overlay-novo-atleta').classList.remove('aberto');
+}
+
+function salvarNovoAtleta() {
+  var nome = document.getElementById('na-nome').value.trim();
+  var erro = document.getElementById('na-erro');
+  if (!nome) {
+    erro.textContent = '⚠️ O nome do atleta é obrigatório.';
+    erro.style.display = 'block';
+    document.getElementById('na-nome').focus();
+    return;
+  }
+  erro.style.display = 'none';
+
+  var btn = document.getElementById('na-btn-salvar');
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
+
+  var dados = {
+    nome:        nome,
+    cpf:         document.getElementById('na-cpf').value.trim(),
+    rg:          document.getElementById('na-rg').value.trim(),
+    nascimento:  document.getElementById('na-nascimento').value,
+    sexo:        document.getElementById('na-sexo').value,
+    modalidade:  document.getElementById('na-modalidade').value,
+    categoria:   document.getElementById('na-categoria').value.trim(),
+    status:      document.getElementById('na-status').value,
+    rua:         document.getElementById('na-rua').value.trim(),
+    numero:      document.getElementById('na-numero').value.trim(),
+    bairro:      document.getElementById('na-bairro').value.trim(),
+    cidade:      document.getElementById('na-cidade').value.trim(),
+    estado:      document.getElementById('na-estado').value.trim(),
+    cep:         document.getElementById('na-cep').value.trim(),
+    respNome:    document.getElementById('na-respNome').value.trim(),
+    respParent:  document.getElementById('na-respParent').value.trim(),
+    respTel:     document.getElementById('na-respTel').value.trim(),
+    respEmail:   document.getElementById('na-respEmail').value.trim(),
+    fotoRosto:   document.getElementById('na-fotoRosto').value.trim(),
+    fotoRG:      document.getElementById('na-fotoRG').value.trim(),
+    origem:      'Manual — ' + usuarioLogado
+  };
+
+  fetch(SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ acao: 'adicionarAtleta', dados: dados })
+  })
+  .then(function () {
+    document.getElementById('overlay-novo-atleta').classList.remove('aberto');
+    // Adiciona otimisticamente na lista local para feedback imediato
+    var novoLocal = Object.assign({}, dados, { linha: Date.now(), _pendente: true });
+    todosAtletas.unshift(novoLocal);
+    renderStatsAtletas();
+    buscarAtletas();
+    // Recarrega do servidor após 2s para obter a linha real
+    setTimeout(carregarAtletas, 2000);
+  })
+  .catch(function () {
+    erro.textContent = '❌ Erro ao salvar. Verifique sua conexão e tente novamente.';
+    erro.style.display = 'block';
+    btn.textContent = '✓ Cadastrar atleta';
+    btn.disabled = false;
+  });
 }
 
 function abrirConfirm(titulo, msg, cb) {
