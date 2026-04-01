@@ -2526,36 +2526,63 @@ function fecharConfirm() {
 }
 
 // ══════════════════════════════════════════════════
-// ESCOLINHAS — Google Sheets
+// ESCOLINHAS — Google Sheets (CORRIGIDO)
 // ══════════════════════════════════════════════════
 var todasEscolinhas = [];
 
 function carregarEscolinhas() {
   var container = document.getElementById('lista-escolinhas');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando escolinhas...</div>';
-  fetch(SCRIPT_URL + '?acao=listarEscolinhas')
+
+  fetch(SCRIPT_URL + '?acao=listarEscolinhas&t=' + Date.now())
     .then(function(r){ return r.text(); })
     .then(function(t){
+      // Remove lixo antes do JSON (redirecionamentos do Apps Script)
       var inicio = t.indexOf('{');
       if (inicio > 0) t = t.substring(inicio);
-      todasEscolinhas = JSON.parse(t).escolinhas || [];
+      try {
+        var data = JSON.parse(t);
+        todasEscolinhas = (data.escolinhas || []).map(function(e){
+          // Garante que professores e atletas são arrays (não strings)
+          if (typeof e.professores === 'string') {
+            try { e.professores = JSON.parse(e.professores); } catch(err){ e.professores = []; }
+          }
+          if (typeof e.atletas === 'string') {
+            try { e.atletas = JSON.parse(e.atletas); } catch(err){ e.atletas = []; }
+          }
+          if (!Array.isArray(e.professores)) e.professores = [];
+          if (!Array.isArray(e.atletas)) e.atletas = [];
+          return e;
+        });
+      } catch(e) {
+        todasEscolinhas = [];
+      }
       renderEscolinhas();
     })
-    .catch(function(){ renderEscolinhas(); });
+    .catch(function(){
+      todasEscolinhas = [];
+      renderEscolinhas();
+    });
 }
 
 function _postEscolinha(acao, dados, cb) {
   fetch(SCRIPT_URL, {
-    method: 'POST', mode: 'no-cors',
+    method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ acao: acao, dados: dados })
-  }).then(function(){ if (cb) cb(); }).catch(function(){ if (cb) cb(); });
+  })
+  .then(function(){ if (cb) setTimeout(cb, 1500); })
+  .catch(function(){ if (cb) setTimeout(cb, 1500); });
 }
 
 function toggleFormEscolinha(show) {
   var f = document.getElementById('form-escolinha');
   if (show) {
-    ['esc-nome','esc-endereco','esc-dias','esc-horario','esc-obs'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['esc-nome','esc-endereco','esc-dias','esc-horario','esc-obs'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
     document.getElementById('esc-modalidade').value = '';
     f.style.display = 'block';
     setTimeout(function(){ document.getElementById('esc-nome').focus(); }, 100);
@@ -2567,8 +2594,10 @@ function toggleFormEscolinha(show) {
 function salvarEscolinha() {
   var nome = document.getElementById('esc-nome').value.trim();
   if (!nome) { alert('O nome da escolinha é obrigatório.'); return; }
+
+  // ID como STRING para evitar problema de tipo no Sheets
   var nova = {
-    id: Date.now(),
+    id: String(Date.now()),
     nome: nome,
     endereco: document.getElementById('esc-endereco').value.trim(),
     modalidade: document.getElementById('esc-modalidade').value,
@@ -2578,53 +2607,77 @@ function salvarEscolinha() {
     professores: [],
     atletas: []
   };
+
   // Adiciona localmente já (UI rápida)
   todasEscolinhas.unshift(nova);
   toggleFormEscolinha(false);
   renderEscolinhas();
-  // Persiste no Sheets
-  _postEscolinha('salvarEscolinha', nova, function(){
-    setTimeout(carregarEscolinhas, 2000);
+
+  // Persiste no Sheets — envia professores e atletas como JSON string
+  _postEscolinha('salvarEscolinha', {
+    id: nova.id,
+    nome: nova.nome,
+    endereco: nova.endereco,
+    modalidade: nova.modalidade,
+    dias: nova.dias,
+    horario: nova.horario,
+    obs: nova.obs,
+    professores: JSON.stringify(nova.professores),
+    atletas: JSON.stringify(nova.atletas)
+  }, function(){
+    carregarEscolinhas();
   });
 }
 
 function excluirEscolinha(id) {
+  id = String(id);
   abrirConfirm('Excluir Escolinha', 'Esta ação não pode ser desfeita. Deseja continuar?', function() {
-    todasEscolinhas = todasEscolinhas.filter(function(e){ return e.id !== id; });
+    todasEscolinhas = todasEscolinhas.filter(function(e){ return String(e.id) !== id; });
     renderEscolinhas();
     _postEscolinha('excluirEscolinha', { id: id }, function(){
-      setTimeout(carregarEscolinhas, 2000);
+      carregarEscolinhas();
     });
   });
 }
 
 function adicionarProfEscolinha(id) {
+  id = String(id);
   var sel = document.getElementById('sel-prof-' + id);
   var val = sel ? sel.value.trim() : '';
   if (!val) return;
-  var esc = todasEscolinhas.find(function(e){ return e.id === id; });
+  var esc = todasEscolinhas.find(function(e){ return String(e.id) === id; });
   if (!esc) return;
   if (!esc.professores) esc.professores = [];
   if (esc.professores.some(function(p){ return p.nome === val; })) { sel.value=''; return; }
   esc.professores.push({ nome: val, cargo: 'Professor(a)' });
   sel.value = '';
   renderEscolinhas();
-  _postEscolinha('atualizarEscolinha', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
+  _postEscolinha('atualizarEscolinha', {
+    id: id,
+    professores: JSON.stringify(esc.professores),
+    atletas: JSON.stringify(esc.atletas)
+  }, null);
 }
 
 function removerProfEscolinha(escId, profNome) {
-  var esc = todasEscolinhas.find(function(e){ return e.id === escId; });
+  escId = String(escId);
+  var esc = todasEscolinhas.find(function(e){ return String(e.id) === escId; });
   if (!esc) return;
   esc.professores = (esc.professores || []).filter(function(p){ return p.nome !== profNome; });
   renderEscolinhas();
-  _postEscolinha('atualizarEscolinha', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
+  _postEscolinha('atualizarEscolinha', {
+    id: escId,
+    professores: JSON.stringify(esc.professores),
+    atletas: JSON.stringify(esc.atletas)
+  }, null);
 }
 
 function adicionarAtletaEscolinha(id) {
+  id = String(id);
   var sel = document.getElementById('sel-atleta-' + id);
   var val = sel ? sel.value : '';
   if (!val) return;
-  var esc = todasEscolinhas.find(function(e){ return e.id === id; });
+  var esc = todasEscolinhas.find(function(e){ return String(e.id) === id; });
   if (!esc) return;
   if (!esc.atletas) esc.atletas = [];
   if (esc.atletas.some(function(a){ return a.nome === val; })) { sel.value=''; return; }
@@ -2633,126 +2686,22 @@ function adicionarAtletaEscolinha(id) {
   esc.atletas.push({ nome: val, info: info });
   sel.value = '';
   renderEscolinhas();
-  _postEscolinha('atualizarEscolinha', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
+  _postEscolinha('atualizarEscolinha', {
+    id: id,
+    professores: JSON.stringify(esc.professores),
+    atletas: JSON.stringify(esc.atletas)
+  }, null);
 }
 
 function removerAtletaEscolinha(escId, atletaNome) {
-  var esc = todasEscolinhas.find(function(e){ return e.id === escId; });
+  escId = String(escId);
+  var esc = todasEscolinhas.find(function(e){ return String(e.id) === escId; });
   if (!esc) return;
   esc.atletas = (esc.atletas || []).filter(function(a){ return a.nome !== atletaNome; });
   renderEscolinhas();
-  _postEscolinha('atualizarEscolinha', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
+  _postEscolinha('atualizarEscolinha', {
+    id: escId,
+    professores: JSON.stringify(esc.professores),
+    atletas: JSON.stringify(esc.atletas)
+  }, null);
 }
-
-function renderEscolinhas() {
-  var container = document.getElementById('lista-escolinhas');
-  if (!container) return;
-
-  if (!todasEscolinhas.length) {
-    container.innerHTML = '<div class="vazio"><div class="vazio-icon">🏫</div>Nenhuma escolinha cadastrada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova escolinha" para começar.</small></div>';
-    return;
-  }
-
-  // Build colaboradores list for professor autocomplete
-  var listaColab = (todaEquipe || []).map(function(c){ return c.nome; }).filter(Boolean);
-
-  var html = '<div class="escola-grid">';
-  todasEscolinhas.forEach(function(esc) {
-    var profs = esc.professores || [];
-    var atletas = esc.atletas || [];
-
-    // Professor options (colaboradores not already added)
-    var profOptions = listaColab.filter(function(n){
-      return !profs.some(function(p){ return p.nome === n; });
-    });
-
-    // Athlete options (from todosAtletas not already in this school)
-    var atletaOptions = (todosAtletas || []).filter(function(a){
-      return a.nome && !atletas.some(function(x){ return x.nome === a.nome; });
-    });
-
-    html += '<div class="escola-card">';
-
-    // Header
-    html += '<div class="escola-card-header">';
-    html += '<div>';
-    html += '<div class="escola-card-titulo">🏫 ' + esc.nome + '</div>';
-    if (esc.endereco) html += '<div class="escola-card-local">📍 ' + esc.endereco + '</div>';
-    html += '<div class="escola-stats">';
-    if (esc.modalidade) html += '<span class="escola-stat-item">🏅 ' + esc.modalidade + '</span>';
-    if (esc.dias) html += '<span class="escola-stat-item">📆 ' + esc.dias + '</span>';
-    if (esc.horario) html += '<span class="escola-stat-item">⏰ ' + esc.horario + '</span>';
-    html += '<span class="escola-stat-item">👥 ' + atletas.length + ' atleta' + (atletas.length !== 1 ? 's' : '') + '</span>';
-    html += '</div>';
-    html += '</div>';
-    html += '<div class="escola-card-acoes">';
-    html += '<button class="escola-btn-acao danger" onclick="excluirEscolinha(' + esc.id + ')" title="Excluir escolinha">🗑</button>';
-    html += '</div>';
-    html += '</div>'; // end header
-
-    // Body
-    html += '<div class="escola-card-body">';
-
-    // Professores
-    html += '<div class="escola-secao">👨‍🏫 Professores (' + profs.length + ')</div>';
-    if (profs.length) {
-      profs.forEach(function(p) {
-        var initials = p.nome.split(' ').slice(0,2).map(function(w){ return w[0]; }).join('').toUpperCase();
-        html += '<div class="escola-prof">';
-        html += '<div class="escola-prof-avatar">' + initials + '</div>';
-        html += '<div class="escola-prof-info"><div class="escola-prof-nome">' + p.nome + '</div><div class="escola-prof-cargo">' + (p.cargo||'Professor(a)') + '</div></div>';
-        html += '<button class="escola-rm-btn" onclick="removerProfEscolinha(' + esc.id + ',\'' + p.nome.replace(/'/g,"\\'") + '\')" title="Remover">×</button>';
-        html += '</div>';
-      });
-    } else {
-      html += '<div class="rel-empty">Nenhum professor vinculado.</div>';
-    }
-
-    // Add professor
-    html += '<div class="escola-add-row">';
-    if (profOptions.length) {
-      html += '<select id="sel-prof-' + esc.id + '"><option value="">— Selecionar professor —</option>';
-      profOptions.forEach(function(n){ html += '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>'; });
-      html += '</select>';
-    } else {
-      html += '<input type="text" id="sel-prof-' + esc.id + '" placeholder="Nome do professor...">';
-    }
-    html += '<button class="btn btn-ghost btn-sm" onclick="adicionarProfEscolinha(' + esc.id + ')">+ Adicionar</button>';
-    html += '</div>';
-
-    // Atletas
-    html += '<div class="escola-secao" style="margin-top:18px">🏃 Atletas (' + atletas.length + ')</div>';
-    if (atletas.length) {
-      atletas.forEach(function(a) {
-        html += '<div class="escola-atleta">';
-        html += '<div class="escola-atleta-nome">' + a.nome + '</div>';
-        if (a.info) html += '<div class="escola-atleta-info">' + a.info + '</div>';
-        html += '<button class="escola-rm-btn" onclick="removerAtletaEscolinha(' + esc.id + ',\'' + a.nome.replace(/'/g,"\\'") + '\')" title="Remover">×</button>';
-        html += '</div>';
-      });
-    } else {
-      html += '<div class="rel-empty">Nenhum atleta vinculado.</div>';
-    }
-
-    // Add athlete
-    html += '<div class="escola-add-row">';
-    html += '<select id="sel-atleta-' + esc.id + '"><option value="">— Selecionar atleta —</option>';
-    atletaOptions.forEach(function(a){ html += '<option value="' + a.nome.replace(/"/g,'&quot;') + '">' + a.nome + (a.modalidade ? ' (' + a.modalidade + ')' : '') + '</option>'; });
-    html += '</select>';
-    html += '<button class="btn btn-ghost btn-sm" onclick="adicionarAtletaEscolinha(' + esc.id + ')">+ Adicionar</button>';
-    html += '</div>';
-
-    if (esc.obs) {
-      html += '<div style="margin-top:12px;background:#f6f7fb;border-radius:8px;padding:10px 12px;font-size:13px;color:var(--leve)">💬 ' + esc.obs + '</div>';
-    }
-
-    html += '</div>'; // end body
-    html += '</div>'; // end card
-  });
-  html += '</div>';
-  container.innerHTML = html;
-}
-
-</script>
-</body>
-</html>
