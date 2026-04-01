@@ -2545,11 +2545,24 @@ function carregarEscolinhas() {
 }
 
 function _postEscolinha(acao, dados, cb) {
+  var formData = new FormData();
+  formData.append('payload', JSON.stringify({ acao: acao, dados: dados }));
+
   fetch(SCRIPT_URL, {
-    method: 'POST', mode: 'no-cors',
+    method: 'POST',
+    body: JSON.stringify({ acao: acao, dados: dados }),
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ acao: acao, dados: dados })
-  }).then(function(){ if (cb) cb(); }).catch(function(){ if (cb) cb(); });
+    redirect: 'follow'
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){
+    try { var res = JSON.parse(t); console.log('Escolinha resposta:', res); } catch(e) {}
+    if (cb) cb();
+  })
+  .catch(function(err){
+    console.error('Erro escolinha:', err);
+    if (cb) cb();
+  });
 }
 
 function toggleFormEscolinha(show) {
