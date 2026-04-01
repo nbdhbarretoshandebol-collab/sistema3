@@ -2,7 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1757">
+<meta name="description" content="Sistema de gestão esportiva — Núcleo Barretense de Desenvolvimento de Habilidades Humanas">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NBDH2 Barretos">
 <title>NBDH2 Barretos — Sistema de Gestão</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -301,6 +306,29 @@ tr:hover td { background: #f8f9fe; }
   .dados-grid, .fotos-grid, .form-grid { grid-template-columns: 1fr; }
   .topbar-title { font-size: 13px; }
   .content { padding: 16px; }
+  .nav-inner { padding: 0 8px; }
+  .nav-btn { padding: 11px 13px; font-size: 13px; }
+  .card-header { flex-direction: column; align-items: flex-start; }
+  .busca-row { flex-direction: column; }
+  .busca-input { width: 100%; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .modal { border-radius: 14px 14px 0 0; margin-top: auto; margin-bottom: 0 !important; }
+  .overlay.aberto { align-items: flex-end; padding: 0; }
+  .escola-grid { grid-template-columns: 1fr; }
+  .rel-grid { grid-template-columns: 1fr; }
+  .agenda-grid { grid-template-columns: 1fr; }
+  .anot-grid { grid-template-columns: 1fr; }
+  .home-cards { grid-template-columns: 1fr 1fr; }
+  .confirm-box { width: 95%; }
+  .page-title { font-size: 18px; margin-bottom: 16px; }
+  .topbar-inner { padding: 8px 14px; }
+  .btn-sair span { display: none; }
+  table { font-size: 12px; }
+  th, td { padding: 8px 10px; }
+}
+@media (max-width: 380px) {
+  .home-cards { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -1172,7 +1200,7 @@ function toggleAprovacao(linha, el) {
   var lbl    = document.getElementById('tog-lbl-' + linha);
   var stBadge = document.getElementById('st-' + linha);
   fetch(SCRIPT_URL, {
-    method: 'POST', mode: 'no-cors',
+    method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ acao: 'editar', dados: { linha: linha, status: novoStatus } })
   })
@@ -1321,7 +1349,7 @@ function salvarEdicaoAtleta() {
   var btn = document.getElementById('ma-btn-salvar');
   btn.textContent = 'Salvando...'; btn.disabled = true;
   fetch(SCRIPT_URL, {
-    method: 'POST', mode: 'no-cors',
+    method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ acao: 'editar', dados: d })
   })
@@ -1407,7 +1435,7 @@ function salvarEvento() {
   var ev = { titulo: titulo, tipo: document.getElementById('ev-tipo').value, data: data, hora: document.getElementById('ev-hora').value, desc: document.getElementById('ev-desc').value, autor: usuarioLogado };
   toggleFormEvento(false);
   ['ev-titulo', 'ev-data', 'ev-hora', 'ev-desc'].forEach(function (id) { document.getElementById(id).value = ''; });
-  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarEvento', dados: ev }) })
+  fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarEvento', dados: ev }) })
     .then(function () { setTimeout(carregarAgenda, 1500); })
     .catch(function () { setTimeout(carregarAgenda, 1500); });
 }
@@ -1486,7 +1514,7 @@ function salvarColaborador() {
   };
   toggleFormColaborador(false);
   ['col-nome', 'col-cargo', 'col-cpf', 'col-cref', 'col-tel', 'col-email'].forEach(function (id) { document.getElementById(id).value = ''; });
-  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarColaborador', dados: col }) })
+  fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarColaborador', dados: col }) })
     .then(function () { setTimeout(carregarEquipe, 1500); })
     .catch(function () { setTimeout(carregarEquipe, 1500); });
 }
@@ -1544,7 +1572,7 @@ function salvarAnot() {
   var anot = { texto: texto, prioridade: document.getElementById('anot-prior').value, autor: usuarioLogado, data: new Date().toLocaleDateString('pt-BR') };
   toggleFormAnot(false);
   document.getElementById('anot-texto').value = '';
-  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarAnotacao', dados: anot }) })
+  fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'adicionarAnotacao', dados: anot }) })
     .then(function () { setTimeout(carregarAnotacoes, 1500); })
     .catch(function () { setTimeout(carregarAnotacoes, 1500); });
 }
@@ -1640,7 +1668,7 @@ function salvarRelacao(rel) {
     professores: JSON.stringify(rel.professores),
     auxiliares: JSON.stringify(rel.auxiliares)
   };
-  fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'salvarRelacao', dados: dados }) });
+  fetch(SCRIPT_URL, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ acao: 'salvarRelacao', dados: dados }) });
 }
 
 function excluirRelacao(id, linha) {
@@ -2507,7 +2535,7 @@ function salvarNovoAtleta() {
   };
 
   fetch(SCRIPT_URL, {
-    method: 'POST', mode: 'no-cors',
+    method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ acao: 'adicionarAtleta', dados: dados })
   })
