@@ -237,62 +237,62 @@ tr:hover td { background: #f8f9fe; }
 .rel-membro-sub { font-size: 12px; color: var(--leve); }
 .rel-membro-rm { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 6px; }
 .rel-membro-rm:hover { background: #fee2e2; }
-.rel-empty { font-size: 13px; color: var(--leve); text-align: center; padding: 12px 0; }
+.local-empty { font-size: 13px; color: var(--leve); text-align: center; padding: 12px 0; }
 .rel-add-row { display: flex; gap: 8px; margin-top: 10px; }
 .rel-add-row select { flex: 1; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
 .rel-add-row select:focus { outline: none; border-color: var(--azul); }
 .rel-card-footer { padding: 12px 18px; border-top: 1px solid var(--borda); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 
-/* ── ESCOLINHAS ── */
-/* ── ESCOLINHAS ── */
-.escola-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; margin-top: 4px; }
-.escola-card { background: white; border-radius: 16px; border: 1px solid var(--borda); overflow: hidden; transition: box-shadow .2s, transform .2s; }
-.escola-card:hover { box-shadow: 0 6px 24px rgba(26,35,126,.13); transform: translateY(-2px); }
-.escola-card-header { background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul) 100%); padding: 18px 20px 14px; }
-.escola-card-titulo { font-family: 'Sora',sans-serif; font-size: 16px; font-weight: 700; color: white; }
-.escola-card-local { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 4px; }
-.escola-card-body { padding: 14px 18px 10px; }
-.escola-card-footer { padding: 10px 18px 14px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--borda); margin-top: 10px; }
-.escola-stats { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-.escola-stat-item { background: rgba(255,255,255,.18); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: rgba(255,255,255,.9); }
-.escola-contadores { display: flex; gap: 10px; margin-top: 4px; }
-.escola-contador { flex: 1; background: var(--azul-cl); border-radius: 10px; padding: 8px 12px; text-align: center; }
-.escola-contador-num { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 700; color: var(--azul); }
-.escola-contador-lbl { font-size: 11px; color: var(--leve); margin-top: 1px; }
-/* Modal escolinha */
-.esc-modal-header { background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul) 100%); padding: 24px 28px; }
-.esc-modal-titulo { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 700; color: white; }
-.esc-modal-local { font-size: 13px; color: rgba(255,255,255,.75); margin-top: 4px; }
-.esc-modal-stats { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.esc-modal-stat { background: rgba(255,255,255,.18); border-radius: 8px; padding: 5px 12px; font-size: 12px; color: white; }
-.esc-modal-body { padding: 22px 26px; max-height: 65vh; overflow-y: auto; }
-.esc-modal-secao { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--leve); margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--borda); }
-.esc-modal-secao:first-child { margin-top: 0; }
-.esc-modal-obs { background: #f6f7fb; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--leve); margin-bottom: 4px; line-height: 1.5; }
-.escola-prof { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f1f8; }
-.escola-prof:last-child { border-bottom: none; }
-.escola-prof-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--amarelo); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--azul-esc); flex-shrink: 0; }
-.escola-prof-info { flex: 1; min-width: 0; }
-.escola-prof-nome { font-size: 14px; font-weight: 500; }
-.escola-prof-cargo { font-size: 12px; color: var(--leve); }
-.escola-atleta { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f0f1f8; flex-wrap: wrap; }
-.escola-atleta:last-child { border-bottom: none; }
-.escola-atleta-nome { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; }
-.escola-atleta-info { font-size: 11px; color: var(--leve); width: 100%; }
-.escola-rm-btn { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 5px; flex-shrink: 0; }
-.escola-rm-btn:hover { background: #fee2e2; }
-.escola-add-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-.escola-add-row select, .escola-add-row input { flex: 1; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
-.escola-add-row select:focus, .escola-add-row input:focus { outline: none; border-color: var(--azul); }
-.escola-atleta:last-child { border-bottom: none; }
-.escola-atleta-nome { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; }
-.escola-atleta-info { font-size: 11px; color: var(--leve); width: 100%; padding-left: 0; }
-.escola-rm-btn { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 5px; flex-shrink: 0; }
-.escola-rm-btn:hover { background: #fee2e2; }
-.escola-add-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-.escola-add-row select, .escola-add-row input { flex: 1; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
-.escola-add-row select:focus, .escola-add-row input:focus { outline: none; border-color: var(--azul); }
-.esc-modal-obs { background: #f6f7fb; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--leve); margin-top: 14px; line-height: 1.5; }
+/* ── localS ── */
+/* ── localS ── */
+.local-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; margin-top: 4px; }
+.local-card { background: white; border-radius: 16px; border: 1px solid var(--borda); overflow: hidden; transition: box-shadow .2s, transform .2s; }
+.local-card:hover { box-shadow: 0 6px 24px rgba(26,35,126,.13); transform: translateY(-2px); }
+.local-card-header { background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul) 100%); padding: 18px 20px 14px; }
+.local-card-titulo { font-family: 'Sora',sans-serif; font-size: 16px; font-weight: 700; color: white; }
+.local-card-local { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 4px; }
+.local-card-body { padding: 14px 18px 10px; }
+.local-card-footer { padding: 10px 18px 14px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--borda); margin-top: 10px; }
+.local-stats { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.local-stat-item { background: rgba(255,255,255,.18); border-radius: 8px; padding: 4px 10px; font-size: 12px; color: rgba(255,255,255,.9); }
+.local-contadores { display: flex; gap: 10px; margin-top: 4px; }
+.local-contador { flex: 1; background: var(--azul-cl); border-radius: 10px; padding: 8px 12px; text-align: center; }
+.local-contador-num { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 700; color: var(--azul); }
+.local-contador-lbl { font-size: 11px; color: var(--leve); margin-top: 1px; }
+/* Modal local */
+.local-modal-header { background: linear-gradient(135deg, var(--azul-esc) 0%, var(--azul) 100%); padding: 24px 28px; }
+.local-modal-titulo { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 700; color: white; }
+.local-modal-local { font-size: 13px; color: rgba(255,255,255,.75); margin-top: 4px; }
+.local-modal-stats { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.local-modal-stat { background: rgba(255,255,255,.18); border-radius: 8px; padding: 5px 12px; font-size: 12px; color: white; }
+.local-modal-body { padding: 22px 26px; max-height: 65vh; overflow-y: auto; }
+.local-modal-secao { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--leve); margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--borda); }
+.local-modal-secao:first-child { margin-top: 0; }
+.local-modal-obs { background: #f6f7fb; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--leve); margin-bottom: 4px; line-height: 1.5; }
+.local-prof { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f1f8; }
+.local-prof:last-child { border-bottom: none; }
+.local-prof-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--amarelo); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--azul-esc); flex-shrink: 0; }
+.local-prof-info { flex: 1; min-width: 0; }
+.local-prof-nome { font-size: 14px; font-weight: 500; }
+.local-prof-cargo { font-size: 12px; color: var(--leve); }
+.local-atleta { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f0f1f8; flex-wrap: wrap; }
+.local-atleta:last-child { border-bottom: none; }
+.local-atleta-nome { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; }
+.local-atleta-info { font-size: 11px; color: var(--leve); width: 100%; }
+.local-rm-btn { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 5px; flex-shrink: 0; }
+.local-rm-btn:hover { background: #fee2e2; }
+.local-add-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.local-add-row select, .local-add-row input { flex: 1; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
+.local-add-row select:focus, .local-add-row input:focus { outline: none; border-color: var(--azul); }
+.local-atleta:last-child { border-bottom: none; }
+.local-atleta-nome { font-size: 13px; font-weight: 500; flex: 1; min-width: 0; }
+.local-atleta-info { font-size: 11px; color: var(--leve); width: 100%; padding-left: 0; }
+.local-rm-btn { background: none; border: none; color: var(--vermelho); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 5px; flex-shrink: 0; }
+.local-rm-btn:hover { background: #fee2e2; }
+.local-add-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+.local-add-row select, .local-add-row input { flex: 1; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--borda); border-radius: 9px; font-size: 13px; font-family: 'DM Sans',sans-serif; color: var(--texto); background: white; }
+.local-add-row select:focus, .local-add-row input:focus { outline: none; border-color: var(--azul); }
+.local-modal-obs { background: #f6f7fb; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--leve); margin-top: 14px; line-height: 1.5; }
 
 /* ── LOADING / VAZIO ── */
 .loading { text-align: center; padding: 40px; color: var(--leve); font-size: 14px; }
@@ -314,7 +314,7 @@ tr:hover td { background: #f8f9fe; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .modal { border-radius: 14px 14px 0 0; margin-top: auto; margin-bottom: 0 !important; }
   .overlay.aberto { align-items: flex-end; padding: 0; }
-  .escola-grid { grid-template-columns: 1fr; }
+  .local-grid { grid-template-columns: 1fr; }
   .rel-grid { grid-template-columns: 1fr; }
   .agenda-grid { grid-template-columns: 1fr; }
   .anot-grid { grid-template-columns: 1fr; }
@@ -377,7 +377,7 @@ tr:hover td { background: #f8f9fe; }
       <button class="nav-btn" onclick="irPara('equipe',this)">👥 Equipe</button>
       <button class="nav-btn" onclick="irPara('anotacoes',this)">📝 Anotações</button>
       <button class="nav-btn" onclick="irPara('relacoes',this)">📋 Relações</button>
-      <button class="nav-btn" onclick="irPara('escolinhas',this)">🏫 Escolinhas</button>
+      <button class="nav-btn" onclick="irPara('locais',this)">🏃 Locais de Treino</button>
     </div>
   </div>
   <div class="content">
@@ -419,10 +419,10 @@ tr:hover td { background: #f8f9fe; }
             <div class="home-card-desc">Registre recados, lembretes e notas internas para a equipe.</div>
             <button class="home-card-btn">Acessar</button>
           </div>
-          <div class="home-card" onclick="irPara('escolinhas', document.querySelectorAll('.nav-btn')[4])">
-            <div class="home-card-icon">🏫</div>
-            <div class="home-card-titulo">Escolinhas</div>
-            <div class="home-card-desc">Organize locais de treino, professores e atletas por escolinha.</div>
+          <div class="home-card" onclick="irPara('locais', document.querySelectorAll('.nav-btn')[4])">
+            <div class="home-card-icon">🏃</div>
+            <div class="home-card-titulo">Locais de Treino</div>
+            <div class="home-card-desc">Crie e gerene os locais onde os atletas treinam. Acompanhe atletas por local.</div>
             <button class="home-card-btn">Acessar</button>
           </div>
         </div>
@@ -657,49 +657,49 @@ tr:hover td { background: #f8f9fe; }
       </div>
     </div>
 
-    <!-- ══ ESCOLINHAS ══ -->
-    <div class="pagina" id="pag-escolinhas">
-      <div class="page-title">Escolinhas</div>
-      <div class="form-inline" id="form-escolinha" style="display:none">
+    <!-- ══ LOCAIS DE TREINO ══ -->
+    <div class="pagina" id="pag-locais">
+      <div class="page-title">Locais de Treino</div>
+      <div class="form-inline" id="form-local" style="display:none">
         <div class="form-grid">
           <div class="form-group-i">
-            <label>Nome da Escolinha *</label>
-            <input type="text" id="esc-nome" placeholder="Ex: Escolinha Centro, Núcleo Norte...">
+            <label>Nome do Local *</label>
+            <input type="text" id="local-nome" placeholder="Ex: local Centro, Núcleo Norte...">
           </div>
           <div class="form-group-i">
             <label>Endereço / Local</label>
-            <input type="text" id="esc-endereco" placeholder="Ex: Ginásio Municipal, Rua das Flores, 100">
+            <input type="text" id="local-endereco" placeholder="Ex: Ginásio Municipal, Rua das Flores, 100">
           </div>
           <div class="form-group-i">
             <label>Modalidade</label>
-            <select id="esc-modalidade">
+            <select id="local-modalidade">
               <option value="">Todas</option>
               <option>Handebol</option><option>Xadrez</option><option>Vôlei</option>
             </select>
           </div>
           <div class="form-group-i">
             <label>Dias de treino</label>
-            <input type="text" id="esc-dias" placeholder="Ex: Seg, Qua, Sex">
+            <input type="text" id="local-dias" placeholder="Ex: Seg, Qua, Sex">
           </div>
           <div class="form-group-i">
             <label>Horário</label>
-            <input type="text" id="esc-horario" placeholder="Ex: 08h00 – 10h00">
+            <input type="text" id="local-horario" placeholder="Ex: 08h00 – 10h00">
           </div>
           <div class="form-group-i">
             <label>Observações</label>
-            <input type="text" id="esc-obs" placeholder="Observações gerais...">
+            <input type="text" id="local-obs" placeholder="Observações gerais...">
           </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:4px">
-          <button class="btn btn-success" onclick="salvarEscolinha()">✓ Salvar escolinha</button>
-          <button class="btn btn-ghost" onclick="toggleFormEscolinha(false)">Cancelar</button>
+          <button class="btn btn-success" onclick="salvarLocal()">✓ Salvar local</button>
+          <button class="btn btn-ghost" onclick="toggleFormLocal(false)">Cancelar</button>
         </div>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="btn btn-amarelo" onclick="toggleFormEscolinha(true)">+ Nova escolinha</button>
+        <button class="btn btn-amarelo" onclick="toggleFormLocal(true)">+ Novo local</button>
       </div>
-      <div id="lista-escolinhas">
-        <div class="vazio"><div class="vazio-icon">🏫</div>Nenhuma escolinha cadastrada ainda.</div>
+      <div id="lista-locais">
+        <div class="vazio"><div class="vazio-icon">🏃</div>Nenhum local cadastrado ainda.</div>
       </div>
     </div>
 
@@ -983,7 +983,7 @@ function mostrarApp() {
 
   carregarAgenda();
   carregarAnotacoes();
-  carregarEscolinhas();
+  carregarLocais();
 }
 
 function logout() {
@@ -1731,7 +1731,7 @@ function renderSecaoRelacao(rel, idx, tipo, label, emoji, bgCor, txtCor, opcoes)
         + '</div>';
     });
   } else {
-    h += '<div class="rel-empty">Nenhum ' + label.toLowerCase() + ' adicionado</div>';
+    h += '<div class="local-empty">Nenhum ' + label.toLowerCase() + ' adicionado</div>';
   }
   h += '<div class="rel-add-row"><select id="sel-' + tipo + '-' + idx + '" onchange="addMembroRelacao(' + idx + ',\'' + tipo + '\')">' + opcoes + '</select></div>';
   return h;
@@ -2571,25 +2571,25 @@ function fecharConfirm() {
 }
 
 // ══════════════════════════════════════════════════
-// ESCOLINHAS — Google Sheets
+// localS — Google Sheets
 // ══════════════════════════════════════════════════
-var todasEscolinhas = [];
+var todosLocais = [];
 
-function carregarEscolinhas() {
-  var container = document.getElementById('lista-escolinhas');
-  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando escolinhas...</div>';
-  fetch(SCRIPT_URL + '?acao=listarEscolinhas')
+function carregarLocais() {
+  var container = document.getElementById('lista-locals');
+  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando locals...</div>';
+  fetch(SCRIPT_URL + '?acao=listarlocals')
     .then(function(r){ return r.text(); })
     .then(function(t){
       var inicio = t.indexOf('{');
       if (inicio > 0) t = t.substring(inicio);
-      todasEscolinhas = JSON.parse(t).escolinhas || [];
-      renderEscolinhas();
+      todosLocais = JSON.parse(t).locals || [];
+      renderLocais();
     })
-    .catch(function(){ renderEscolinhas(); });
+    .catch(function(){ renderLocais(); });
 }
 
-function _postEscolinha(acao, dados, cb) {
+function _postLocal(acao, dados, cb) {
   fetch(SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({ acao: acao, dados: dados }),
@@ -2598,20 +2598,20 @@ function _postEscolinha(acao, dados, cb) {
   })
   .then(function(r){ return r.text(); })
   .then(function(t){
-    try { var res = JSON.parse(t); console.log('Escolinha resposta:', res); } catch(e) {}
+    try { var res = JSON.parse(t); console.log('local resposta:', res); } catch(e) {}
     if (cb) cb();
   })
   .catch(function(err){
-    console.error('Erro escolinha:', err);
+    console.error('Erro local:', err);
     if (cb) cb();
   });
 }
 
-function toggleFormEscolinha(show) {
-  var f = document.getElementById('form-escolinha');
+function toggleFormLocal(show) {
+  var f = document.getElementById('form-local');
   if (show) {
     ['esc-nome','esc-endereco','esc-dias','esc-horario','esc-obs'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('esc-modalidade').value = '';
+    document.getElementById('local-modalidade').value = '';
     f.style.display = 'block';
     setTimeout(function(){ document.getElementById('esc-nome').focus(); }, 100);
   } else {
@@ -2619,66 +2619,66 @@ function toggleFormEscolinha(show) {
   }
 }
 
-function salvarEscolinha() {
+function salvarLocal() {
   var nome = document.getElementById('esc-nome').value.trim();
-  if (!nome) { alert('O nome da escolinha é obrigatório.'); return; }
+  if (!nome) { alert('O nome da local é obrigatório.'); return; }
   var nova = {
     id: Date.now(),
     nome: nome,
     endereco: document.getElementById('esc-endereco').value.trim(),
-    modalidade: document.getElementById('esc-modalidade').value,
+    modalidade: document.getElementById('local-modalidade').value,
     dias: document.getElementById('esc-dias').value.trim(),
     horario: document.getElementById('esc-horario').value.trim(),
     obs: document.getElementById('esc-obs').value.trim(),
     professores: [],
     atletas: []
   };
-  todasEscolinhas.unshift(nova);
-  toggleFormEscolinha(false);
-  renderEscolinhas();
-  _postEscolinha('salvarEscolinha', nova, function(){
-    setTimeout(carregarEscolinhas, 2000);
+  todosLocais.unshift(nova);
+  toggleFormLocal(false);
+  renderLocais();
+  _postLocal('salvarLocal', nova, function(){
+    setTimeout(carregarLocais, 2000);
   });
 }
 
-function excluirEscolinha(id) {
-  abrirConfirm('Excluir Escolinha', 'Esta ação não pode ser desfeita. Deseja continuar?', function() {
-    fecharModalEscolinha();
-    todasEscolinhas = todasEscolinhas.filter(function(e){ return String(e.id) !== String(id); });
-    renderEscolinhas();
-    _postEscolinha('excluirEscolinha', { id: id }, function(){
-      setTimeout(carregarEscolinhas, 2000);
+function excluirLocal(id) {
+  abrirConfirm('Excluir local', 'Esta ação não pode ser desfeita. Deseja continuar?', function() {
+    fecharModalLocal();
+    todosLocais = todosLocais.filter(function(e){ return String(e.id) !== String(id); });
+    renderLocais();
+    _postLocal('excluirLocal', { id: id }, function(){
+      setTimeout(carregarLocais, 2000);
     });
   });
 }
 
-function adicionarProfEscolinha(id) {
+function adicionarProf Local(id) {
   var sel = document.getElementById('sel-prof-' + id);
   var val = sel ? sel.value.trim() : '';
   if (!val) return;
-  var esc = todasEscolinhas.find(function(e){ return String(e.id) === String(id); });
+  var esc = todosLocais.find(function(e){ return String(e.id) === String(id); });
   if (!esc) return;
   if (!esc.professores) esc.professores = [];
   if (esc.professores.some(function(p){ return p.nome === val; })) { sel.value=''; return; }
   esc.professores.push({ nome: val, cargo: 'Professor(a)' });
   sel.value = '';
-  renderModalBody(esc);
-  _postEscolinha('atualizarEscolinha', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
+  renderModalBodyLocal(esc);
+  _postLocal('atualizarLocalTreino', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
 }
 
-function removerProfEscolinha(escId, profNome) {
-  var esc = todasEscolinhas.find(function(e){ return String(e.id) === String(escId); });
+function removerProfLocal(escId, profNome) {
+  var esc = todosLocais.find(function(e){ return String(e.id) === String(escId); });
   if (!esc) return;
   esc.professores = (esc.professores || []).filter(function(p){ return p.nome !== profNome; });
-  renderModalBody(esc);
-  _postEscolinha('atualizarEscolinha', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
+  renderModalBodyLocal(esc);
+  _postLocal('atualizarLocalTreino', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
 }
 
-function adicionarAtletaEscolinha(id) {
+function adicionarAtletaLocal(id) {
   var sel = document.getElementById('sel-atleta-' + id);
   var val = sel ? sel.value.trim() : '';
   if (!val) return;
-  var esc = todasEscolinhas.find(function(e){ return String(e.id) === String(id); });
+  var esc = todosLocais.find(function(e){ return String(e.id) === String(id); });
   if (!esc) return;
   if (!esc.atletas) esc.atletas = [];
   if (esc.atletas.some(function(a){ return a.nome === val; })) { sel.value=''; return; }
@@ -2686,40 +2686,40 @@ function adicionarAtletaEscolinha(id) {
   var info = atletaObj ? [(atletaObj.modalidade||''), (atletaObj.categoria||'')].filter(Boolean).join(' · ') : '';
   esc.atletas.push({ nome: val, info: info });
   sel.value = '';
-  renderModalBody(esc);
-  _postEscolinha('atualizarEscolinha', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
+  renderModalBodyLocal(esc);
+  _postLocal('atualizarLocalTreino', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
 }
 
-function removerAtletaEscolinha(escId, atletaNome) {
-  var esc = todasEscolinhas.find(function(e){ return String(e.id) === String(escId); });
+function removerAtletaLocal(escId, atletaNome) {
+  var esc = todosLocais.find(function(e){ return String(e.id) === String(escId); });
   if (!esc) return;
   esc.atletas = (esc.atletas || []).filter(function(a){ return a.nome !== atletaNome; });
-  renderModalBody(esc);
-  _postEscolinha('atualizarEscolinha', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
+  renderModalBodyLocal(esc);
+  _postLocal('atualizarLocalTreino', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
 }
 
-function abrirModalEscolinha(id) {
-  var esc = todasEscolinhas.find(function(e){ return String(e.id) === String(id); });
+function abrirModalLocal(id) {
+  var esc = todosLocais.find(function(e){ return String(e.id) === String(id); });
   if (!esc) return;
-  document.getElementById('esc-modal-titulo').textContent = '🏫 ' + esc.nome;
-  document.getElementById('esc-modal-local').textContent = esc.endereco ? '📍 ' + esc.endereco : '';
+  document.getElementById('local-modal-titulo').textContent = '🏫 ' + esc.nome;
+  document.getElementById('local-modal-local').textContent = esc.endereco ? '📍 ' + esc.endereco : '';
   var stats = '';
-  if (esc.modalidade) stats += '<span class="esc-modal-stat">🏅 ' + esc.modalidade + '</span>';
-  if (esc.dias)       stats += '<span class="esc-modal-stat">📆 ' + esc.dias + '</span>';
-  if (esc.horario)    stats += '<span class="esc-modal-stat">⏰ ' + esc.horario + '</span>';
-  stats += '<span class="esc-modal-stat">👥 ' + (esc.atletas||[]).length + ' atleta' + ((esc.atletas||[]).length !== 1 ? 's' : '') + '</span>';
-  document.getElementById('esc-modal-stats').innerHTML = stats;
-  document.getElementById('esc-modal-excluir').onclick = function(){ excluirEscolinha(id); };
-  renderModalBody(esc);
-  document.getElementById('overlay-escolinha').classList.add('aberto');
+  if (esc.modalidade) stats += '<span class="local-modal-stat">🏅 ' + esc.modalidade + '</span>';
+  if (esc.dias)       stats += '<span class="local-modal-stat">📆 ' + esc.dias + '</span>';
+  if (esc.horario)    stats += '<span class="local-modal-stat">⏰ ' + esc.horario + '</span>';
+  stats += '<span class="local-modal-stat">👥 ' + (esc.atletas||[]).length + ' atleta' + ((esc.atletas||[]).length !== 1 ? 's' : '') + '</span>';
+  document.getElementById('local-modal-stats').innerHTML = stats;
+  document.getElementById('local-modal-excluir').onclick = function(){ excluirLocal(id); };
+  renderModalBodyLocal(esc);
+  document.getElementById('overlay-local').classList.add('aberto');
 }
 
-function fecharModalEscolinha() {
-  document.getElementById('overlay-escolinha').classList.remove('aberto');
-  renderEscolinhas();
+function fecharModalLocal() {
+  document.getElementById('overlay-local').classList.remove('aberto');
+  renderLocais();
 }
 
-function renderModalBody(esc) {
+function renderModalBodyLocal(esc) {
   var profs = esc.professores || [];
   var atletas = esc.atletas || [];
   var listaColab = (todaEquipe || []).map(function(c){ return c.nome; }).filter(Boolean);
@@ -2727,23 +2727,23 @@ function renderModalBody(esc) {
   var atletaOptions = (todosAtletas || []).filter(function(a){ return a.nome && !atletas.some(function(x){ return x.nome === a.nome; }); });
 
   var html = '';
-  if (esc.obs) html += '<div class="esc-modal-obs">💬 ' + esc.obs + '</div>';
+  if (esc.obs) html += '<div class="local-modal-obs">💬 ' + esc.obs + '</div>';
 
   // Professores
-  html += '<div class="esc-modal-secao">👨‍🏫 Professores (' + profs.length + ')</div>';
+  html += '<div class="local-modal-secao">👨‍🏫 Professores (' + profs.length + ')</div>';
   if (profs.length) {
     profs.forEach(function(p) {
       var initials = p.nome.split(' ').slice(0,2).map(function(w){ return w[0]; }).join('').toUpperCase();
-      html += '<div class="escola-prof">';
-      html += '<div class="escola-prof-avatar">' + initials + '</div>';
-      html += '<div class="escola-prof-info"><div class="escola-prof-nome">' + p.nome + '</div><div class="escola-prof-cargo">' + (p.cargo||'Professor(a)') + '</div></div>';
-      html += '<button class="escola-rm-btn" onclick="removerProfEscolinha(' + esc.id + ',\'' + p.nome.replace(/'/g,"\\'") + '\')">×</button>';
+      html += '<div class="local-prof">';
+      html += '<div class="local-prof-avatar">' + initials + '</div>';
+      html += '<div class="local-prof-info"><div class="local-prof-nome">' + p.nome + '</div><div class="local-prof-cargo">' + (p.cargo||'Professor(a)') + '</div></div>';
+      html += '<button class="local-rm-btn" onclick="removerProfLocal(' + esc.id + ',\'' + p.nome.replace(/'/g,"\\'") + '\')">×</button>';
       html += '</div>';
     });
   } else {
-    html += '<div class="rel-empty">Nenhum professor vinculado.</div>';
+    html += '<div class="local-empty">Nenhum professor vinculado.</div>';
   }
-  html += '<div class="escola-add-row">';
+  html += '<div class="local-add-row">';
   if (profOptions.length) {
     html += '<select id="sel-prof-' + esc.id + '"><option value="">— Selecionar professor —</option>';
     profOptions.forEach(function(n){ html += '<option value="' + n.replace(/"/g,'&quot;') + '">' + n + '</option>'; });
@@ -2751,62 +2751,62 @@ function renderModalBody(esc) {
   } else {
     html += '<input type="text" id="sel-prof-' + esc.id + '" placeholder="Nome do professor...">';
   }
-  html += '<button class="btn btn-ghost btn-sm" onclick="adicionarProfEscolinha(' + esc.id + ')">+ Adicionar</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="adicionarProf Local(' + esc.id + ')">+ Adicionar</button>';
   html += '</div>';
 
   // Atletas
-  html += '<div class="esc-modal-secao">🏃 Atletas (' + atletas.length + ')</div>';
+  html += '<div class="local-modal-secao">🏃 Atletas (' + atletas.length + ')</div>';
   if (atletas.length) {
     atletas.forEach(function(a) {
-      html += '<div class="escola-atleta">';
-      html += '<div class="escola-atleta-nome">' + a.nome + '</div>';
-      if (a.info) html += '<div class="escola-atleta-info">' + a.info + '</div>';
-      html += '<button class="escola-rm-btn" onclick="removerAtletaEscolinha(' + esc.id + ',\'' + a.nome.replace(/'/g,"\\'") + '\')">×</button>';
+      html += '<div class="local-atleta">';
+      html += '<div class="local-atleta-nome">' + a.nome + '</div>';
+      if (a.info) html += '<div class="local-atleta-info">' + a.info + '</div>';
+      html += '<button class="local-rm-btn" onclick="removerAtletaLocal(' + esc.id + ',\'' + a.nome.replace(/'/g,"\\'") + '\')">×</button>';
       html += '</div>';
     });
   } else {
-    html += '<div class="rel-empty">Nenhum atleta vinculado.</div>';
+    html += '<div class="local-empty">Nenhum atleta vinculado.</div>';
   }
-  html += '<div class="escola-add-row">';
+  html += '<div class="local-add-row">';
   html += '<select id="sel-atleta-' + esc.id + '"><option value="">— Selecionar atleta —</option>';
   atletaOptions.forEach(function(a){ html += '<option value="' + a.nome.replace(/"/g,'&quot;') + '">' + a.nome + (a.modalidade ? ' (' + a.modalidade + ')' : '') + '</option>'; });
   html += '</select>';
-  html += '<button class="btn btn-ghost btn-sm" onclick="adicionarAtletaEscolinha(' + esc.id + ')">+ Adicionar</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="adicionarAtletaLocal(' + esc.id + ')">+ Adicionar</button>';
   html += '</div>';
 
-  document.getElementById('esc-modal-body').innerHTML = html;
+  document.getElementById('local-modal-body').innerHTML = html;
 }
 
-function renderEscolinhas() {
-  var container = document.getElementById('lista-escolinhas');
+function renderLocais() {
+  var container = document.getElementById('lista-locals');
   if (!container) return;
-  if (!todasEscolinhas.length) {
-    container.innerHTML = '<div class="vazio"><div class="vazio-icon">🏫</div>Nenhuma escolinha cadastrada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova escolinha" para começar.</small></div>';
+  if (!todosLocais.length) {
+    container.innerHTML = '<div class="vazio"><div class="vazio-icon">🏫</div>Nenhuma local cadastrada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova local" para começar.</small></div>';
     return;
   }
-  var html = '<div class="escola-grid">';
-  todasEscolinhas.forEach(function(esc) {
+  var html = '<div class="local-grid">';
+  todosLocais.forEach(function(esc) {
     var atletas = esc.atletas || [];
     var profs = esc.professores || [];
-    html += '<div class="escola-card">';
-    html += '<div class="escola-card-header">';
-    html += '<div class="escola-card-titulo">🏫 ' + esc.nome + '</div>';
-    if (esc.endereco) html += '<div class="escola-card-local">📍 ' + esc.endereco + '</div>';
-    html += '<div class="escola-stats">';
-    if (esc.modalidade) html += '<span class="escola-stat-item">🏅 ' + esc.modalidade + '</span>';
-    if (esc.dias)       html += '<span class="escola-stat-item">📆 ' + esc.dias + '</span>';
-    if (esc.horario)    html += '<span class="escola-stat-item">⏰ ' + esc.horario + '</span>';
+    html += '<div class="local-card">';
+    html += '<div class="local-card-header">';
+    html += '<div class="local-card-titulo">🏫 ' + esc.nome + '</div>';
+    if (esc.endereco) html += '<div class="local-card-local">📍 ' + esc.endereco + '</div>';
+    html += '<div class="local-stats">';
+    if (esc.modalidade) html += '<span class="local-stat-item">🏅 ' + esc.modalidade + '</span>';
+    if (esc.dias)       html += '<span class="local-stat-item">📆 ' + esc.dias + '</span>';
+    if (esc.horario)    html += '<span class="local-stat-item">⏰ ' + esc.horario + '</span>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="escola-card-body">';
-    html += '<div class="escola-contadores">';
-    html += '<div class="escola-contador"><div class="escola-contador-num">' + profs.length + '</div><div class="escola-contador-lbl">Professores</div></div>';
-    html += '<div class="escola-contador"><div class="escola-contador-num">' + atletas.length + '</div><div class="escola-contador-lbl">Atletas</div></div>';
+    html += '<div class="local-card-body">';
+    html += '<div class="local-contadores">';
+    html += '<div class="local-contador"><div class="local-contador-num">' + profs.length + '</div><div class="local-contador-lbl">Professores</div></div>';
+    html += '<div class="local-contador"><div class="local-contador-num">' + atletas.length + '</div><div class="local-contador-lbl">Atletas</div></div>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="escola-card-footer">';
-    html += '<button class="btn btn-danger btn-sm" onclick="excluirEscolinha(' + esc.id + ')">🗑 Excluir</button>';
-    html += '<button class="btn btn-primary btn-sm" onclick="abrirModalEscolinha(' + esc.id + ')">👁 Ver</button>';
+    html += '<div class="local-card-footer">';
+    html += '<button class="btn btn-danger btn-sm" onclick="excluirLocal(' + esc.id + ')">🗑 Excluir</button>';
+    html += '<button class="btn btn-primary btn-sm" onclick="abrirModalLocal(' + esc.id + ')">👁 Ver</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -2816,23 +2816,23 @@ function renderEscolinhas() {
 
 </script>
 
-<!-- Modal detalhes escolinha -->
-<div class="overlay" id="overlay-escolinha">
+<!-- Modal detalhes local -->
+<div class="overlay" id="overlay-local">
   <div class="modal" style="max-width:680px">
-    <div class="esc-modal-header">
+    <div class="local-modal-header">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
         <div>
-          <div class="esc-modal-titulo" id="esc-modal-titulo"></div>
-          <div class="esc-modal-local" id="esc-modal-local"></div>
+          <div class="local-modal-titulo" id="local-modal-titulo"></div>
+          <div class="local-modal-local" id="local-modal-local"></div>
         </div>
-        <button class="modal-close" onclick="fecharModalEscolinha()">×</button>
+        <button class="modal-close" onclick="fecharModalLocal()">×</button>
       </div>
-      <div class="esc-modal-stats" id="esc-modal-stats"></div>
+      <div class="local-modal-stats" id="local-modal-stats"></div>
     </div>
-    <div class="esc-modal-body" id="esc-modal-body"></div>
+    <div class="local-modal-body" id="local-modal-body"></div>
     <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="esc-modal-excluir">🗑 Excluir</button>
-      <button class="btn btn-ghost" onclick="fecharModalEscolinha()">Fechar</button>
+      <button class="btn btn-danger btn-sm" id="local-modal-excluir">🗑 Excluir</button>
+      <button class="btn btn-ghost" onclick="fecharModalLocal()">Fechar</button>
     </div>
   </div>
 </div>
