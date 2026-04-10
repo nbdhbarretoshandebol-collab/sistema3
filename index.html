@@ -349,9 +349,9 @@ tr:hover td { background: #f8f9fe; }
     </div>
     <div class="form-group">
       <label>Senha</label>
-      <input type="password" id="login-pass" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLogin()">
+      <input type="password" id="login-pass" placeholder="Sua senha" autocomplete="current-password">
     </div>
-    <button class="btn-login" id="btn-login" onclick="fazerLogin()">Entrar</button>
+    <button class="btn-login" id="btn-login">Entrar</button>
     <div class="login-erro" id="login-erro" style="display:none">Usuário ou senha incorretos</div>
   </div>
 </div>
@@ -853,6 +853,30 @@ tr:hover td { background: #f8f9fe; }
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════════
 var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvXWWN-OrsoTu3SCNZMkrmwq-Yp3qeNR89C0fXCqZSXrEfOFqfpWnH9G5SQoyiWSKGgw/exec';
+
+// Garantir que o botão de login funciona quando o DOM está pronto
+document.addEventListener('DOMContentLoaded', function() {
+  var btnLogin = document.getElementById('btn-login');
+  var loginPass = document.getElementById('login-pass');
+  
+  // Listener para o botão
+  if (btnLogin) {
+    btnLogin.addEventListener('click', function(e) {
+      e.preventDefault();
+      fazerLogin();
+    });
+  }
+  
+  // Listener para tecla Enter no campo de senha
+  if (loginPass) {
+    loginPass.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        fazerLogin();
+      }
+    });
+  }
+});
 
 // ══════════════════════════════════════════════════
 // ESTADO GLOBAL
