@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d1757">
 <meta name="description" content="Sistema de gestão esportiva — Núcleo Barretense de Desenvolvimento de Habilidades Humanas">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NBDH2 Barretos">
 <title>NBDH2 Barretos — Sistema de Gestão</title>
@@ -2676,7 +2676,7 @@ function excluirLocal(id) {
   });
 }
 
-function adicionarProf Local(id) {
+function adicionarProfLocal(id) {
   var sel = document.getElementById('sel-prof-' + id);
   var val = sel ? sel.value.trim() : '';
   if (!val) return;
@@ -2775,7 +2775,7 @@ function renderModalBodyLocal(esc) {
   } else {
     html += '<input type="text" id="sel-prof-' + esc.id + '" placeholder="Nome do professor...">';
   }
-  html += '<button class="btn btn-ghost btn-sm" onclick="adicionarProf Local(' + esc.id + ')">+ Adicionar</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="adicionarProfLocal(' + esc.id + ')">+ Adicionar</button>';
   html += '</div>';
 
   // Atletas
