@@ -2634,26 +2634,33 @@ function _postLocal(acao, dados, cb) {
 function toggleFormLocal(show) {
   var f = document.getElementById('form-local');
   if (show) {
-    ['esc-nome','esc-endereco','esc-dias','esc-horario','esc-obs'].forEach(function(id){ document.getElementById(id).value=''; });
-    document.getElementById('local-modalidade').value = '';
+    ['local-nome','local-endereco','local-dias','local-horario','local-obs'].forEach(function(id){ 
+      var elem = document.getElementById(id);
+      if (elem) elem.value = '';
+    });
+    var modalElem = document.getElementById('local-modalidade');
+    if (modalElem) modalElem.value = '';
     f.style.display = 'block';
-    setTimeout(function(){ document.getElementById('esc-nome').focus(); }, 100);
+    setTimeout(function(){ 
+      var nomeElem = document.getElementById('local-nome');
+      if (nomeElem) nomeElem.focus(); 
+    }, 100);
   } else {
     f.style.display = 'none';
   }
 }
 
 function salvarLocal() {
-  var nome = document.getElementById('esc-nome').value.trim();
+  var nome = document.getElementById('local-nome').value.trim();
   if (!nome) { alert('O nome da local é obrigatório.'); return; }
   var nova = {
     id: Date.now(),
     nome: nome,
-    endereco: document.getElementById('esc-endereco').value.trim(),
+    endereco: document.getElementById('local-endereco').value.trim(),
     modalidade: document.getElementById('local-modalidade').value,
-    dias: document.getElementById('esc-dias').value.trim(),
-    horario: document.getElementById('esc-horario').value.trim(),
-    obs: document.getElementById('esc-obs').value.trim(),
+    dias: document.getElementById('local-dias').value.trim(),
+    horario: document.getElementById('local-horario').value.trim(),
+    obs: document.getElementById('local-obs').value.trim(),
     professores: [],
     atletas: []
   };
