@@ -2601,16 +2601,39 @@ var todosLocais = [];
 
 function carregarLocais() {
   var container = document.getElementById('lista-locals');
-  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando locals...</div>';
-  fetch(SCRIPT_URL + '?acao=listarlocals')
+  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando locais...</div>';
+  fetch(SCRIPT_URL + '?acao=listarLocaisTreino')  // ✅ CORRETO: listarLocaisTreino
     .then(function(r){ return r.text(); })
     .then(function(t){
       var inicio = t.indexOf('{');
       if (inicio > 0) t = t.substring(inicio);
-      todosLocais = JSON.parse(t).locals || [];
+      var dados = JSON.parse(t);
+      console.log('Dados carregados:', dados);
+      
+      // Converter atletas (strings ou arrays) para objetos com .nome
+      todosLocais = (dados.locais || []).map(function(local) {
+        if (local.atletas && Array.isArray(local.atletas)) {
+          local.atletas = local.atletas.map(function(a) {
+            if (typeof a === 'string') {
+              return { nome: a, info: local.modalidade || '' };
+            }
+            return a;
+          });
+        } else {
+          local.atletas = [];
+        }
+        
+        if (!local.professores) local.professores = [];
+        
+        return local;
+      });
+      
       renderLocais();
     })
-    .catch(function(){ renderLocais(); });
+    .catch(function(err){ 
+      console.error('Erro ao carregar locais:', err);
+      renderLocais(); 
+    });
 }
 
 function _postLocal(acao, dados, cb) {
@@ -2652,22 +2675,17 @@ function toggleFormLocal(show) {
 
 function salvarLocal() {
   var nome = document.getElementById('local-nome').value.trim();
-  if (!nome) { alert('O nome da local é obrigatório.'); return; }
+  if (!nome) { alert('O nome do local é obrigatório.'); return; }
   var nova = {
-    id: Date.now(),
     nome: nome,
     endereco: document.getElementById('local-endereco').value.trim(),
     modalidade: document.getElementById('local-modalidade').value,
     dias: document.getElementById('local-dias').value.trim(),
     horario: document.getElementById('local-horario').value.trim(),
-    obs: document.getElementById('local-obs').value.trim(),
-    professores: [],
-    atletas: []
+    obs: document.getElementById('local-obs').value.trim()
   };
-  todosLocais.unshift(nova);
   toggleFormLocal(false);
-  renderLocais();
-  _postLocal('salvarLocal', nova, function(){
+  _postLocal('salvarLocalTreino', nova, function(){  // ✅ CORRETO: salvarLocalTreino
     setTimeout(carregarLocais, 2000);
   });
 }
@@ -2675,9 +2693,7 @@ function salvarLocal() {
 function excluirLocal(id) {
   abrirConfirm('Excluir local', 'Esta ação não pode ser desfeita. Deseja continuar?', function() {
     fecharModalLocal();
-    todosLocais = todosLocais.filter(function(e){ return String(e.id) !== String(id); });
-    renderLocais();
-    _postLocal('excluirLocal', { id: id }, function(){
+    _postLocal('excluirLocalTreino', { id: id }, function(){  // ✅ CORRETO: excluirLocalTreino
       setTimeout(carregarLocais, 2000);
     });
   });
@@ -2718,7 +2734,10 @@ function adicionarAtletaLocal(id) {
   esc.atletas.push({ nome: val, info: info });
   sel.value = '';
   renderModalBodyLocal(esc);
-  _postLocal('atualizarLocalTreino', { id: id, professores: esc.professores, atletas: esc.atletas }, null);
+  
+  // Converter atletasObjects para strings para enviar ao servidor
+  var atletas_strings = esc.atletas.map(function(a) { return a.nome; });
+  _postLocal('atualizarLocalTreino', { id: id, professores: esc.professores, atletas: atletas_strings }, null);
 }
 
 function removerAtletaLocal(escId, atletaNome) {
@@ -2726,7 +2745,10 @@ function removerAtletaLocal(escId, atletaNome) {
   if (!esc) return;
   esc.atletas = (esc.atletas || []).filter(function(a){ return a.nome !== atletaNome; });
   renderModalBodyLocal(esc);
-  _postLocal('atualizarLocalTreino', { id: escId, professores: esc.professores, atletas: esc.atletas }, null);
+  
+  // Converter atletas objects para strings
+  var atletas_strings = esc.atletas.map(function(a) { return a.nome; });
+  _postLocal('atualizarLocalTreino', { id: escId, professores: esc.professores, atletas: atletas_strings }, null);
 }
 
 function abrirModalLocal(id) {
