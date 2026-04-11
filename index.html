@@ -2602,6 +2602,7 @@ var todosLocais = [];
 function carregarLocais() {
   var container = document.getElementById('lista-locals');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando locais...</div>';
+  
   fetch(SCRIPT_URL + '?acao=listarLocaisTreino')  // ✅ CORRETO: listarLocaisTreino
     .then(function(r){ return r.text(); })
     .then(function(t){
@@ -2628,10 +2629,12 @@ function carregarLocais() {
         return local;
       });
       
+      console.log('Locais processados:', todosLocais);
       renderLocais();
     })
     .catch(function(err){ 
       console.error('Erro ao carregar locais:', err);
+      alert('Erro ao carregar locais. Atualize a página.');
       renderLocais(); 
     });
 }
@@ -2685,16 +2688,28 @@ function salvarLocal() {
     obs: document.getElementById('local-obs').value.trim()
   };
   toggleFormLocal(false);
+  // Mostrar que está salvando
+  var container = document.getElementById('lista-locals');
+  if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Salvando local...</div>';
+  
   _postLocal('salvarLocalTreino', nova, function(){  // ✅ CORRETO: salvarLocalTreino
-    setTimeout(carregarLocais, 2000);
+    // Aguardar 3 segundos para garantir que o Apps Script processou
+    setTimeout(function() {
+      carregarLocais();
+    }, 3000);
   });
 }
 
 function excluirLocal(id) {
   abrirConfirm('Excluir local', 'Esta ação não pode ser desfeita. Deseja continuar?', function() {
     fecharModalLocal();
+    var container = document.getElementById('lista-locals');
+    if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Excluindo local...</div>';
+    
     _postLocal('excluirLocalTreino', { id: id }, function(){  // ✅ CORRETO: excluirLocalTreino
-      setTimeout(carregarLocais, 2000);
+      setTimeout(function() {
+        carregarLocais();
+      }, 3000);
     });
   });
 }
