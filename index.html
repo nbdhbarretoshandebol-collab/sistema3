@@ -2600,7 +2600,7 @@ function fecharConfirm() {
 var todosLocais = [];
 
 function carregarLocais() {
-  var container = document.getElementById('lista-locals');
+  var container = document.getElementById('lista-locais');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Carregando locais...</div>';
   
   fetch(SCRIPT_URL + '?acao=listarLocaisTreino')  // ✅ CORRETO: listarLocaisTreino
@@ -2689,7 +2689,7 @@ function salvarLocal() {
   };
   toggleFormLocal(false);
   // Mostrar que está salvando
-  var container = document.getElementById('lista-locals');
+  var container = document.getElementById('lista-locais');
   if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Salvando local...</div>';
   
   _postLocal('salvarLocalTreino', nova, function(){  // ✅ CORRETO: salvarLocalTreino
@@ -2703,7 +2703,7 @@ function salvarLocal() {
 function excluirLocal(id) {
   abrirConfirm('Excluir local', 'Esta ação não pode ser desfeita. Deseja continuar?', function() {
     fecharModalLocal();
-    var container = document.getElementById('lista-locals');
+    var container = document.getElementById('lista-locais');
     if (container) container.innerHTML = '<div class="loading"><div class="spinner"></div>Excluindo local...</div>';
     
     _postLocal('excluirLocalTreino', { id: id }, function(){  // ✅ CORRETO: excluirLocalTreino
@@ -2846,7 +2846,7 @@ function renderModalBodyLocal(esc) {
 }
 
 function renderLocais() {
-  var container = document.getElementById('lista-locals');
+  var container = document.getElementById('lista-locais');
   if (!container) return;
   if (!todosLocais.length) {
     container.innerHTML = '<div class="vazio"><div class="vazio-icon">🏫</div>Nenhuma local cadastrada ainda.<br><small style="color:var(--leve)">Clique em "+ Nova local" para começar.</small></div>';
