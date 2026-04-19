@@ -1247,18 +1247,38 @@ function toggleAprovacao(linha, el) {
 function abrirAtleta(linha) {
   linhaAtleta = linha;
   document.getElementById('overlay-atleta').classList.add('aberto');
-  document.getElementById('ma-body').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
   document.getElementById('ma-btn-editar').style.display  = 'inline-flex';
   document.getElementById('ma-btn-salvar').style.display  = 'none';
   document.getElementById('ma-btn-cancelar').style.display = 'none';
+
+  // Usa dados locais imediatamente (preserva fotos base64 que podem não estar no servidor)
+  var atletaLocal = todosAtletas.find(function(a){ return Number(a.linha) === Number(linha); });
+  if (atletaLocal) {
+    atletaAtual = Object.assign({}, atletaLocal);
+    renderPerfilAtleta(atletaAtual, false);
+  } else {
+    document.getElementById('ma-body').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
+  }
+
+  // Busca do servidor para garantir dados atualizados, mesclando com fotos locais
   fetch(SCRIPT_URL + '?acao=atleta&linha=' + linha)
     .then(function (r) { return r.text(); })
     .then(function (t) {
-      atletaAtual = JSON.parse(t);
+      var dadosServidor = JSON.parse(t);
+      // Preserva fotos base64 do dado local se o servidor não tiver
+      if (atletaLocal) {
+        if (!dadosServidor.fotoRosto && atletaLocal.fotoRosto) dadosServidor.fotoRosto = atletaLocal.fotoRosto;
+        if (!dadosServidor.fotoRG    && atletaLocal.fotoRG)    dadosServidor.fotoRG    = atletaLocal.fotoRG;
+      }
+      atletaAtual = dadosServidor;
+      // Atualiza também no array local
+      todosAtletas = todosAtletas.map(function(a){ return Number(a.linha) === Number(linha) ? Object.assign({}, a, dadosServidor) : a; });
       renderPerfilAtleta(atletaAtual, false);
     })
     .catch(function () {
-      document.getElementById('ma-body').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+      if (!atletaLocal) {
+        document.getElementById('ma-body').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+      }
     });
 }
 
@@ -1378,11 +1398,14 @@ function salvarEdicaoAtleta() {
     body: JSON.stringify({ acao: 'editar', dados: d })
   })
     .then(function () {
+      // Atualiza dados locais imediatamente
       Object.assign(atletaAtual, d);
       todosAtletas = todosAtletas.map(function (a) { return a.linha === linhaAtleta ? Object.assign({}, a, d) : a; });
       cancelarEdicaoAtleta();
       renderStatsAtletas();
-      carregarAtletas();
+      // Recarrega do servidor em 3s e 7s para garantir sincronização
+      setTimeout(carregarAtletas, 3000);
+      setTimeout(carregarAtletas, 7000);
     })
     .catch(function () { alert('Erro ao salvar.'); })
     .finally(function () { btn.textContent = '✓ Salvar'; btn.disabled = false; });
@@ -1903,10 +1926,13 @@ function gerarCarteirinha() {
   var logoNBDH2 = logos[0] ? logos[0].src : '';
   var logoHand  = logos[1] ? logos[1].src : '';
 
-  // Foto do rosto do atleta (se tiver link)
+  // Foto do rosto do atleta (se tiver link ou base64)
   // Converte qualquer link do Google Drive para URL de exibição direta
   function converterUrlFoto(url) {
-    if (!url || !url.startsWith('http')) return '';
+    if (!url) return '';
+    // Se for base64, usa diretamente
+    if (url.startsWith('data:')) return url;
+    if (!url.startsWith('http')) return '';
     // Formato: https://drive.google.com/open?id=FILE_ID
     var m1 = url.match(/[?&]id=([^&]+)/);
     if (m1) return 'https://drive.google.com/thumbnail?id=' + m1[1] + '&sz=w300';
@@ -2565,11 +2591,14 @@ function salvarNovoAtleta() {
   })
   .then(function () {
     document.getElementById('overlay-novo-atleta').classList.remove('aberto');
+    // Adiciona o atleta localmente com flag de pendente para mostrar imediatamente
     var novoLocal = Object.assign({}, dados, { linha: Date.now(), _pendente: true });
     todosAtletas.unshift(novoLocal);
     renderStatsAtletas();
     buscarAtletas();
-    setTimeout(carregarAtletas, 2500);
+    // Recarrega do servidor em 3s e 7s para garantir que o Apps Script processou
+    setTimeout(carregarAtletas, 3000);
+    setTimeout(carregarAtletas, 7000);
   })
   .catch(function () {
     erro.textContent = '❌ Erro ao salvar. Verifique sua conexão e tente novamente.';
