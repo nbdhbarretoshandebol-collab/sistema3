@@ -1050,9 +1050,13 @@ function carregarAtletas() {
     .then(function (r) { return r.text(); })
     .then(function (t) {
       var data = JSON.parse(t);
-      todosAtletas = data.atletas || [];
+      var doServidor = data.atletas || [];
+      // Preserva atletas pendentes (recém cadastrados) que o servidor ainda não confirmou
+      var pendentes = todosAtletas.filter(function(a) {
+        return a._pendente && !doServidor.find(function(s) { return s.nome === a.nome && s.cpf === a.cpf; });
+      });
+      todosAtletas = pendentes.concat(doServidor);
       renderStatsAtletas();
-      // ✅ Reaplica os filtros ativos em vez de exibir tudo
       buscarAtletas();
     })
     .catch(function () {
@@ -1232,10 +1236,9 @@ function toggleAprovacao(linha, el) {
       lbl.textContent = novoStatus;
       lbl.style.color = el.checked ? 'var(--verde)' : '#c0392b';
       if (stBadge) { stBadge.textContent = novoStatus; stBadge.className = 'badge ' + (el.checked ? 'badge-verde' : 'badge-vermelho'); }
-      todosAtletas = todosAtletas.map(function (a) { return a.linha === linha ? Object.assign({}, a, { status: novoStatus }) : a; });
+      // Atualiza só localmente, sem recarregar do servidor (evita perder atletas pendentes)
+      todosAtletas = todosAtletas.map(function (a) { return Number(a.linha) === Number(linha) ? Object.assign({}, a, { status: novoStatus }) : a; });
       renderStatsAtletas();
-      // ✅ recarrega preservando filtros
-      carregarAtletas();
     })
     .catch(function () { el.checked = !el.checked; })
     .finally(function () { el.disabled = false; });
@@ -1247,11 +1250,11 @@ function toggleAprovacao(linha, el) {
 function abrirAtleta(linha) {
   linhaAtleta = linha;
   document.getElementById('overlay-atleta').classList.add('aberto');
-  document.getElementById('ma-btn-editar').style.display  = 'inline-flex';
-  document.getElementById('ma-btn-salvar').style.display  = 'none';
+  document.getElementById('ma-btn-editar').style.display   = 'inline-flex';
+  document.getElementById('ma-btn-salvar').style.display   = 'none';
   document.getElementById('ma-btn-cancelar').style.display = 'none';
 
-  // Usa dados locais imediatamente (preserva fotos base64 que podem não estar no servidor)
+  // Mostra imediatamente com dados locais (garante foto base64 preservada)
   var atletaLocal = todosAtletas.find(function(a){ return Number(a.linha) === Number(linha); });
   if (atletaLocal) {
     atletaAtual = Object.assign({}, atletaLocal);
@@ -1260,19 +1263,20 @@ function abrirAtleta(linha) {
     document.getElementById('ma-body').innerHTML = '<div class="loading"><div class="spinner"></div>Carregando...</div>';
   }
 
-  // Busca do servidor para garantir dados atualizados, mesclando com fotos locais
+  // Busca do servidor e mescla, preservando fotos base64 locais
   fetch(SCRIPT_URL + '?acao=atleta&linha=' + linha)
     .then(function (r) { return r.text(); })
     .then(function (t) {
-      var dadosServidor = JSON.parse(t);
-      // Preserva fotos base64 do dado local se o servidor não tiver
+      var srv = JSON.parse(t);
+      // Preserva fotos base64 do local se o servidor não tiver
       if (atletaLocal) {
-        if (!dadosServidor.fotoRosto && atletaLocal.fotoRosto) dadosServidor.fotoRosto = atletaLocal.fotoRosto;
-        if (!dadosServidor.fotoRG    && atletaLocal.fotoRG)    dadosServidor.fotoRG    = atletaLocal.fotoRG;
+        if (!srv.fotoRosto && atletaLocal.fotoRosto) srv.fotoRosto = atletaLocal.fotoRosto;
+        if (!srv.fotoRG    && atletaLocal.fotoRG)    srv.fotoRG    = atletaLocal.fotoRG;
       }
-      atletaAtual = dadosServidor;
-      // Atualiza também no array local
-      todosAtletas = todosAtletas.map(function(a){ return Number(a.linha) === Number(linha) ? Object.assign({}, a, dadosServidor) : a; });
+      atletaAtual = srv;
+      todosAtletas = todosAtletas.map(function(a){
+        return Number(a.linha) === Number(linha) ? Object.assign({}, a, srv) : a;
+      });
       renderPerfilAtleta(atletaAtual, false);
     })
     .catch(function () {
@@ -1387,27 +1391,48 @@ function salvarEdicaoAtleta() {
   var inputs = document.getElementById('ma-body').querySelectorAll('input,select');
   var d = { linha: linhaAtleta };
   inputs.forEach(function (el) { if (el.name) d[el.name] = el.value; });
-  // Aplica fotos novas se foram selecionadas nesta edição
   if (fotosEdit.rosto !== null) d.fotoRosto = fotosEdit.rosto;
   if (fotosEdit.rg    !== null) d.fotoRG    = fotosEdit.rg;
   var btn = document.getElementById('ma-btn-salvar');
   btn.textContent = 'Salvando...'; btn.disabled = true;
+
+  // Atualiza localmente já, antes mesmo de confirmar do servidor
+  var linhaNum = linhaAtleta;
+  Object.assign(atletaAtual, d);
+  todosAtletas = todosAtletas.map(function (a) {
+    return Number(a.linha) === Number(linhaNum) ? Object.assign({}, a, d) : a;
+  });
+
   fetch(SCRIPT_URL, {
     method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify({ acao: 'editar', dados: d })
   })
     .then(function () {
-      // Atualiza dados locais imediatamente
-      Object.assign(atletaAtual, d);
-      todosAtletas = todosAtletas.map(function (a) { return a.linha === linhaAtleta ? Object.assign({}, a, d) : a; });
       cancelarEdicaoAtleta();
       renderStatsAtletas();
-      // Recarrega do servidor em 3s e 7s para garantir sincronização
-      setTimeout(carregarAtletas, 3000);
-      setTimeout(carregarAtletas, 7000);
+      buscarAtletas();
+      // Recarrega do servidor depois de um tempo para confirmar
+      setTimeout(function() {
+        fetch(SCRIPT_URL + '?acao=listar')
+          .then(function(r){ return r.text(); })
+          .then(function(t){
+            var lista = JSON.parse(t).atletas || [];
+            // Mescla: mantém fotos base64 locais que o servidor pode não retornar
+            todosAtletas = lista.map(function(srv){
+              var local = todosAtletas.find(function(l){ return Number(l.linha) === Number(srv.linha); });
+              if (local) {
+                if (!srv.fotoRosto && local.fotoRosto) srv.fotoRosto = local.fotoRosto;
+                if (!srv.fotoRG    && local.fotoRG)    srv.fotoRG    = local.fotoRG;
+              }
+              return srv;
+            });
+            renderStatsAtletas();
+            buscarAtletas();
+          }).catch(function(){});
+      }, 4000);
     })
-    .catch(function () { alert('Erro ao salvar.'); })
+    .catch(function () { alert('Erro ao salvar. Tente novamente.'); })
     .finally(function () { btn.textContent = '✓ Salvar'; btn.disabled = false; });
 }
 
@@ -1926,23 +1951,18 @@ function gerarCarteirinha() {
   var logoNBDH2 = logos[0] ? logos[0].src : '';
   var logoHand  = logos[1] ? logos[1].src : '';
 
-  // Foto do rosto do atleta (se tiver link ou base64)
-  // Converte qualquer link do Google Drive para URL de exibição direta
+  // Foto do rosto do atleta (se tiver link)
   function converterUrlFoto(url) {
     if (!url) return '';
-    // Se for base64, usa diretamente
+    // Base64 — usa direto
     if (url.startsWith('data:')) return url;
     if (!url.startsWith('http')) return '';
-    // Formato: https://drive.google.com/open?id=FILE_ID
     var m1 = url.match(/[?&]id=([^&]+)/);
     if (m1) return 'https://drive.google.com/thumbnail?id=' + m1[1] + '&sz=w300';
-    // Formato: https://drive.google.com/file/d/FILE_ID/view
     var m2 = url.match(/\/file\/d\/([^\/]+)/);
     if (m2) return 'https://drive.google.com/thumbnail?id=' + m2[1] + '&sz=w300';
-    // Formato: https://drive.google.com/uc?id=FILE_ID
     var m3 = url.match(/\/uc\?.*id=([^&]+)/);
     if (m3) return 'https://drive.google.com/thumbnail?id=' + m3[1] + '&sz=w300';
-    // Se já for outro link direto, usa como está
     return url;
   }
 
@@ -2584,6 +2604,34 @@ function salvarNovoAtleta() {
     origem:     'Manual — ' + usuarioLogado
   };
 
+  var tentativas = 0;
+  function recarregarAteEncontrar() {
+    tentativas++;
+    fetch(SCRIPT_URL + '?acao=listar')
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var lista = JSON.parse(t).atletas || [];
+        var achou = lista.find(function(a){ return a.nome === nome; });
+        if (achou || tentativas >= 5) {
+          // Remove o pendente local e usa a lista real do servidor
+          todosAtletas = todosAtletas.filter(function(a){ return !a._pendente || a.nome !== nome; });
+          if (achou) todosAtletas.unshift(achou);
+          else {
+            var arr = lista.concat(todosAtletas.filter(function(a){ return a._pendente; }));
+            todosAtletas = arr;
+          }
+          renderStatsAtletas();
+          buscarAtletas();
+        } else {
+          // Tenta de novo em 3s
+          setTimeout(recarregarAteEncontrar, 3000);
+        }
+      })
+      .catch(function(){
+        if (tentativas < 5) setTimeout(recarregarAteEncontrar, 3000);
+      });
+  }
+
   fetch(SCRIPT_URL, {
     method: 'POST', redirect: 'follow',
     headers: { 'Content-Type': 'text/plain' },
@@ -2591,14 +2639,13 @@ function salvarNovoAtleta() {
   })
   .then(function () {
     document.getElementById('overlay-novo-atleta').classList.remove('aberto');
-    // Adiciona o atleta localmente com flag de pendente para mostrar imediatamente
+    // Adiciona localmente com flag _pendente para não sumir
     var novoLocal = Object.assign({}, dados, { linha: Date.now(), _pendente: true });
     todosAtletas.unshift(novoLocal);
     renderStatsAtletas();
     buscarAtletas();
-    // Recarrega do servidor em 3s e 7s para garantir que o Apps Script processou
-    setTimeout(carregarAtletas, 3000);
-    setTimeout(carregarAtletas, 7000);
+    // Fica tentando recarregar até encontrar o atleta no servidor
+    setTimeout(recarregarAteEncontrar, 3000);
   })
   .catch(function () {
     erro.textContent = '❌ Erro ao salvar. Verifique sua conexão e tente novamente.';
